@@ -1072,9 +1072,9 @@ double INITIAL_ENERGY = 10000;
 		NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
 		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (ueNodes);
 
-
-		Ptr<RandomWalk2dMobilityModel> UEmobilityModel = ueNodes->GetObject<RandomWalk2dMobilityModel> ();
-		Ptr<BasicEnergySource> source = ueNode->GetObject<BasicEnergySource> ();
+		
+		Ptr<RandomWalk2dMobilityModel> UEmobilityModel = ueNodes->Get(0)->GetObject<RandomWalk2dMobilityModel> ();
+		Ptr<BasicEnergySource> source = ueNodes->Get(0)->GetObject<BasicEnergySource>();
 
 		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 
