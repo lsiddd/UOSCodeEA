@@ -139,7 +139,7 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 10000;
+double INITIAL_ENERGY = 200000;
 
 	 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
@@ -783,6 +783,24 @@ double INITIAL_ENERGY = 10000;
 		}
 
 
+		void RemainingEnergy (double oldValue, double remainingEnergy)
+		{
+  			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
+		}
+
+			// This Callback is unused with the default configuration of this example
+			// and is intended to demonstrate how Callback(s) are connected, and an
+			// expected implementation of the EnergyDepleted Callback
+		void EnergyDepleted (Ptr<ConstantVelocityMobilityModel> mobilityModel, Ptr<const UavMobilityEnergyModel> energyModel)
+		{
+		  std::cout << Simulator::Now ().GetSeconds () << "s ENERGY DEPLETED\n";
+		  //auto currentPosition = mobilityModel->GetPosition ();
+		  // Drop the UAV to the ground at its current position
+		  //mobilityModel->SetPosition ({currentPosition.x, currentPosition.y, 0});
+		  //Simulator::Stop ();
+		}
+
+
 		// -------------------------------------------MAIN FUNCTION-----------------------------------------//
 		int main (int argc, char *argv[])
 		{
@@ -1067,22 +1085,7 @@ double INITIAL_ENERGY = 10000;
 		//mobilityUEs.SetPositionAllocator(positionAllocUEs);
 		mobilityUEs.Install(ueNodes);
 
-		//---------- Installing Energy Model ----------------------//
-
-		NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
-		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (ueNodes);
-
 		
-		Ptr<RandomWalk2dMobilityModel> UEmobilityModel = ueNodes->Get(0)->GetObject<RandomWalk2dMobilityModel> ();
-		Ptr<BasicEnergySource> source = ueNodes->Get(0)->GetObject<BasicEnergySource>();
-
-		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
-
-		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UEmobilityModel));
-
-
-
-		//------------------------------------------------------------------//
 
 		if (scen == 3 || scen == 4)
 		{
@@ -1166,7 +1169,24 @@ double INITIAL_ENERGY = 10000;
 
 		}
 
-			  
+		//---------- Installing Energy Model on UABS----------------------//
+
+		NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
+		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
+
+		
+		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(0)->GetObject<ConstantVelocityMobilityModel> ();
+		Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
+
+		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+
+		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
+
+
+
+		//------------------------------------------------------------------//
+		
+		 
 
 		// ------------------- Install LTE Devices to the nodes --------------------------------//
 		NetDeviceContainer ueLteDevs = lteHelper->InstallUeDevice (ueNodes);
@@ -1461,6 +1481,8 @@ double INITIAL_ENERGY = 10000;
 		Simulator::Stop(Seconds(simTime));
 
 		Simulator::Run ();
+		//------------- Energy depleted --------------------//
+		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 
 		// Print per flow statistics
 		ThroughputCalc(monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);

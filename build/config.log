@@ -1,13 +1,13 @@
-# project ns (3-dev) configured on Wed Oct 30 15:13:14 2019 by
+# project ns (3-dev) configured on Wed Oct 30 17:46:45 2019 by
 # waf 2.0.18 (abi 20, python 30703f0 on linux)
 # using ./waf configure --enable-examples --enable-tests
 #
 ----------------------------------------
 Setting top to
-/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3
+/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA
 ----------------------------------------
 Setting out to
-/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build
+/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build
 ----------------------------------------
 Checking for 'gcc' (C compiler)
 find program=['gcc', 'cc'] paths=['/home/emanuel/anaconda3/bin', '/home/emanuel/anaconda3/condabin', '/home/emanuel/.local/bin', '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/games', '/usr/local/games', '/snap/bin', '/usr/local/java/jdk-11.0.1/bin', '/usr/local/java/jdk-11.0.1/jre/bin'] var='CC' -> ['/usr/bin/gcc']
@@ -726,7 +726,7 @@ int main() { return 0; }
 <==
 [1/1] Compiling [32mbuild/.conf_check_92724e97d2a8131cdbabec48e168cdc4/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-Wl,--soname=foo', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_92724e97d2a8131cdbabec48e168cdc4/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-Wl,--soname=foo', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_92724e97d2a8131cdbabec48e168cdc4/testbuild/test.cpp.1.o']
 ok
 ------------------------------------------------------
 Checking for compilation flag -std=c++11 support
@@ -735,7 +735,7 @@ int main() { return 0; }
 <==
 [1/1] Compiling [32mbuild/.conf_check_92724e97d2a8131cdbabec48e168cdc4/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_92724e97d2a8131cdbabec48e168cdc4/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_92724e97d2a8131cdbabec48e168cdc4/testbuild/test.cpp.1.o']
 ok
 ------------------------------------------------------
 Checking boost includes
@@ -782,10 +782,10 @@ int main() { boost::system::error_code c; }
 <==
 [1/2] Compiling [32mbuild/.conf_check_595f4e7318450590c0c26e80efd1c5bd/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-I/usr/include', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_595f4e7318450590c0c26e80efd1c5bd/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-I/usr/include', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_595f4e7318450590c0c26e80efd1c5bd/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_595f4e7318450590c0c26e80efd1c5bd/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_595f4e7318450590c0c26e80efd1c5bd/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_signals', '-lboost_filesystem']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_595f4e7318450590c0c26e80efd1c5bd/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_signals', '-lboost_filesystem']
 ok
 ------------------------------------------------------
 Checking for program 'python'
@@ -866,7 +866,7 @@ Asking python-config for pyembed '--cflags --libs --ldflags --embed' flags
 out: Usage: /home/emanuel/anaconda3/bin/python3-config --prefix|--exec-prefix|--includes|--libs|--cflags|--ldflags|--extension-suffix|--help|--abiflags|--configdir
 
 not found
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/bindings/python: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/bindings/python: The configuration failed
 --------------------------------------------------------------------------
 Asking python-config for pyembed '--cflags --libs --ldflags' flags
 ['/home/emanuel/anaconda3/bin/python3-config', '--cflags', '--libs', '--ldflags']
@@ -903,10 +903,10 @@ int main(int argc, char **argv)
 <==
 [1/2] Compiling [32mbuild/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-march=nocona', '-mtune=haswell', '-ftree-vectorize', '-fPIC', '-fstack-protector-strong', '-fno-plt', '-O3', '-ffunction-sections', '-fdebug-prefix-map=/tmp/build/80754af9/python_1553721932202/work=/usr/local/src/conda/python-3.7.3', '-fdebug-prefix-map=/home/emanuel/anaconda3=/usr/local/src/conda-prefix', '-fuse-linker-plugin', '-ffat-lto-objects', '-flto-partition=none', '-flto', '-fwrapv', '-O3', '-I/home/emanuel/anaconda3/include/python3.7m', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.7/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.7/site-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-march=nocona', '-mtune=haswell', '-ftree-vectorize', '-fPIC', '-fstack-protector-strong', '-fno-plt', '-O3', '-ffunction-sections', '-fdebug-prefix-map=/tmp/build/80754af9/python_1553721932202/work=/usr/local/src/conda/python-3.7.3', '-fdebug-prefix-map=/home/emanuel/anaconda3=/usr/local/src/conda-prefix', '-fuse-linker-plugin', '-ffat-lto-objects', '-flto-partition=none', '-flto', '-fwrapv', '-O3', '-I/home/emanuel/anaconda3/include/python3.7m', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.7/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.7/site-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fPIC', '-Xlinker', '-export-dynamic', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/home/emanuel/anaconda3/lib/python3.7/config-3.7m-x86_64-linux-gnu', '-L/home/emanuel/anaconda3/lib', '-lpython3.7m', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lrt', '-lm', '-lpython3.7m', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lrt', '-lm']
+['/usr/bin/g++', '-fPIC', '-Xlinker', '-export-dynamic', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_f8ef775e3cf1f559b692147c1226d7ba/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/home/emanuel/anaconda3/lib/python3.7/config-3.7m-x86_64-linux-gnu', '-L/home/emanuel/anaconda3/lib', '-lpython3.7m', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lrt', '-lm', '-lpython3.7m', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lrt', '-lm']
 err: lto1: internal compiler error: in lto_tag_to_tree_code, at lto-streamer.h:1005
 Please submit a full bug report,
 with preprocessed source if appropriate.
@@ -916,16 +916,16 @@ compilation terminated.
 /usr/bin/ld: error: lto-wrapper failed
 collect2: error: ld returned 1 exit status
 
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/bindings/python: Test does not build: Traceback (most recent call last):
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/bindings/python: Test does not build: Traceback (most recent call last):
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
     bld.compile()
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 Could not build a python embedded interpreter
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/bindings/python: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/bindings/python: The configuration failed
 --------------------------------------------------------------------------
 Checking for click location
 not found
@@ -942,7 +942,7 @@ to the PKG_CONFIG_PATH environment variable
 No package 'gtk+-3.0' found
 
 not found
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/config-store: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/config-store: The configuration failed
 --------------------------------------------------------------------------
 Checking for 'libxml-2.0'
 ['/usr/bin/pkg-config', '--cflags', '--libs', 'libxml-2.0']
@@ -965,7 +965,7 @@ checking for uint128_t
 <==
 [1/2] Compiling [32mbuild/.conf_check_facce93b27c0b28e5964dbe835d44fd5/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_facce93b27c0b28e5964dbe835d44fd5/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_facce93b27c0b28e5964dbe835d44fd5/testbuild/test.cpp.1.o']
 err: ../test.cpp: In function ‘int main(int, char**)’:
 ../test.cpp:6:7: error: ‘uint128_t’ was not declared in this scope
   if ((uint128_t *) 0) return 0;
@@ -988,16 +988,16 @@ err: ../test.cpp: In function ‘int main(int, char**)’:
               ^~~~~~~~~
               uint32_t
 
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: Test does not build: Traceback (most recent call last):
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: Test does not build: Traceback (most recent call last):
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
     bld.compile()
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: The configuration failed
 --------------------------------------------------------------------------
 checking for __uint128_t
 ==>
@@ -1014,10 +1014,10 @@ checking for __uint128_t
 <==
 [1/2] Compiling [32mbuild/.conf_check_b56575a1cf831cd90b0428197c1674e0/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_b56575a1cf831cd90b0428197c1674e0/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_b56575a1cf831cd90b0428197c1674e0/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_b56575a1cf831cd90b0428197c1674e0/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_b56575a1cf831cd90b0428197c1674e0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_b56575a1cf831cd90b0428197c1674e0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking high precision implementation
@@ -1035,10 +1035,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header inttypes.h
@@ -1053,10 +1053,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/inttypes.h
@@ -1071,22 +1071,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: sys/inttypes.h: No such file or directory
  #include <sys/inttypes.h>
           ^~~~~~~~~~~~~~~~
 compilation terminated.
 
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: Test does not build: Traceback (most recent call last):
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: Test does not build: Traceback (most recent call last):
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
     bld.compile()
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: The configuration failed
 --------------------------------------------------------------------------
 Checking for header sys/types.h
 ==>
@@ -1100,10 +1100,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_a1f5eb99781ed72d6f7c486a9233dce5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/stat.h
@@ -1118,10 +1118,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_df624e4ac3a4507c87a576ef6f3a3e18/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header dirent.h
@@ -1136,10 +1136,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_b1c5fd3b060471dcecfecbeb771fc0d1/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header stdlib.h
@@ -1154,10 +1154,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_d5daedb867ba66fc80d74a2aecccd048/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_d5daedb867ba66fc80d74a2aecccd048/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_d5daedb867ba66fc80d74a2aecccd048/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_d5daedb867ba66fc80d74a2aecccd048/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_d5daedb867ba66fc80d74a2aecccd048/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_d5daedb867ba66fc80d74a2aecccd048/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header signal.h
@@ -1172,10 +1172,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_6f58fe0695dffc1ac60ac25f8cc70c24/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header pthread.h
@@ -1192,10 +1192,10 @@ int main ()
 <==
 [1/2] Compiling [32mbuild/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-pthread', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-pthread', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/testbuild/testprog[0m
 
-['/usr/bin/g++', '-pthread', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-pthread', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_f7c0fffd93df9fe1a80ff12c0ddf12dd/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header stdint.h
@@ -1210,10 +1210,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_87dc75f4d5a4d81d3de89ccc66d2f410/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header inttypes.h
@@ -1228,10 +1228,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_71902e4db1e1fb33866f0d1c21c77ee8/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/inttypes.h
@@ -1246,22 +1246,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_ab3a88ef84bcf481a1b44e59b9acea7f/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: sys/inttypes.h: No such file or directory
  #include <sys/inttypes.h>
           ^~~~~~~~~~~~~~~~
 compilation terminated.
 
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: Test does not build: Traceback (most recent call last):
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: Test does not build: Traceback (most recent call last):
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Configure.py", line 333, in run_build
     bld.compile()
-  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
+  File "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/.waf3-2.0.18-ff4ae9f5cc05353d3dc3aeff8854ae69/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/src/core: The configuration failed
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/src/core: The configuration failed
 --------------------------------------------------------------------------
 Checking for library rt
 ==>
@@ -1274,10 +1274,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_ab72690583f2973c46ae66ff926bf40d/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-pthread', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_ab72690583f2973c46ae66ff926bf40d/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-pthread', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_STDLIB_H=1', '-DHAVE_GETENV=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_ab72690583f2973c46ae66ff926bf40d/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_ab72690583f2973c46ae66ff926bf40d/testbuild/testprog[0m
 
-['/usr/bin/g++', '-pthread', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_ab72690583f2973c46ae66ff926bf40d/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lrt']
+['/usr/bin/g++', '-pthread', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_ab72690583f2973c46ae66ff926bf40d/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lrt']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/ioctl.h
@@ -1292,10 +1292,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_a500e4e04895f8dce012d09437dc914c/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_a500e4e04895f8dce012d09437dc914c/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_a500e4e04895f8dce012d09437dc914c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_a500e4e04895f8dce012d09437dc914c/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_a500e4e04895f8dce012d09437dc914c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_a500e4e04895f8dce012d09437dc914c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header net/if.h
@@ -1310,10 +1310,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_9f4e1a1ff328a1e8411b45269d846fdb/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header net/ethernet.h
@@ -1328,10 +1328,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_6e41348326de2b334c4f59de3729bd6a/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_6e41348326de2b334c4f59de3729bd6a/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_6e41348326de2b334c4f59de3729bd6a/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_6e41348326de2b334c4f59de3729bd6a/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_6e41348326de2b334c4f59de3729bd6a/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_6e41348326de2b334c4f59de3729bd6a/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header linux/if_tun.h
@@ -1346,10 +1346,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_8e878b6598e0eb4487674343c0115934/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for header netpacket/packet.h
@@ -1364,10 +1364,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_fff5469bff6310ddc2b775af42c41fc5/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_IF_TUN_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_fff5469bff6310ddc2b775af42c41fc5/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_IF_TUN_H=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_fff5469bff6310ddc2b775af42c41fc5/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_fff5469bff6310ddc2b775af42c41fc5/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_fff5469bff6310ddc2b775af42c41fc5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_fff5469bff6310ddc2b775af42c41fc5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for NSC location
@@ -1394,10 +1394,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_8e878b6598e0eb4487674343c0115934/test.cpp[0m
 
-['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Wall', '-g', '-O0', '-std=c++11', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '../test.cpp', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_8e878b6598e0eb4487674343c0115934/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 --------------------------------------------------------------------------
 Checking for program 'sudo'
@@ -1417,7 +1417,7 @@ yes
 libgcrypt-config
 not found
 find program=['libgcrypt-config'] paths=['/home/emanuel/anaconda3/bin', '/home/emanuel/anaconda3/condabin', '/home/emanuel/.local/bin', '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/games', '/usr/local/games', '/snap/bin', '/usr/local/java/jdk-11.0.1/bin', '/usr/local/java/jdk-11.0.1/jre/bin'] var='LIBGCRYPT_CONFIG' -> None
-from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3: Could not find the program ['libgcrypt-config']
+from /home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA: Could not find the program ['libgcrypt-config']
 --------------------------------------------------------------------------
 Checking for compilation flag -fstrict-aliasing support
 ==>
@@ -1425,7 +1425,7 @@ int main() { return 0; }
 <==
 [1/1] Compiling [32mbuild/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/test.c[0m
 
-['/usr/bin/gcc', '-fstrict-aliasing', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_GSL=1', '../test.c', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/testbuild/test.c.1.o']
+['/usr/bin/gcc', '-fstrict-aliasing', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_GSL=1', '../test.c', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/testbuild/test.c.1.o']
 ok
 --------------------------------------------------------------------------
 Checking for compilation flag -Wstrict-aliasing support
@@ -1434,7 +1434,7 @@ int main() { return 0; }
 <==
 [1/1] Compiling [32mbuild/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/test.c[0m
 
-['/usr/bin/gcc', '-Wstrict-aliasing', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_GSL=1', '../test.c', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/testbuild/test.c.1.o']
+['/usr/bin/gcc', '-Wstrict-aliasing', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_GSL=1', '../test.c', '-c', '-o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/.conf_check_9c1e184cb7a8ee8b2d99ea7e4214752d/testbuild/test.c.1.o']
 ok
 --------------------------------------------------------------------------
 Checking for program 'doxygen'

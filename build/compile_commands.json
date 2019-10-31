@@ -7530,8 +7530,8 @@
     "file": "../scratch/scratch-simulator.cc"
   },
   {
-    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build",
-    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -pthread -I. -I.. -I/usr/include/libxml2 -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../scratch/UOS-LTE-v2.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/scratch/UOS-LTE-v2.cc.3.o",
+    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build",
+    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -pthread -I. -I.. -I/usr/include/libxml2 -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../scratch/UOS-LTE-v2.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/scratch/UOS-LTE-v2.cc.3.o",
     "file": "../scratch/UOS-LTE-v2.cc"
   },
   {
