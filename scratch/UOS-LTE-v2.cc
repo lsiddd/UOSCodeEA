@@ -139,7 +139,7 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 200000;
+double INITIAL_ENERGY = 10000;
 
 	 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
@@ -981,10 +981,15 @@ double INITIAL_ENERGY = 200000;
 		//Creating the helper for movility and energy model used in PSC model.
 		UavMobilityEnergyModelHelper EnergyHelper;
 
-  		//helper.SetMobilityModel("ns3::ConstantVelocityMobilityModel");
+		//Basic Energy Source
   		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
                          "BasicEnergySourceInitialEnergyJ",
                          DoubleValue (INITIAL_ENERGY));
+
+  		//LiIon (no ta funcionando por ahora)
+  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+    //                      "LiIonEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY));
 
 		
 
