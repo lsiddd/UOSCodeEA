@@ -283,7 +283,9 @@ LiIonEnergySource::CalculateRemainingEnergy (void)
     } 
   else 
     {
+      
       m_remainingEnergyJ -= energyToDecreaseJ;
+      
     }  
 
   m_drainedCapacity += (totalCurrentA * duration.GetSeconds () / 3600);

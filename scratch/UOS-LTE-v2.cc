@@ -79,6 +79,7 @@
 #include "ns3/energy-source-container.h"
 #include "ns3/device-energy-model-container.h"
 #include <ns3/psc-module.h>
+#include "ns3/li-ion-energy-source.h"
 
 
 #include <math.h>
@@ -139,8 +140,7 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 10000;
-
+double INITIAL_ENERGY = 2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
 	 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
@@ -981,15 +981,15 @@ double INITIAL_ENERGY = 10000;
 		//Creating the helper for movility and energy model used in PSC model.
 		UavMobilityEnergyModelHelper EnergyHelper;
 
-		//Basic Energy Source
-  		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
-                         "BasicEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
+		// //Basic Energy Source
+  // 		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
+  //                        "BasicEnergySourceInitialEnergyJ",
+  //                        DoubleValue (INITIAL_ENERGY));
 
   		//LiIon (no ta funcionando por ahora)
-  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
-    //                      "LiIonEnergySourceInitialEnergyJ",
-    //                      DoubleValue (INITIAL_ENERGY));
+  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+                         "LiIonEnergySourceInitialEnergyJ",
+                         DoubleValue (INITIAL_ENERGY));
 
 		
 
@@ -1181,7 +1181,9 @@ double INITIAL_ENERGY = 10000;
 
 		
 		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(0)->GetObject<ConstantVelocityMobilityModel> ();
-		Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
+		Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+		//Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
+
 
 		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 

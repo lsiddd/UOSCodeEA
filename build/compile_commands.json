@@ -1710,13 +1710,13 @@
     "file": "../src/energy/model/energy-source.cc"
   },
   {
-    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build",
-    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../src/energy/model/basic-energy-source.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/src/energy/model/basic-energy-source.cc.1.o",
+    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build",
+    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../src/energy/model/basic-energy-source.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/src/energy/model/basic-energy-source.cc.1.o",
     "file": "../src/energy/model/basic-energy-source.cc"
   },
   {
-    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build",
-    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../src/energy/model/li-ion-energy-source.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/psc-ns3/build/src/energy/model/li-ion-energy-source.cc.1.o",
+    "directory": "/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build",
+    "command": "/usr/bin/g++ -Wall -g -O0 -std=c++11 -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SQLITE3=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../src/energy/model/li-ion-energy-source.cc -c -o/home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/build/src/energy/model/li-ion-energy-source.cc.1.o",
     "file": "../src/energy/model/li-ion-energy-source.cc"
   },
   {
