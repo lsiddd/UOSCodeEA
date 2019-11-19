@@ -140,8 +140,8 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
-	 
+double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
 
@@ -786,6 +786,14 @@ double INITIAL_ENERGY = 2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-h
 		void RemainingEnergy (double oldValue, double remainingEnergy)
 		{
   			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
+  			double test;
+  			test=INITIAL_ENERGY*70/100;
+  			if(remainingEnergy < test)
+  			{
+  				NS_LOG_UNCOND("Battery is at 70%");
+
+  			}
+
 		}
 
 			// This Callback is unused with the default configuration of this example
@@ -982,14 +990,14 @@ double INITIAL_ENERGY = 2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-h
 		UavMobilityEnergyModelHelper EnergyHelper;
 
 		// //Basic Energy Source
-  // 		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
-  //                        "BasicEnergySourceInitialEnergyJ",
-  //                        DoubleValue (INITIAL_ENERGY));
+  		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
+                         "BasicEnergySourceInitialEnergyJ",
+                         DoubleValue (INITIAL_ENERGY));
 
   		//LiIon (no ta funcionando por ahora)
-  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
-                         "LiIonEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
+  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+    //                      "LiIonEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY));
 
 		
 
@@ -1181,8 +1189,8 @@ double INITIAL_ENERGY = 2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-h
 
 		
 		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(0)->GetObject<ConstantVelocityMobilityModel> ();
-		Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
-		//Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
+		// Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+		Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
 
 
 		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
