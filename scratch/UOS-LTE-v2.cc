@@ -59,6 +59,7 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
+#include <ns3/ns2-mobility-helper.h>
 #include "ns3/applications-module.h"
 #include "ns3/point-to-point-helper.h"
 #include "ns3/config-store.h"
@@ -141,6 +142,10 @@ std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
 double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+
+// UE Trace File directory
+//std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
+std::string traceFile = "scenarioUEs1.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
@@ -786,13 +791,13 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 		void RemainingEnergy (double oldValue, double remainingEnergy)
 		{
   			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
-  			double test;
-  			test=INITIAL_ENERGY*70/100;
-  			if(remainingEnergy < test)
-  			{
-  				NS_LOG_UNCOND("Battery is at 70%");
+  			// double test;
+  			// test=INITIAL_ENERGY*70/100;
+  			// if(remainingEnergy <= test)
+  			// {
+  			// 	NS_LOG_UNCOND("Battery is at 70%");
 
-  			}
+  			// }
 
 		}
 
@@ -822,7 +827,8 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
     	cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
     	cmm.AddValue("scen", "scenario to run", scen);
     	cmm.AddValue("nRuns", "Number of runs", nRuns);
-    	cmm.AddValue("graphType","Type of graphs", graphType); 
+    	//cmm.AddValue("graphType","Type of graphs", graphType); 
+    	cmm.AddValue("traceFile", "Ns2 movement trace file", traceFile);
     	//cmm.AddValue("numberOfUABS", "Number of UABS", numberOfUABS);
     	//cmm.AddValue("numberOfeNodeBNodes", "Number of enBs", numberOfeNodeBNodes);
     	cmm.Parse(argc, argv);
@@ -975,8 +981,17 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 		{
 			ueOverloadNodes.Create(numberOfOverloadUENodes);
 		}
+
+		NS_LOG_UNCOND("Installing Mobility Model in UEs from Trace File...");
+		Ns2MobilityHelper UEMobility_tf = Ns2MobilityHelper (traceFile);
+		//UEMobility_tf.Install (ueNodes);
+		UEMobility_tf.Install (ueNodes.Begin(), ueNodes.End());
+
+		
+		//------------//
 		NodeContainer enbNodes;
 		enbNodes.Create(numberOfeNodeBNodes);
+		
 		NodeContainer UABSNodes;
 		if (scen == 2 || scen == 4)
 		{
@@ -984,20 +999,20 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 		}
 
 
-		//----------------------------Testing energy models-------------------------------------//
+		//----------------------------Setting energy model-------------------------------------//
 		
 		//Creating the helper for movility and energy model used in PSC model.
 		UavMobilityEnergyModelHelper EnergyHelper;
 
 		// //Basic Energy Source
-  		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
-                         "BasicEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
+  		// EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
+    //                      "BasicEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY));
 
   		//LiIon (no ta funcionando por ahora)
-  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
-    //                      "LiIonEnergySourceInitialEnergyJ",
-    //                      DoubleValue (INITIAL_ENERGY));
+  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+                         "LiIonEnergySourceInitialEnergyJ",
+                         DoubleValue (INITIAL_ENERGY));
 
 		
 
@@ -1076,27 +1091,29 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 		NetDeviceContainer enbLteDevs = lteHelper->InstallEnbDevice (enbNodes);
 
 
-		NS_LOG_UNCOND("Installing Mobility Model in UEs...");
+		//NS_LOG_UNCOND("Installing Mobility Model in UEs...");
 
 		// ------------------Install Mobility Model User Equipments-------------------//
 
-		MobilityHelper mobilityUEs;
-		mobilityUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
-									 "Mode", StringValue ("Time"),
-									 "Time", StringValue ("1s"),//("1s"),
-									 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=4.0]"),
-									 //"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
-									 "Speed", StringValue ("ns3::UniformRandomVariable[Min=1.0|Max=4.0]"),
-									 "Bounds", StringValue ("0|6000|0|6000"));
-		// mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
+		// MobilityHelper mobilityUEs;
+		// mobilityUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+		// 							 "Mode", StringValue ("Time"),
+		// 							 "Time", StringValue ("1s"),//("1s"),
+		// 							 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=4.0]"),
+		// 							 //"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
+		// 							 "Speed", StringValue ("ns3::UniformRandomVariable[Min=1.0|Max=4.0]"),
+		// 							 "Bounds", StringValue ("0|6000|0|6000"));
+		// // mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
+		// // 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// // 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
+		// mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
 		// 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
-		mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
-			 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-										 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-										 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
-		//mobilityUEs.SetPositionAllocator(positionAllocUEs);
-		mobilityUEs.Install(ueNodes);
+		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		// //mobilityUEs.SetPositionAllocator(positionAllocUEs);
+		// mobilityUEs.Install(ueNodes);
+
+		
 
 		
 
@@ -1189,14 +1206,14 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 
 		
 		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(0)->GetObject<ConstantVelocityMobilityModel> ();
-		// Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
-		Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
-
+		 Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+		//Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
 
 		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 
 		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 
+		
 
 
 		//------------------------------------------------------------------//
