@@ -984,7 +984,14 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 
 		NS_LOG_UNCOND("Installing Mobility Model in UEs from Trace File...");
 		Ns2MobilityHelper UEMobility_tf = Ns2MobilityHelper (traceFile);
-		//UEMobility_tf.Install (ueNodes);
+		// MobilityHelper mobilityUEs;
+		// mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
+		// 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		// mobilityUEs.Install(ueNodes);
+
+		//UEMobility_tf.Install ();
 		UEMobility_tf.Install (ueNodes.Begin(), ueNodes.End());
 
 		
