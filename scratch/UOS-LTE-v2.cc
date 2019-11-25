@@ -145,9 +145,34 @@ double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-2500
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scenarioUEs1.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
+
+		void RemainingEnergy (double oldValue, double remainingEnergy)
+		{
+  			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
+  			// double test;
+  			// test=INITIAL_ENERGY*70/100;
+  			// if(remainingEnergy <= test)
+  			// {
+  			// 	NS_LOG_UNCOND("Battery is at 70%");
+
+  			// }
+
+		}
+
+			// This Callback is unused with the default configuration of this example
+			// and is intended to demonstrate how Callback(s) are connected, and an
+			// expected implementation of the EnergyDepleted Callback
+		void EnergyDepleted (Ptr<ConstantVelocityMobilityModel> mobilityModel, Ptr<const UavMobilityEnergyModel> energyModel)
+		{
+		  std::cout << Simulator::Now ().GetSeconds () << "s ENERGY DEPLETED\n";
+		  //auto currentPosition = mobilityModel->GetPosition ();
+		  // Drop the UAV to the ground at its current position
+		  //mobilityModel->SetPosition ({currentPosition.x, currentPosition.y, 0});
+		  //Simulator::Stop ();
+		}
 
 
 		// -------This function is unused. It provides Signal measurements obtained from users equipments, such as RSRP, RSRQ, etc. ---//
@@ -346,6 +371,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 		{
 			Ptr<LteEnbPhy> UABSPhy;
 			uint16_t UABSCellId;
+
 			
 			if (UABSFlag == true )//&& UABS_On_Flag == false) 
 			{
@@ -370,7 +396,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 								// NS_LOG_UNCOND(UABSPriority[k]);
 								Ptr<ConstantVelocityMobilityModel> PosUABS = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel>();
 								PosUABS->SetPosition(CoorPriorities_Vector.at(k));
-								NS_LOG_UNCOND (PosUABS->GetPosition());
+								//NS_LOG_UNCOND (PosUABS->GetPosition());
 
 								//----------------------Turn on UABS TX Power-----------------------//
 								UABSPhy = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetPhy();
@@ -380,6 +406,19 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 								Ptr<ConstantVelocityMobilityModel> VelUABS = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel>();
 								VelUABS->SetVelocity(Vector(speedUABS, 0,0));
 								//NS_LOG_UNCOND (VelUABS->GetVelocity());
+
+								// ---------------Energy on Test----------------//
+
+								// NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
+								// DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
+
+							  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
+								//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+
+								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
+								
 							}
 				 		}
 
@@ -400,7 +439,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 								//NS_LOG_UNCOND("Temp: ");
 								//NS_LOG_UNCOND(CoorPriorities_Vector.at(k));
 								//NS_LOG_UNCOND("GetPosition: ");
-								NS_LOG_UNCOND (PosUABS->GetPosition());
+								//NS_LOG_UNCOND (PosUABS->GetPosition());
 
 								//---------------------Turn on UABS TX Power-------------------------------//
 								UABSPhy = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetPhy();
@@ -410,6 +449,14 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 								Ptr<ConstantVelocityMobilityModel> VelUABS = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel>();
 								VelUABS->SetVelocity(Vector(speedUABS, 0,0));//speedUABS, 0));
 								//NS_LOG_UNCOND (VelUABS->GetVelocity());	
+
+
+								// ---------------Energy on Test----------------//
+
+								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+
+								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 							}
 						}	
 					}
@@ -788,30 +835,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 		}
 
 
-		void RemainingEnergy (double oldValue, double remainingEnergy)
-		{
-  			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
-  			// double test;
-  			// test=INITIAL_ENERGY*70/100;
-  			// if(remainingEnergy <= test)
-  			// {
-  			// 	NS_LOG_UNCOND("Battery is at 70%");
-
-  			// }
-
-		}
-
-			// This Callback is unused with the default configuration of this example
-			// and is intended to demonstrate how Callback(s) are connected, and an
-			// expected implementation of the EnergyDepleted Callback
-		void EnergyDepleted (Ptr<ConstantVelocityMobilityModel> mobilityModel, Ptr<const UavMobilityEnergyModel> energyModel)
-		{
-		  std::cout << Simulator::Now ().GetSeconds () << "s ENERGY DEPLETED\n";
-		  //auto currentPosition = mobilityModel->GetPosition ();
-		  // Drop the UAV to the ground at its current position
-		  //mobilityModel->SetPosition ({currentPosition.x, currentPosition.y, 0});
-		  //Simulator::Stop ();
-		}
+		
 
 
 		// -------------------------------------------MAIN FUNCTION-----------------------------------------//
@@ -862,7 +886,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
   		//lteHelper->SetSchedulerAttribute("PssFdSchedulerType", StringValue("CoItA")); // PF scheduler type in PSS
 		
 		// Modo de transmissão (SISO [0], MIMO [1])
-    	Config::SetDefault("ns3::LteEnbRrc::DefaultTransmissionMode",UintegerValue(0));
+    	Config::SetDefault("ns3::LteEnbRrc::DefaultTransmissionMode",UintegerValue(1));
 
 		Ptr<Node> pgw = epcHelper->GetPgwNode ();
 	  
@@ -1012,14 +1036,14 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 		UavMobilityEnergyModelHelper EnergyHelper;
 
 		// //Basic Energy Source
-  		// EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
-    //                      "BasicEnergySourceInitialEnergyJ",
-    //                      DoubleValue (INITIAL_ENERGY));
+  		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
+                         "BasicEnergySourceInitialEnergyJ",
+                         DoubleValue (INITIAL_ENERGY));
 
   		//LiIon (no ta funcionando por ahora)
-  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
-                         "LiIonEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
+  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+    //                      "LiIonEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY));
 
 		
 
@@ -1204,22 +1228,28 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 		lteHelper->SetEnbDeviceAttribute ("DlBandwidth", UintegerValue (bandwidth_UABS)); //Set Download BandWidth
 		lteHelper->SetEnbDeviceAttribute ("UlBandwidth", UintegerValue (bandwidth_UABS)); //Set Upload Bandwidth
 
-		}
 
 		//---------- Installing Energy Model on UABS----------------------//
 
 		NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
 		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
+		
+
+		}
 
 		
-		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(0)->GetObject<ConstantVelocityMobilityModel> ();
-		 Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
-		//Ptr<BasicEnergySource> source = UABSNodes.Get(0)->GetObject<BasicEnergySource>();
 
-		source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+		
+		// for (uint16_t i = 0; i < UABSNodes.GetN(); i++) 
+	 //  	{
+	 //  		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
+		// 	//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+		// 	Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
 
-		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
-
+		// 	source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+		
+		// 	//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
+		// }
 		
 
 
@@ -1521,7 +1551,7 @@ std::string traceFile = "scenarioUEs1.ns_movements";
 
 		Simulator::Run ();
 		//------------- Energy depleted --------------------//
-		DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
+		//DeviceEnergyCont.Get(0)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 
 		// Print per flow statistics
 		ThroughputCalc(monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
