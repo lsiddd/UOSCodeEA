@@ -141,7 +141,8 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 10000;//2052000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+double INITIAL_ENERGY = 2052000; //10000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
@@ -149,9 +150,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
-		void RemainingEnergy (double oldValue, double remainingEnergy, uint16_t UABSCellId)
+		void RemainingEnergy (double oldValue, double remainingEnergy)
 		{
-  			std::cout << Simulator::Now ().GetSeconds () <<"s "<< UABSCellId <<" Current remaining energy = " << remainingEnergy << "J\n";
+  			std::cout << Simulator::Now ().GetSeconds () <<"s Current remaining energy = " << remainingEnergy << "J\n";
   			// double test;
   			// test=INITIAL_ENERGY*70/100;
   			// if(remainingEnergy <= test)
@@ -415,8 +416,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 							  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
 								//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+								source->SetInitialEnergy(INITIAL_ENERGY);
 
-								source->TraceConnectWithoutContext ("RemainingEnergy","UABSCellId", MakeCallback (&RemainingEnergy));
+								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 								
 							}
@@ -1043,7 +1045,29 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   		//LiIon (no ta funcionando por ahora)
   		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
     //                      "LiIonEnergySourceInitialEnergyJ",
-    //                      DoubleValue (INITIAL_ENERGY));
+    //                      DoubleValue (INITIAL_ENERGY),
+    //                      "InitialCellVoltage",
+    //                      DoubleValue (INITIAL_Batt_Voltage),
+    //                      "NominalCellVoltage",
+    //                      DoubleValue (NominalCell_Voltage),
+    //                      "InitialCellVoltage",
+    //                      DoubleValue (INITIAL_Batt_Voltage));
+
+  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+                         "LiIonEnergySourceInitialEnergyJ",
+                         DoubleValue (INITIAL_ENERGY),
+                         "InitialCellVoltage",
+                         DoubleValue (3.45),
+                         "NominalCellVoltage",
+                         DoubleValue (3.3),
+                         "ExpCellVoltage",
+                         DoubleValue (3.55),
+                          "RatedCapacity",
+                         DoubleValue (30),
+                         "NomCapacity",
+                         DoubleValue (27),
+                         "ExpCapacity",
+                         DoubleValue (15));
 
 		
 
