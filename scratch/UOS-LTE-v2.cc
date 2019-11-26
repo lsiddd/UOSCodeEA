@@ -149,9 +149,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
-		void RemainingEnergy (double oldValue, double remainingEnergy)
+		void RemainingEnergy (double oldValue, double remainingEnergy, uint16_t UABSCellId)
 		{
-  			std::cout << Simulator::Now ().GetSeconds () << "s Current remaining energy = " << remainingEnergy << "J\n";
+  			std::cout << Simulator::Now ().GetSeconds () <<"s "<< UABSCellId <<" Current remaining energy = " << remainingEnergy << "J\n";
   			// double test;
   			// test=INITIAL_ENERGY*70/100;
   			// if(remainingEnergy <= test)
@@ -416,7 +416,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
 
-								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+								source->TraceConnectWithoutContext ("RemainingEnergy","UABSCellId", MakeCallback (&RemainingEnergy));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 								
 							}
@@ -455,7 +455,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
 
-								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+								//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy,UABSCellId));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 							}
 						}	
