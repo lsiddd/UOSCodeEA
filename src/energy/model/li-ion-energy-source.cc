@@ -275,8 +275,14 @@ LiIonEnergySource::CalculateRemainingEnergy (void)
   Time duration = Simulator::Now () - m_lastUpdateTime;
   NS_ASSERT (duration.GetSeconds () >= 0);
   // energy = current * voltage * time
+  // NS_LOG_UNCOND("Supply Voltage");
+  // NS_LOG_UNCOND(m_supplyVoltageV);
+  // NS_LOG_UNCOND("totalCurrentA:");
+  // NS_LOG_UNCOND(totalCurrentA);
   double energyToDecreaseJ = totalCurrentA * m_supplyVoltageV * duration.GetSeconds ();
+  //double energyToDecreaseJ = (totalCurrentA * m_supplyVoltageV * duration.GetNanoSeconds ()) / 1e9;
 
+  // NS_ASSERT(energyToDecreaseJ >= 0);
   if (m_remainingEnergyJ < energyToDecreaseJ) 
     {
       m_remainingEnergyJ = 0; // energy never goes below 0
