@@ -141,7 +141,8 @@ std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 
 //------------------Energy Variables---------//
-double INITIAL_ENERGY = 2052000; //10000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+double INITIAL_ENERGY = 356400;//2052000; //10000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
+//356400; //https://www.nsnam.org/wiki/Li-Ion_model_fitting
 double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
 
 // UE Trace File directory
@@ -414,11 +415,11 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								// DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
 
 							  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
-								//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
+								//Ptr<LiIonEnergySource> source = UABSNodes.Get(i)->GetObject<LiIonEnergySource>();
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
 								source->SetInitialEnergy(INITIAL_ENERGY);
 
-								source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+								//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 								
 							}
@@ -456,6 +457,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								// ---------------Energy on Test----------------//
 
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+								source->SetInitialEnergy(INITIAL_ENERGY);
 
 								//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy,UABSCellId));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
@@ -782,6 +784,48 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 		}
 
+		void Get_UABS_Energy (NodeContainer UABSNodes,NetDeviceContainer UABSLteDevs)
+		{
+			double UABS_Remaining_Energy;
+			uint16_t UABSCellId;
+			// File to work with Energy decitions in python
+			std::stringstream UABS_Energy;
+			UABS_Energy << "UABS_Energy_Status";
+			std::ofstream UABS_Ener;
+			UABS_Ener.open(UABS_Energy.str());
+			// File to log all changes of Energy
+			std::stringstream UABS_Energy_Log;
+			UABS_Energy_Log << "UABS_Energy_Status_Log";
+			std::ofstream UABS_Ener_Log;
+			UABS_Ener_Log.open(UABS_Energy_Log.str(),std::ios_base::app); 
+
+			// --------------- Go through all UABS to get the remaining energy ----------------//
+			for (uint16_t i=0 ; i < UABSNodes.GetN(); i++)
+			{
+
+			  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
+				
+				//------Create pointer to get the remaining energy of X UABS and store it in UABS_Remaining_Energy variable-------//
+				
+				//Ptr<LiIonEnergySource> source = UABSNodes.Get(i)->GetObject<LiIonEnergySource>();
+				Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+				UABS_Remaining_Energy = source->GetRemainingEnergy();
+				
+
+				//-------------Get UABS Cell Id--------------//
+				UABSCellId = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetCellId();
+
+				//-------- Save UABS remaining energy and ID in a file to use it in Python -----------//
+
+				UABS_Ener << Simulator::Now ().GetSeconds ()  << "," << UABSCellId << "," << UABS_Remaining_Energy<<std::endl;
+				UABS_Ener_Log << Simulator::Now ().GetSeconds ()  << "," << UABSCellId << "," << UABS_Remaining_Energy<<std::endl;
+				//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
+			}
+			UABS_Ener.close();
+			Simulator::Schedule(Seconds(3), &Get_UABS_Energy,UABSNodes,UABSLteDevs);
+
+		}
+
 
 		// -------------------Functions to notify handover events -----------------------//
 		void NotifyHandoverStartUe (std::string context,
@@ -1037,10 +1081,12 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		//Creating the helper for movility and energy model used in PSC model.
 		UavMobilityEnergyModelHelper EnergyHelper;
 
-		// //Basic Energy Source
+		//Basic Energy Source
   		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
                          "BasicEnergySourceInitialEnergyJ",
                          DoubleValue (INITIAL_ENERGY));
+  						//"BasicEnergySupplyVoltageV",
+  						//DoubleValue(3.6));
 
   		//LiIon (no ta funcionando por ahora)
   		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
@@ -1053,21 +1099,21 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
     //                      "InitialCellVoltage",
     //                      DoubleValue (INITIAL_Batt_Voltage));
 
-  		EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
-                         "LiIonEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY),
-                         "InitialCellVoltage",
-                         DoubleValue (3.45),
-                         "NominalCellVoltage",
-                         DoubleValue (3.3),
-                         "ExpCellVoltage",
-                         DoubleValue (3.55),
-                          "RatedCapacity",
-                         DoubleValue (30),
-                         "NomCapacity",
-                         DoubleValue (27),
-                         "ExpCapacity",
-                         DoubleValue (15));
+  		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
+    //                      "LiIonEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY),
+    //                      "InitialCellVoltage",
+    //                      DoubleValue (3.45),
+    //                      "NominalCellVoltage",
+    //                      DoubleValue (3.3),
+    //                      "ExpCellVoltage",
+    //                      DoubleValue (3.55),
+    //                       "RatedCapacity",
+    //                      DoubleValue (30),
+    //                      "NomCapacity",
+    //                      DoubleValue (27),
+    //                      "ExpCapacity",
+    //                      DoubleValue (15));
 
 		
 
@@ -1255,7 +1301,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 		//---------- Installing Energy Model on UABS----------------------//
 
-		NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
+		NS_LOG_UNCOND("Installing UAV Energy Model in UABSs based in mobility...");
 		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
 		
 
@@ -1383,6 +1429,12 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	  	if(scen != 0)
 		{
 		Simulator::Schedule(Seconds(5), &GetSinrUE,ueLteDevs,ueNodes, ueOverloadNodes, OverloadingUeLteDevs);
+		}
+
+		//------------------------Get UABS Energy------------------------------------//
+	  	if(scen != 0)
+		{
+		Simulator::Schedule(Seconds(1), &Get_UABS_Energy,UABSNodes,UABSLteDevs);
 		}
 
 		//----------------Run Python Command to get centroids------------------------//
