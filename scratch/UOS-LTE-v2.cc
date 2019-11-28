@@ -93,13 +93,15 @@ using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
 const uint16_t numberOfUENodes = 30; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
-const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
+const uint16_t numberOfOverloadUENodes = 5; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
 double simTime = 60; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
-// Inter packet interval in ms
-// double interPacketInterval = 1;
-// double interPacketInterval = 100;
+// -------- Inter packet interval in ms ------//
+//Time interPacketInterval = MilliSeconds (100);
+Time interPacketInterval = Seconds (0.5);
+bool disableDl = false;
+bool disableUl = false;
 int evalvidId = 0;      
 int eNodeBTxPower = 46; //Set enodeB Power dBm 46dBm --> 20MHz  |  43dBm --> 5MHz
 int UABSTxPower = 0;//23;   //Set UABS Power
@@ -653,42 +655,43 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	  		}
 		}
 
-		void UDPApp ()
+		void UDPApp (Ptr<Node> remoteHost, NodeContainer ueNodes, Ipv4Address remoteHostAddr, Ipv4InterfaceContainer ueIpIface)
 		{
-			// // Install and start applications on UEs and remote host
-		 //  uint16_t dlPort = 1100;
-		 //  uint16_t ulPort = 2000;
-		 //  ApplicationContainer clientApps;
-		 //  ApplicationContainer serverApps;
+			// Install and start applications on UEs and remote host
+		  uint16_t dlPort = 1100;
+		  uint16_t ulPort = 2000;
+		  ApplicationContainer clientApps;
+		  ApplicationContainer serverApps;
+		  Time interPacketInterval = Seconds (0.5);
 		  
-		 //  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-		 //    {
-		 //      if (!disableDl)
-		 //        {
-		 //          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
-		 //          serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+		    {
+		      if (!disableDl)
+		        {
+		          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
+		          serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
 
-		 //          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
-		 //          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
-		 //          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
-		 //          clientApps.Add (dlClient.Install (remoteHost));
-		 //        }
+		          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
+		          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
+		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
+		          clientApps.Add (dlClient.Install (remoteHost));
+		        }
 
-		 //      if (!disableUl)
-		 //        {
-		 //          ++ulPort;
-		 //          PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), ulPort));
-		 //          serverApps.Add (ulPacketSinkHelper.Install (remoteHost));
+		      if (!disableUl)
+		        {
+		          ++ulPort;
+		          PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), ulPort));
+		          serverApps.Add (ulPacketSinkHelper.Install (remoteHost));
 
-		 //          UdpClientHelper ulClient (remoteHostAddr, ulPort);
-		 //          ulClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
-		 //          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
-		 //          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
-		 //        }
-		 //    }
+		          UdpClientHelper ulClient (remoteHostAddr, ulPort);
+		          ulClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
+		          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
+		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
+		        }
+		    }
 
-		 //  		serverApps.Start (MilliSeconds (500));
-		 //  		clientApps.Start (MilliSeconds (500));
+		  		serverApps.Start (Seconds (11));
+		  		clientApps.Start (Seconds (11));
 
 
 
@@ -897,8 +900,10 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
     	cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
     	cmm.AddValue("scen", "scenario to run", scen);
     	cmm.AddValue("nRuns", "Number of runs", nRuns);
-    	//cmm.AddValue("graphType","Type of graphs", graphType); 
+    	cmm.AddValue("graphType","Type of graphs", graphType); 
     	cmm.AddValue("traceFile", "Ns2 movement trace file", traceFile);
+    	cmm.AddValue ("disableDl", "Disable downlink data flows", disableDl);
+  		cmm.AddValue ("disableUl", "Disable uplink data flows", disableUl);
     	//cmm.AddValue("numberOfUABS", "Number of UABS", numberOfUABS);
     	//cmm.AddValue("numberOfeNodeBNodes", "Number of enBs", numberOfeNodeBNodes);
     	cmm.Parse(argc, argv);
@@ -1084,9 +1089,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		//Basic Energy Source
   		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
                          "BasicEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
-  						//"BasicEnergySupplyVoltageV",
-  						//DoubleValue(3.6));
+                         DoubleValue (INITIAL_ENERGY),
+  						"BasicEnergySupplyVoltageV",
+  						DoubleValue(INITIAL_Batt_Voltage));
 
   		//LiIon (no ta funcionando por ahora)
   		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
@@ -1226,7 +1231,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		MobilityHelper mobilityOverloadingUEs;
 		mobilityOverloadingUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
 									 "Mode", StringValue ("Time"),
-									 "Time", StringValue ("1s"),//("1s"),
+									 "Time", StringValue ("1s"),
 									 "Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=8.0]"),
 									 "Bounds", StringValue ("0|1000|0|1000"));
 		
@@ -1372,7 +1377,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	  // Assign IP address to UEs, and install applications
 	  for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
 	  {
-		Ptr<Node> ueNode = ueNodes.Get (i);
+		Ptr<Node> ueNode = ueNodes.Get(i);
 			// Set the default gateway for the UE
 			Ptr<Ipv4StaticRouting> ueStaticRouting = ipv4RoutingHelper.GetStaticRouting (ueNode->GetObject<Ipv4> ());
 			ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
@@ -1388,10 +1393,10 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	  {
 		  for (uint16_t i = 0; i < ueOverloadNodes.GetN(); i++) 
 		  {
-			Ptr<Node> ueOverloadNode = ueOverloadNodes.Get (i);
+			Ptr<Node> ueOverloadNode = ueOverloadNodes.Get(i);
 				// Set the default gateway for the UE
-				Ptr<Ipv4StaticRouting> ueStaticRouting = ipv4RoutingHelper.GetStaticRouting (ueOverloadNode->GetObject<Ipv4> ());
-				ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
+				Ptr<Ipv4StaticRouting> ueStaticRoutingOverLoad = ipv4RoutingHelper.GetStaticRouting (ueOverloadNode->GetObject<Ipv4> ());
+				ueStaticRoutingOverLoad->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
 		  }
 		}
 
@@ -1399,6 +1404,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		// Attach one UE per eNodeB // ahora no es un UE por eNodeB, es cualquier UE a cualquier eNodeB
 		//lteHelper->AttachToClosestEnb (ueLteDevs, enbLteDevs);
 		lteHelper->Attach (ueLteDevs);
+		lteHelper->Attach(OverloadingUeLteDevs);
 		
 		// this enables handover for macro eNBs
 		lteHelper->AddX2Interface (enbNodes); // X2 interface for macrocells
@@ -1424,6 +1430,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		
 		// -----------------------Activate EPSBEARER---------------------------//
 		lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VIDEO_TCP_DEFAULT), EpcTft::Default ());
+		lteHelper->ActivateDedicatedEpsBearer (OverloadingUeLteDevs, EpsBearer (EpsBearer::NGBR_VOICE_VIDEO_GAMING), EpcTft::Default ());
 	  
 	  	//------------------------Get Sinr-------------------------------------//
 	  	if(scen != 0)
@@ -1456,8 +1463,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		if (scen == 3 || scen == 4)
 		{	
 	
-			Simulator::Schedule(Seconds(10),&enB_Overload, lteHelper, OverloadingUeLteDevs, enbLteDevs); //estaba en 10 segundos
+			//Simulator::Schedule(Seconds(10),&enB_Overload, lteHelper, OverloadingUeLteDevs, enbLteDevs); //estaba en 10 segundos
 			//enB_Overload(lteHelper, OverloadingUeLteDevs, enbLteDevs);
+			//lteHelper->Attach(OverloadingUeLteDevs);
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
@@ -1466,11 +1474,15 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	   
 	  	requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
 	  	
+
+
 	  	if (scen == 3 || scen == 4)
 		{	
-	
-			Simulator::Schedule(Seconds(11),&requestVideoStream, remoteHost, ueOverloadNodes, remoteHostAddr, simTime); //estaba en 11 segundos
-			
+			//NS_LOG_UNCOND("Resquesting-sending EvalVid...");
+			//Simulator::Schedule(Seconds(11),&requestVideoStream, remoteHost, ueOverloadNodes, remoteHostAddr, simTime); //estaba en 11 segundos
+			NS_LOG_UNCOND("Resquesting-sending UDPApp...");
+			//UDPApp(remoteHost, ueOverloadNodes, remoteHostAddr, ue_all_IpIfaces); // ver si tengo que crear un remoteHostUDP, remoteHostAddrUDP.
+			UDPApp(remoteHost, ueNodes, remoteHostAddr, ue_all_IpIfaces);
 		}
 
 
@@ -1495,7 +1507,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		for (uint32_t i = 0; i < ueOverloadNodes.GetN(); ++i) 
 		{
 			anim.UpdateNodeDescription(ueOverloadNodes.Get(i), "UEs OL");
-			anim.UpdateNodeColor(ueOverloadNodes.Get(i),  255, 0, 0);
+			anim.UpdateNodeColor(ueOverloadNodes.Get(i),  255, 130, 0);
 			anim.UpdateNodeSize(i,100,100); // to change the node size in the animation.
 		}
 		for (uint32_t i = 0; i < UABSNodes.GetN(); ++i) 
