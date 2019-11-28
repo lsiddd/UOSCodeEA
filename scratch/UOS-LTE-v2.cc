@@ -1084,9 +1084,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		//Basic Energy Source
   		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
                          "BasicEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY));
-  						//"BasicEnergySupplyVoltageV",
-  						//DoubleValue(3.6));
+                         DoubleValue (INITIAL_ENERGY),
+  						"BasicEnergySupplyVoltageV",
+  						DoubleValue(INITIAL_Batt_Voltage));
 
   		//LiIon (no ta funcionando por ahora)
   		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
@@ -1226,7 +1226,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		MobilityHelper mobilityOverloadingUEs;
 		mobilityOverloadingUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
 									 "Mode", StringValue ("Time"),
-									 "Time", StringValue ("1s"),//("1s"),
+									 "Time", StringValue ("1s"),
 									 "Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=8.0]"),
 									 "Bounds", StringValue ("0|1000|0|1000"));
 		
@@ -1447,7 +1447,6 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		if (scen == 1 || scen == 2)
 		{	
 				
-			//Simulator::Schedule(Seconds(30), &enB_Failure,enbLteDevs,ueLteDevs,lteHelper,enBpowerFailure);
 			Simulator::Schedule(Seconds(20), &enB_Failure,enbLteDevs,ueLteDevs,lteHelper,enBpowerFailure);
 		}
 
@@ -1457,7 +1456,6 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		{	
 	
 			Simulator::Schedule(Seconds(10),&enB_Overload, lteHelper, OverloadingUeLteDevs, enbLteDevs); //estaba en 10 segundos
-			//enB_Overload(lteHelper, OverloadingUeLteDevs, enbLteDevs);
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
