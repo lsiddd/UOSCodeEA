@@ -93,7 +93,7 @@ using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
 const uint16_t numberOfUENodes = 30; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
-const uint16_t numberOfOverloadUENodes = 5; // user that will be connected to an specific enB. 
+const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
 double simTime = 60; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
@@ -411,16 +411,15 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								VelUABS->SetVelocity(Vector(speedUABS, 0,0));
 								//NS_LOG_UNCOND (VelUABS->GetVelocity());
 
-								// ---------------Energy on Test----------------//
+								// ---------------Energy on----------------//
 
-								// NS_LOG_UNCOND("Installing UAV Mobility Energy Model in UAVs...");
-								// DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
-
-							  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
-								//Ptr<LiIonEnergySource> source = UABSNodes.Get(i)->GetObject<LiIonEnergySource>();
+								
+							  	//Ptr<LiIonEnergySource> source = UABSNodes.Get(i)->GetObject<LiIonEnergySource>();
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
-								source->SetInitialEnergy(INITIAL_ENERGY);
-
+								if (source->GetInitialEnergy() != INITIAL_ENERGY)
+								{
+									source->SetInitialEnergy(INITIAL_ENERGY);
+								}
 								//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
 								
@@ -456,10 +455,13 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								//NS_LOG_UNCOND (VelUABS->GetVelocity());	
 
 
-								// ---------------Energy on Test----------------//
+								// ---------------Energy on----------------//
 
 								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
-								source->SetInitialEnergy(INITIAL_ENERGY);
+								if (source->GetInitialEnergy() != INITIAL_ENERGY)
+								{
+									source->SetInitialEnergy(INITIAL_ENERGY);
+								}
 
 								//source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy,UABSCellId));
 								//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
@@ -805,8 +807,6 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 			// --------------- Go through all UABS to get the remaining energy ----------------//
 			for (uint16_t i=0 ; i < UABSNodes.GetN(); i++)
 			{
-
-			  	//Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
 				
 				//------Create pointer to get the remaining energy of X UABS and store it in UABS_Remaining_Energy variable-------//
 				
@@ -827,6 +827,83 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 			UABS_Ener.close();
 			Simulator::Schedule(Seconds(3), &Get_UABS_Energy,UABSNodes,UABSLteDevs);
 
+		}
+
+		void Recharge_Batt_UABS(Ptr<BasicEnergySource> UABS_Ptr_Energy)
+		{
+			NS_LOG_UNCOND("UABS Recharged!");
+			UABS_Ptr_Energy->SetInitialEnergy(INITIAL_ENERGY);
+		}
+
+		void Battery_Status(NodeContainer UABSNodes,NetDeviceContainer UABSLteDevs)
+		{
+			double UABS_Remaining_Energy;
+			uint16_t UABSCellId;
+			ns3::Vector3D UABS_Position;
+
+			for (uint16_t i=0 ; i < UABSNodes.GetN(); i++)
+			{
+				//-------------Get UABS Remaining Energy--------------//
+				Ptr<BasicEnergySource> UABSEner = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+				UABS_Remaining_Energy = UABSEner->GetRemainingEnergy();
+
+				//-------------Get UABS Actual Position--------------//
+				Ptr<ConstantVelocityMobilityModel> UABSPos = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel>();
+				UABS_Position = UABSPos->GetPosition();
+
+				//-------------Get UABS Cell Id--------------//
+				UABSCellId = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetCellId();
+				
+				//-------------Check Remaining Energy and send to UABS Recharging Station (URS)--------------//
+  				double UABS_Energy_Restrain=INITIAL_ENERGY*15/100;
+  				if(UABS_Remaining_Energy <= UABS_Energy_Restrain)
+  				{
+  					NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Battery is at 15%, going back to URS.");
+  					
+  					
+  					// Check_UABS_BS_Distance(UABS_Position,UABS_Remaining_Energy);  //Create a function to verify if is possible to UABS get to Home (Recharge Base Station)
+  					// One way to do it could be check nearest TBS and send it there or 
+  					// send it directly to its home.
+  					if(UABSCellId == 5)
+  					{
+  						UABSPos->SetPosition({1500, 1500 , enBHeight}); // UABS 1 CellID 5
+  						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+  						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+  					}
+  					else if (UABSCellId == 6)
+  					{	
+						UABSPos->SetPosition({4500, 1500 , enBHeight}); // UABS 2 CellID 6
+						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+					}
+					else if (UABSCellId == 7)
+  					{	
+						UABSPos->SetPosition({1500, 4500 , enBHeight}); // UABS 3 CellID 7
+						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+					}
+					else if (UABSCellId == 8)
+  					{	
+						UABSPos->SetPosition({4500, 4500 , enBHeight}); // UABS 4 CellID 8
+						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+					}
+					else if (UABSCellId == 9)
+  					{	
+						UABSPos->SetPosition({1500, 1500 , enBHeight}); // UABS 5 CellID 9
+						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+					}
+					else if (UABSCellId == 10)
+  					{	
+						UABSPos->SetPosition({1500, 4500 , enBHeight}); // UABS 6 CellID 10
+						NS_LOG_UNCOND("UABS " << to_string(UABSCellId) << ": " << "Returned to URS.");
+						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner);
+					}
+
+  				}
+			}
+			Simulator::Schedule(Seconds(3), &Battery_Status,UABSNodes,UABSLteDevs);
 		}
 
 
@@ -1442,6 +1519,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 	  	if(scen != 0)
 		{
 		Simulator::Schedule(Seconds(1), &Get_UABS_Energy,UABSNodes,UABSLteDevs);
+		Simulator::Schedule(Seconds(1), &Battery_Status,UABSNodes,UABSLteDevs);
 		}
 
 		//----------------Run Python Command to get centroids------------------------//
