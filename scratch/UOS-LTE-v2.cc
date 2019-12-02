@@ -92,7 +92,7 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 30; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
 double simTime = 60; // 120 secs ||100 secs || 300 secs
@@ -150,7 +150,7 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario_1.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
