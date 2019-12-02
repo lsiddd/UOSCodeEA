@@ -37,6 +37,10 @@ with open('UABSs') as fUABS:
 with open('UEsLowSinr') as fUEsLow:
     data4 = np.array(list((float(x), float(y), float(z), float (Sinr), int (Imsi),int(cellid)) for x, y, z, Sinr,Imsi, cellid in csv.reader(fUEsLow, delimiter= ',')))
 
+with open('UABS_Energy_Status') as fUABS_Energy:
+    data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
+
+
 #print("enBs: "+ str(data1))
 #print("UEs: "+ str(data2))
 #print("UABSs: "+ str(data3))
@@ -57,6 +61,8 @@ X = np.array(list(zip(x3,y3)))
 #print(X)
 
 #plt.scatter(x3,y3,c="red", label= "UEsSINRLow")
+
+time, Uabs_Id, Remaining_Energy = data5.T
 
 #plt.title('BS and UABS Scenario 1')
 #plt.xlabel('x (meters)')
