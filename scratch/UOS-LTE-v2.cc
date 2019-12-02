@@ -271,6 +271,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 			double UABS_Remaining_Energy;
 			uint16_t UABSCellId;
 			ns3::Vector3D UABS_Position;
+			
 
 			for (uint16_t i=0 ; i < UABSNodes.GetN(); i++)
 			{
@@ -284,6 +285,9 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 
 				//-------------Get UABS Cell Id--------------//
 				UABSCellId = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetCellId();
+
+				//-------------------Get UABS Phy for TX Power-----------------//
+				Ptr<LteEnbPhy> UABSPhy = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetPhy();
 				
 				//-------------Check Remaining Energy and send to UABS Recharging Station (URS)--------------//
   				double UABS_Energy_Restrain=INITIAL_ENERGY*15/100;
@@ -296,10 +300,12 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					// One way to do it could be check nearest TBS and send it there or 
   					// send it directly to its home.
   					speedUABS = 0;
+  					UABSTxPower = 0;
   					if(UABSCellId == 5)
   					{
   						UABSPos->SetPosition({1500, 1500 , enBHeight}); // UABS 1 CellID 5
   						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
   						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
   						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
   					}
@@ -307,6 +313,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABSPos->SetPosition({4500, 1500 , enBHeight}); // UABS 2 CellID 6
 						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
 					}
@@ -314,6 +321,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABSPos->SetPosition({1500, 4500 , enBHeight}); // UABS 3 CellID 7
 						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
 					}
@@ -321,6 +329,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABSPos->SetPosition({4500, 4500 , enBHeight}); // UABS 4 CellID 8
 						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
 					}
@@ -328,6 +337,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABSPos->SetPosition({1500, 1500 , enBHeight}); // UABS 5 CellID 9
 						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
 					}
@@ -335,6 +345,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABSPos->SetPosition({1500, 4500 , enBHeight}); // UABS 6 CellID 10
 						UABSPos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABSEner, i);
 					}
@@ -345,7 +356,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 		}
 
 		//Function to check an individual UABS Battery Status and send to recharge if needed. //Position set to home, velocity to 0 and recharge batt.
-		void Check_UABS_Batt_Status(Ptr<BasicEnergySource> UABS_Ptr_Energy, Ptr<ConstantVelocityMobilityModel> UABS_Pos, uint16_t UABSCellId, uint16_t Pos_UABS_Flag)
+		void Check_UABS_Batt_Status(Ptr<BasicEnergySource> UABS_Ptr_Energy, Ptr<ConstantVelocityMobilityModel> UABS_Pos, uint16_t UABSCellId, uint16_t Pos_UABS_Flag, Ptr<LteEnbPhy> UABSPhy )
 		{
 			double UABS_Remaining_Energy;
 			ns3::Vector3D UABS_Position;
@@ -368,10 +379,12 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					// One way to do it could be check nearest TBS and send it there or 
   					// send it directly to its home.
   					speedUABS = 0;
+  					UABSTxPower = 0;
   					if(UABSCellId == 5)
   					{
   						UABS_Pos->SetPosition({1500, 1500 , enBHeight}); // UABS 1 CellID 5
   						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+  						UABSPhy->SetTxPower(UABSTxPower);
   						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
   						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
   					}
@@ -379,6 +392,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABS_Pos->SetPosition({4500, 1500 , enBHeight}); // UABS 2 CellID 6
 						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
 					}
@@ -386,6 +400,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABS_Pos->SetPosition({1500, 4500 , enBHeight}); // UABS 3 CellID 7
 						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
 					}
@@ -393,6 +408,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABS_Pos->SetPosition({4500, 4500 , enBHeight}); // UABS 4 CellID 8
 						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
 					}
@@ -400,6 +416,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABS_Pos->SetPosition({1500, 1500 , enBHeight}); // UABS 5 CellID 9
 						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
 					}
@@ -407,6 +424,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
   					{	
 						UABS_Pos->SetPosition({1500, 4500 , enBHeight}); // UABS 6 CellID 10
 						UABS_Pos->SetVelocity(Vector(speedUABS, 0,0));
+						UABSPhy->SetTxPower(UABSTxPower);
 						NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Returned to URS.");
 						Simulator::Schedule(Seconds(2), &Recharge_Batt_UABS, UABS_Ptr_Energy, Pos_UABS_Flag);
 					}
@@ -630,7 +648,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								else if (UABS_Energy_ON[i] == true)
 								{
 
-									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i);
+									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
 								}
 								
 							}
@@ -682,7 +700,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario.ns_movements";
 								else if (UABS_Energy_ON[i] == true)
 								{
 
-									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i);
+									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
 								}
 								
 							}
