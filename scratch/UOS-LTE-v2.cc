@@ -102,7 +102,8 @@ const int m_distance = 2000; //m_distance between enBs towers.
 Time interPacketInterval = Seconds (0.5);
 bool disableDl = false;
 bool disableUl = false;
-int evalvidId = 0;      
+int evalvidId = 0;
+int UDP_ID = 0;      
 int eNodeBTxPower = 46; //Set enodeB Power dBm 46dBm --> 20MHz  |  43dBm --> 5MHz
 int UABSTxPower = 0;//23;   //Set UABS Power
 uint8_t bandwidth_enb = 100; // 100 RB --> 20MHz  |  25 RB --> 5MHz
@@ -150,7 +151,7 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario_1.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
@@ -901,14 +902,16 @@ std::string traceFile = "scratch/UOS_UE_Scenario_1.ns_movements";
 		void UDPApp (Ptr<Node> remoteHost, NodeContainer ueNodes, Ipv4Address remoteHostAddr, Ipv4InterfaceContainer ueIpIface)
 		{
 			// Install and start applications on UEs and remote host
-		  uint16_t dlPort = 1100;
-		  uint16_t ulPort = 2000;
+		  
 		  ApplicationContainer clientApps;
 		  ApplicationContainer serverApps;
 		  Time interPacketInterval = Seconds (0.5);
 		  
 		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
 		    {
+				UDP_ID++;
+				uint16_t dlPort = 1100 * UDP_ID + 1100;
+				uint16_t ulPort = 2000 * UDP_ID + 2000;
 		      if (!disableDl)
 		        {
 		          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
