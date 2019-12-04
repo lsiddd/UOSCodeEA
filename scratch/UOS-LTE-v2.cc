@@ -153,6 +153,9 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
 std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 
+Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
+uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
+
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
 		void RemainingEnergy (double oldValue, double remainingEnergy)
@@ -861,6 +864,22 @@ std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 
 		}
 
+		 void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps)
+ 		{
+ 			for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
+			{
+			   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
+			   sink = StaticCast<PacketSink> (clientApps.Get (i));
+			//std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
+			   double cur = (sink->GetTotalRx () - lastTotalRx[i]) * (double) 8 / 1e6;  //ie5   /* Convert Application RX Packets to MBits. */
+			   std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
+			   lastTotalRx[i] = sink->GetTotalRx ();
+			   
+			}
+			Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
+ 		}
+ 
+
 
 		// -------------------Function to Video App: Evalvid. -----------------------//
 		void requestVideoStream(Ptr<Node> remoteHost, NodeContainer ueNodes, Ipv4Address remoteHostAddr, double simTime)//, double start)
@@ -905,26 +924,29 @@ std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 		  
 		  ApplicationContainer clientApps;
 		  ApplicationContainer serverApps;
-		  Time interPacketInterval = Seconds (0.5);
+		  Time interPacketInterval = Seconds (0.05);
+		 
 		  
 		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-		    {
-				UDP_ID++;
-				uint16_t dlPort = 1100 * UDP_ID + 1100;
-				uint16_t ulPort = 2000 * UDP_ID + 2000;
-		      if (!disableDl)
-		        {
+		  {
+	    	int startTime = rand() % (int)simTime + 2;
+			UDP_ID++;
+			uint16_t dlPort = 1100 * UDP_ID + 1100;
+			uint16_t ulPort = 2000 * UDP_ID + 2000;
+		      // if (!disableDl)
+		      //   {
 		          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
 		          serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-
+		          
 		          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
 		          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
 		          clientApps.Add (dlClient.Install (remoteHost));
-		        }
+		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
+		        // }
 
-		      if (!disableUl)
-		        {
+		      // if (!disableUl)
+		      //   {
 		          ++ulPort;
 		          PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), ulPort));
 		          serverApps.Add (ulPacketSinkHelper.Install (remoteHost));
@@ -933,11 +955,16 @@ std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 		          ulClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
 		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
-		        }
-		    }
+		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
+		        // }
+		    serverApps.Start (Seconds(1));
+		  	clientApps.Start (Seconds(startTime));
 
-		  		serverApps.Start (Seconds (11));
-		  		clientApps.Start (Seconds (11));
+		   }
+
+		  		
+		  		Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
+		  		
 
 
 
@@ -1096,6 +1123,8 @@ std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 		{
 		//LogComponentEnable ("EvalvidClient", LOG_LEVEL_INFO);
 		//LogComponentEnable ("EvalvidServer", LOG_LEVEL_INFO);
+		LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
+  		LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
 
 		// File to Log all Users that will be connected to UABS and how many UABS will be activated.
 		
