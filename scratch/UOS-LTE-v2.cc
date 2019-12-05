@@ -151,7 +151,7 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario_1.ns_movements";
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
@@ -866,16 +866,36 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 
 		 void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps)
  		{
+ 			std::stringstream uenodes_TP;
+			uenodes_TP << "UEs_UDP_Throughput_RUN_";    
+			std::ofstream UE_TP;
+			UE_TP.open(uenodes_TP.str());
+
+			std::stringstream uenodes_TP_log;
+			uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
+			std::ofstream UE_TP_Log;
+			UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
+
  			for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
 			{
-			   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
-			   sink = StaticCast<PacketSink> (clientApps.Get (i));
-			//std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
-			   double cur = (sink->GetTotalRx () - lastTotalRx[i]) * (double) 8 / 1e6;  //ie5   /* Convert Application RX Packets to MBits. */
-			   std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
-			   lastTotalRx[i] = sink->GetTotalRx ();
+				//Ptr<Node> object = *j;
+				Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
+				NS_ASSERT (UEposition != 0);
+				Vector pos = UEposition->GetPosition ();
+				
+				Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
+			   	sink = StaticCast<PacketSink> (clientApps.Get (i));
+				//std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
+			   	double cur = (sink->GetTotalRx () - lastTotalRx[i]) * (double) 8 / 1e6;  //ie5   /* Convert Application RX Packets to MBits. */
+			   	//std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
+			   	
+			   	UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   	UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   	lastTotalRx[i] = sink->GetTotalRx ();
 			   
 			}
+			UE_TP.close();
+			//UE_TP_Log.Close();
 			Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
  		}
  
@@ -924,7 +944,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		  
 		  ApplicationContainer clientApps;
 		  ApplicationContainer serverApps;
-		  Time interPacketInterval = Seconds (0.05);
+		  Time interPacketInterval = MilliSeconds (100);
 		 
 		  
 		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
@@ -933,8 +953,8 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 			UDP_ID++;
 			uint16_t dlPort = 1100 * UDP_ID + 1100;
 			uint16_t ulPort = 2000 * UDP_ID + 2000;
-		      // if (!disableDl)
-		      //   {
+		       if (!disableDl)
+		         {
 		          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
 		          serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
 		          
@@ -943,10 +963,10 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
 		          clientApps.Add (dlClient.Install (remoteHost));
 		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
-		        // }
+		         }
 
-		      // if (!disableUl)
-		      //   {
+		       if (!disableUl)
+		         {
 		          ++ulPort;
 		          PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), ulPort));
 		          serverApps.Add (ulPacketSinkHelper.Install (remoteHost));
@@ -956,7 +976,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
 		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
 		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
-		        // }
+		         }
 		    serverApps.Start (Seconds(1));
 		  	clientApps.Start (Seconds(startTime));
 
@@ -1353,8 +1373,13 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
     //                      "ExpCapacity",
     //                      DoubleValue (15));
 
-		
-
+  		//---------------Setting constant mobility to remote host (to turn off warning)------------//
+		MobilityHelper remotehostmobility;
+		remotehostmobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+		//remotehostmobility.SetPositionAllocator(positionAlloc2);
+		remotehostmobility.Install(remoteHostContainer);
+		remotehostmobility.Install(pgw);
+  		
 
 		NS_LOG_UNCOND("Installing Mobility Model in enBs...");
 
@@ -1699,7 +1724,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 	
 			//Simulator::Schedule(Seconds(10),&enB_Overload, lteHelper, OverloadingUeLteDevs, enbLteDevs); //estaba en 10 segundos
 			//enB_Overload(lteHelper, OverloadingUeLteDevs, enbLteDevs);
-			//lteHelper->Attach(OverloadingUeLteDevs);
+			lteHelper->Attach(OverloadingUeLteDevs);
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
