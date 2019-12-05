@@ -151,7 +151,7 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario_1.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
@@ -864,7 +864,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 
 		}
 
-		 void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps)
+		 void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps) //https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html
  		{
  			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput_RUN_";    
@@ -961,6 +961,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
 		          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
+		          dlClient.SetAttribute ("PacketSize", UintegerValue (1024));
 		          clientApps.Add (dlClient.Install (remoteHost));
 		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
 		         }
@@ -974,6 +975,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          UdpClientHelper ulClient (remoteHostAddr, ulPort);
 		          ulClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
+		          ulClient.SetAttribute ("PacketSize", UintegerValue (1024));
 		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
 		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
 		         }
