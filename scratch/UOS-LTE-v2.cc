@@ -92,10 +92,10 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 1; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
-double simTime = 60; // 120 secs ||100 secs || 300 secs
+double simTime = 400; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
 // -------- Inter packet interval in ms ------//
 //Time interPacketInterval = MilliSeconds (100);
@@ -151,7 +151,7 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario_2.ns_movements";
+std::string traceFile = "scratch/UOS_UE_Scenario_5.ns_movements";
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
@@ -837,6 +837,10 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 			// std::cout << "Average Packet Delay: " << Delaysum / rxPacketsum << "\n"; 
 			
 			Throughput = iter->second.rxBytes * 8.0 /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds())/ 1024;// / 1024;
+			if (Throughput > 0) 
+			{
+				std::cout << Throughput << std::endl;
+			}
 			PDR = ((rxPacketsum * 100) / txPacketsum);
 			PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 			APD = (Delaysum / rxPacketsum); // APD = (Delaysum / txPacketsum); //to check
@@ -885,12 +889,17 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 				
 				Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
 			   	sink = StaticCast<PacketSink> (clientApps.Get (i));
-				//std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
-			   	double cur = (sink->GetTotalRx () - lastTotalRx[i]) * (double) 8 / 1e6;  //ie5   /* Convert Application RX Packets to MBits. */
-			   	//std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
+				std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
+				std::cout << "Last Total RX: "<< lastTotalRx[i] <<std::endl;
+			   	double cur = (sink->GetTotalRx () - lastTotalRx[i]) * (double) 8 / 1e5;  //ie5   /* Convert Application RX Packets to MBits. */
+			   	std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
 			   	
-			   	UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   	if (cur > 0)
+			   	{
+			   		UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   	
 			   	UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   }
 			   	lastTotalRx[i] = sink->GetTotalRx ();
 			   
 			}
@@ -942,14 +951,17 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		{
 			// Install and start applications on UEs and remote host
 		  
-		  ApplicationContainer clientApps;
 		  ApplicationContainer serverApps;
+		  ApplicationContainer clientApps;
 		  Time interPacketInterval = MilliSeconds (100);
 		 
 		  
 		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
 		  {
-	    	int startTime = rand() % (int)simTime + 2;
+		  	
+		  	
+	    	// int startTime = rand() % (int)simTime + 2;
+			int startTime = rand() % (int)4 + 2;
 			UDP_ID++;
 			uint16_t dlPort = 1100 * UDP_ID + 1100;
 			uint16_t ulPort = 2000 * UDP_ID + 2000;
@@ -980,6 +992,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
 		         }
 		    serverApps.Start (Seconds(1));
+		  	//clientApps.Start (Seconds(startTime));
 		  	clientApps.Start (Seconds(startTime));
 
 		   }
@@ -1733,7 +1746,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		NS_LOG_UNCOND("Resquesting-sending Video...");
 	  	NS_LOG_INFO ("Create Applications.");
 	   
-	  	requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
+	  	// requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
 	  	
 
 

@@ -19,6 +19,7 @@ import math
 from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
 from pandas.plotting import autocorrelation_plot
+from pykalman import KalmanFilter
 
 
 def get_cmap(n, name='hsv'):
@@ -45,7 +46,9 @@ def arima():
     mse = []
 
     for i in range (100):
-        observations_x = read_file("scratch/UOS_UE_Scenario_2.ns_movements", i, "x")
+        observations_x = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "y")
+        print (len(observations_x))
+        
 
         size = int(len(observations_x) * 0.26)
         train, test = observations_x[0:size], observations_x[size:len(observations_x)]
@@ -67,6 +70,28 @@ def arima():
         mse.append(error)
 
     return mse
+
+def kalman():
+    error = []
+    for i in range (100):
+        observations_x = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "x")
+        observations_y = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "y")
+
+        kf = KalmanFilter(transition_matrices=np.array([[1, 1], [0, 1]]),
+                          transition_covariance=0.01 * np.eye(2))
+        states_pred_x = kf.em(observations_x).smooth(observations_x)[0]
+        states_pred_y = kf.em(observations_y).smooth(observations_y)[0]
+
+        mse = sum((states_pred_x[:, 0] - observations_x)**2) / len(observations_x)
+ 
+    return (states_pred_x[:,0], states_pred_y[:,0])
+        #error.append(mse)
+    #return error
+
+#Arima = arima()
+#print(Arima)
+#Kalman = kalman()
+#print(Kalman)
 
 def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     
