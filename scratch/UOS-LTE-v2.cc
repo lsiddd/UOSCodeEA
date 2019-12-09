@@ -113,6 +113,7 @@ double ue_info[numberOfeNodeBNodes + numberOfUABS][numberOfUENodes]; //UE Connec
 double ue_imsi_sinr[numberOfUENodes]; //UE Connection Status Register Matrix
 double ue_imsi_sinr_linear[numberOfUENodes];
 double ue_info_cellid[numberOfUENodes];
+Ipv4Address ue_IP_Address[numberOfUENodes];
 int minSINR = 0; //  minimum SINR to be considered to clusterization
 string GetClusterCoordinates;
 double Throughput=0.0;
@@ -155,6 +156,7 @@ std::string traceFile = "scratch/UOS_UE_Scenario_5.ns_movements";
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
+NodeContainer ueNodes;
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
@@ -807,70 +809,8 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		void ThroughputCalc(Ptr<FlowMonitor> monitor, Ptr<Ipv4FlowClassifier> classifier,Gnuplot2dDataset datasetThroughput,Gnuplot2dDataset datasetPDR,Gnuplot2dDataset datasetPLR, Gnuplot2dDataset datasetAPD)
 		{
 
-		monitor->CheckForLostPackets ();
-		//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
-		std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
-
-		for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin (); iter != stats.end (); ++iter)
-		{
-			//Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (iter->first);
-
-			txPacketsum += iter->second.txPackets;
-			rxPacketsum += iter->second.rxPackets;
-			LostPacketsum = txPacketsum-rxPacketsum;
-			DropPacketsum += iter->second.packetsDropped.size();
-			Delaysum += iter->second.delaySum.GetSeconds();
-
-			// std::cout<<"Flow ID: " << iter->first << " Src Addr " << t.sourceAddress << " Dst Addr " << t.destinationAddress<<"\n";
-			// std::cout<<"Tx Packets = " << iter->second.txPackets<<"\n";
-			// std::cout<<"Rx Packets = " << iter->second.rxPackets<<"\n";
-
-			// //std::cout << "  All Tx Packets: " << txPacketsum << "\n";
-			// //std::cout << "  All Rx Packets: " << rxPacketsum << "\n";
-			// //std::cout << "  All Delay/Average Packet Delay (APD): " << Delaysum / txPacketsum << "\n"; //APD = Average Packet Delay : to do !
-			// //std::cout << "  All Lost Packets: " << LostPacketsum << "\n";
-			// //std::cout << "  All Drop Packets: " << DropPacketsum << "\n";
-
-			// std::cout<<"Throughput: " << iter->second.rxBytes * 8.0 / (iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()) /1024 << " Kbps\n";///1024 << " Mbps\n";
-			// std::cout << "Packets Delivery Ratio: " << ((rxPacketsum * 100) / txPacketsum) << "%" << "\n";
-			// std::cout << "Packets Loss Ratio: " << ((LostPacketsum * 100) / txPacketsum) << "%" << "\n";
-			// std::cout << "Average Packet Delay: " << Delaysum / rxPacketsum << "\n"; 
-			
-			Throughput = iter->second.rxBytes * 8.0 /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds())/ 1024;// / 1024;
-			if (Throughput > 0) 
-			{
-				std::cout << Throughput << std::endl;
-			}
-			PDR = ((rxPacketsum * 100) / txPacketsum);
-			PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
-			APD = (Delaysum / rxPacketsum); // APD = (Delaysum / txPacketsum); //to check
-			
-			// Save in datasets to later plot the results. If graphtype is True plots will be based in Flows, if False will be based in time (seconds)
-			if (graphType == true){
-			datasetThroughput.Add((double)iter->first,(double) Throughput);
-			datasetPDR.Add((double)iter->first,(double) PDR);
-			datasetPLR.Add((double)iter->first,(double) PLR);
-			datasetAPD.Add((double)iter->first,(double) APD);}
-			else{
-			datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
-			datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
-			datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
-			datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
-			}
-
-			//}
-		}
-
-		//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
-		//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
-		Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
-
-
-		}
-
-		 void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps) //https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html
- 		{
- 			std::stringstream uenodes_TP;
+			monitor->CheckForLostPackets ();
+			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput_RUN_";    
 			std::ofstream UE_TP;
 			UE_TP.open(uenodes_TP.str());
@@ -879,40 +819,132 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 			uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
 			std::ofstream UE_TP_Log;
 			UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
+			Time now = Simulator::Now (); 
+			
+			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
+			std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
 
- 			for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
+			for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin (); iter != stats.end (); ++iter)
 			{
-				//Ptr<Node> object = *j;
-				Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
-				NS_ASSERT (UEposition != 0);
-				Vector pos = UEposition->GetPosition ();
-				
-				Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
-			   	sink = StaticCast<PacketSink> (clientApps.Get (i));
-				std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
-				std::cout << "Last Total RX: "<< lastTotalRx[i] <<std::endl;
-				double resta = (sink->GetTotalRx () - lastTotalRx[i]);
-				std::cout << "Resta: "<< resta <<std::endl;
+				Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (iter->first);
 
-			   	double cur = ((sink->GetTotalRx () - lastTotalRx[i]) * (double) 8) / 1e5;  //ie5   /* Convert Application RX Packets to MBits. */
-			   	std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
-			   	double averageThroughput = ((sink->GetTotalRx () * 8) / (1e6 * simTime));
-			   	//double averageThroughput = ((sink->GetTotalRx () * 8) / (1e6 * now.GetSeconds ()));
-			   	std::cout << "Average Throughput: "<< averageThroughput << " Segs: "<< now.GetSeconds () <<std::endl;
+				txPacketsum += iter->second.txPackets;
+				rxPacketsum += iter->second.rxPackets;
+				LostPacketsum = txPacketsum-rxPacketsum;
+				DropPacketsum += iter->second.packetsDropped.size();
+				Delaysum += iter->second.delaySum.GetSeconds();
+
+				// std::cout<<"Flow ID: " << iter->first << " Src Addr " << t.sourceAddress << " Dst Addr " << t.destinationAddress<<"\n";
+				// std::cout<<"Tx Packets = " << iter->second.txPackets<<"\n";
+				// std::cout<<"Rx Packets = " << iter->second.rxPackets<<"\n";
+
+				// //std::cout << "  All Tx Packets: " << txPacketsum << "\n";
+				// //std::cout << "  All Rx Packets: " << rxPacketsum << "\n";
+				// //std::cout << "  All Delay/Average Packet Delay (APD): " << Delaysum / txPacketsum << "\n"; //APD = Average Packet Delay : to do !
+				// //std::cout << "  All Lost Packets: " << LostPacketsum << "\n";
+				// //std::cout << "  All Drop Packets: " << DropPacketsum << "\n";
+
+				// std::cout<<"Throughput: " << iter->second.rxBytes * 8.0 / (iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()) /1024 << " Kbps\n";///1024 << " Mbps\n";
+				// std::cout << "Packets Delivery Ratio: " << ((rxPacketsum * 100) / txPacketsum) << "%" << "\n";
+				// std::cout << "Packets Loss Ratio: " << ((LostPacketsum * 100) / txPacketsum) << "%" << "\n";
+				// std::cout << "Average Packet Delay: " << Delaysum / rxPacketsum << "\n"; 
+				
+				Throughput = iter->second.rxBytes * 8.0 /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds())/ 1024;// / 1024;
+				PDR = ((rxPacketsum * 100) / txPacketsum);
+				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
+				APD = (Delaysum / rxPacketsum); // APD = (Delaysum / txPacketsum); //to check
+
+
+						
+					for (uint16_t i = 0; i < numberOfUENodes ; i++) 
+					{	
+						
+						if (ue_IP_Address[i] == t.destinationAddress) // to save just to download throughput (Server --> User)
+						{
+							std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
+							
+							Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
+							NS_ASSERT (UEposition != 0);
+							Vector pos = UEposition->GetPosition ();
+
+							UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Throughput << std::endl;
 			   	
-			   	if (cur > 0)
-			   	{
-			   		UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+				   			UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Throughput << std::endl;
+				
+						}
+					}
+				
+				
+				// Save in datasets to later plot the results. If graphtype is True, plots will be based in Flows, if False will be based in time (seconds)
+				if (graphType == true){
+				datasetThroughput.Add((double)iter->first,(double) Throughput);
+				datasetPDR.Add((double)iter->first,(double) PDR);
+				datasetPLR.Add((double)iter->first,(double) PLR);
+				datasetAPD.Add((double)iter->first,(double) APD);}
+				else{
+				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
+				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
+				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
+				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
+				}
+				
+			
+			}	
+		UE_TP.close();
+
+		//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
+		//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
+		Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
+
+
+		}
+
+		 // void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps) //https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html
+ 		// {
+ 		// 	std::stringstream uenodes_TP;
+			// uenodes_TP << "UEs_UDP_Throughput_RUN_";    
+			// std::ofstream UE_TP;
+			// UE_TP.open(uenodes_TP.str());
+
+			// std::stringstream uenodes_TP_log;
+			// uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
+			// std::ofstream UE_TP_Log;
+			// UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
+
+ 		// 	for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
+			// {
+			// 	//Ptr<Node> object = *j;
+			// 	Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
+			// 	NS_ASSERT (UEposition != 0);
+			// 	Vector pos = UEposition->GetPosition ();
+				
+			// 	Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
+			//    	sink = StaticCast<PacketSink> (clientApps.Get (i));
+			//    	std::cout << "user "<< i<< ": "<< sink->GetTotalRx () <<std::endl;
+			// 	// std::cout << "Total RX: "<<sink->GetTotalRx () <<std::endl;
+			// 	// std::cout << "Last Total RX: "<< lastTotalRx[i] <<std::endl;
+			// 	// double resta = (sink->GetTotalRx () - lastTotalRx[i]);
+			// 	// std::cout << "Resta: "<< resta <<std::endl;
+
+			//    	double cur = ((sink->GetTotalRx () - lastTotalRx[i]) * (double) 8) / 1e5; //ie5   /* Convert Application RX Packets to MBits. */
+			//    	std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << " Node " << i <<std::endl;
+			//    	//double averageThroughput = ((sink->GetTotalRx () * 8) / (1e6 * simTime));
+			//    	double averageThroughput = ((sink->GetTotalRx () * 8) / (1e5 * now.GetSeconds ()));
+			//    	std::cout << "Average Throughput: "<< averageThroughput << " Segs: "<< now.GetSeconds () <<std::endl;
 			   	
-			   	UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
-			   }
-			   	lastTotalRx[i] = sink->GetTotalRx ();
+			//    	if (cur > 0)
+			//    	{
+			//    		UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			   	
+			// 	   	UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << cur << std::endl;
+			// 	}
+			//    	lastTotalRx[i] = sink->GetTotalRx ();
 			   
-			}
-			UE_TP.close();
-			//UE_TP_Log.Close();
-			Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
- 		}
+			// }
+			// UE_TP.close();
+			// //UE_TP_Log.Close();
+			// Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
+ 		// }
  
 
 
@@ -935,7 +967,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 				EvalvidServerHelper server(port);
 				server.SetAttribute ("SenderTraceFilename", StringValue("evalvid_videos/st_highway_600_cif")); //Old: src/evalvid/st_highway_cif.st
 				server.SetAttribute ("SenderDumpFilename", StringValue(sdTrace.str()));
-				server.SetAttribute("PacketPayload", UintegerValue(512));
+				server.SetAttribute("PacketPayload", UintegerValue(1024)); //512
 				ApplicationContainer apps = server.Install(remoteHost);
 				apps.Start (Seconds (1.0));
 				apps.Stop (Seconds (simTime));
@@ -957,20 +989,25 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		{
 			// Install and start applications on UEs and remote host
 		  
-		  ApplicationContainer serverApps;
-		  ApplicationContainer clientApps;
-		  Time interPacketInterval = MilliSeconds (100);
-		 
-		  
+			ApplicationContainer serverApps;
+			ApplicationContainer clientApps;
+			Time interPacketInterval = MilliSeconds (100);
+			uint16_t dlPort = 1100;
+			uint16_t ulPort = 2000;
+			  
+			// Ptr<UniformRandomVariable> startTimeSeconds = CreateObject<UniformRandomVariable> ();
+	  //  		startTimeSeconds->SetAttribute ("Min", DoubleValue (0));
+	  //  		startTimeSeconds->SetAttribute ("Max", DoubleValue (interPacketInterval/1000.0));
+
+
 		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
 		  {
 		  	
 		  	
 	    	// int startTime = rand() % (int)simTime + 2;
 			int startTime = rand() % (int)4 + 2;
-			UDP_ID++;
-			uint16_t dlPort = 1100 * UDP_ID + 1100;
-			uint16_t ulPort = 2000 * UDP_ID + 2000;
+			ulPort++;
+			
 		       if (!disableDl)
 		         {
 		          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
@@ -979,9 +1016,8 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
 		          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
-		          dlClient.SetAttribute ("PacketSize", UintegerValue (1024));
+		          dlClient.SetAttribute ("PacketSize", UintegerValue (8192));
 		          clientApps.Add (dlClient.Install (remoteHost));
-		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
 		         }
 
 		       if (!disableUl)
@@ -993,18 +1029,17 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		          UdpClientHelper ulClient (remoteHostAddr, ulPort);
 		          ulClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          ulClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
-		          ulClient.SetAttribute ("PacketSize", UintegerValue (1024));
+		          //ulClient.SetAttribute ("PacketSize", UintegerValue (1024));
 		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
-		          //sink = StaticCast<PacketSink> (clientApps.Get (u));
 		         }
-		    serverApps.Start (Seconds(1));
-		  	//clientApps.Start (Seconds(startTime));
-		  	clientApps.Start (Seconds(startTime));
+			  serverApps.Start (Seconds(1));
+			  //clientApps.Start (Seconds(startTime));
+			  clientApps.Start (Seconds(startTime));
 
 		   }
 
 		  		
-		  		Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
+		  		//Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
 		  		
 
 
@@ -1323,7 +1358,7 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 	  
 		// Create node containers: UE, UE Overloaded Group ,  eNodeBs, UABSs.
-		NodeContainer ueNodes;
+		//NodeContainer ueNodes;
 		ueNodes.Create(numberOfUENodes);
 		NodeContainer ueOverloadNodes;
 		if (scen == 3 || scen == 4)
@@ -1657,9 +1692,14 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 	  for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
 	  {
 		Ptr<Node> ueNode = ueNodes.Get(i);
+		
 			// Set the default gateway for the UE
 			Ptr<Ipv4StaticRouting> ueStaticRouting = ipv4RoutingHelper.GetStaticRouting (ueNode->GetObject<Ipv4> ());
 			ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
+			
+			ue_IP_Address[i] = ueNode->GetObject<Ipv4>()->GetAddress(1,0).GetLocal();
+			//std::cout << "Node " << i << " "<< ue_IP_Address[i] <<std::endl;
+			//std::cout << "Node " << i << " "<<ueNode->GetObject<Ipv4>()->GetAddress(1,0).GetLocal() <<std::endl;
 	  }
 
 	  // ---------------------- Install the IP stack on the Overloading UEs -----------------------//
@@ -1749,10 +1789,10 @@ uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
-		NS_LOG_UNCOND("Resquesting-sending Video...");
+		NS_LOG_UNCOND("Resquesting-sending Evalvid Video...");
 	  	NS_LOG_INFO ("Create Applications.");
 	   
-	  	// requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
+	  	 //requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
 	  	
 
 
