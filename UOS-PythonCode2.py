@@ -56,7 +56,7 @@ def arima():
         predictions_x = []
 
         for i, v in enumerate(test):
-            model = ARIMA(history, order=(5,1,0))
+            model = ARIMA(history, order=(5,1,0)) # ARIMA(p,d,q) --> find these values, if they fit for my use case.
             model_fit = model.fit(disp=0)
             output = model_fit.forecast()
             # print(model_fit.summary())
@@ -90,8 +90,8 @@ def kalman():
 
 #Arima = arima()
 #print(Arima)
-#Kalman = kalman()
-#print(Kalman)
+Kalman = kalman()
+print(Kalman)
 
 def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     
