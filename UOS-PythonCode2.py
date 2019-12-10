@@ -90,12 +90,12 @@ def kalman():
 
 #Arima = arima()
 #print(Arima)
-Kalman = kalman()
-print(Kalman)
+#Kalman = kalman()
+#print(Kalman)
 
 def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     
-    DBClusters = DBSCAN(eps=1000, min_samples=8, metric ='euclidean',algorithm = 'auto')#'kd_tree')
+    DBClusters = DBSCAN(eps=EPS, min_samples=MIN_SAMPLES, metric ='euclidean',algorithm = 'auto')#'kd_tree')
     DBClusters.fit(X)
     #DBClusters.labels_
     
@@ -172,7 +172,7 @@ with open('UEsLowSinr') as fUEsLow:
 with open('UABS_Energy_Status') as fUABS_Energy:
     data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
 
-with open('UEs_UDP_Throughput_RUN_') as fUE_Throughput:
+with open('UEs_UDP_Throughput') as fUE_Throughput:
     data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
 
 
@@ -219,15 +219,15 @@ plt.show()
 #print(X.size)
 
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
-eps=1000
-min_samples=8
-clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps, min_samples)
+eps_low_SINR=1000
+min_samples_low_SINR=2
+clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
-eps=1000
-min_samples=8
-DBSCAN_Clusterization(X1, eps, min_samples)
+eps_low_tp=1000
+min_samples_low_tp=8
+DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
  
 
 

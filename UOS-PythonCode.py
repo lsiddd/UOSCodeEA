@@ -16,8 +16,140 @@ from sklearn import metrics
 import statistics
 import csv
 import math
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error
+from pandas.plotting import autocorrelation_plot
+from pykalman import KalmanFilter
+
+def get_cmap(n, name='hsv'):
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+    RGB color; the keyword argument name must be a standard mpl colormap name.'''
+    return plt.cm.get_cmap(name, n)
+
+def read_file(filename, node_id, coord = "x"):
+    with open(filename) as f:
+        if coord == "x":
+            lines = [float(i.split()[5]) for i in f.readlines() if
+                     "node_({})".format(node_id) in i
+                    and "setdest" in i]
+        elif coord == "y":
+            lines = [float(i.split()[6]) for i in f.readlines() if
+                     "node_({})".format(node_id) in i
+                    and "setdest" in i]
+        else:
+            raise ValueError("invalid coordinate")
+        return lines
+    
+def arima():
+
+    mse = []
+
+    for i in range (100):
+        observations_x = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "y")
+        print (len(observations_x))
+        
+
+        size = int(len(observations_x) * 0.26)
+        train, test = observations_x[0:size], observations_x[size:len(observations_x)]
+        history = [x for x in train]
+        predictions_x = []
+
+        for i, v in enumerate(test):
+            model = ARIMA(history, order=(5,1,0)) # ARIMA(p,d,q) --> find these values, if they fit for my use case.
+            model_fit = model.fit(disp=0)
+            output = model_fit.forecast()
+            # print(model_fit.summary())
+            yhat = output[0]
+            predictions_x.append(yhat)
+            obs = v
+            history.append(obs)
+
+        error = mean_squared_error(test, predictions_x)
+        # print('Test MSE: %.3f' % error)
+        mse.append(error)
+
+    return mse
+
+def kalman():
+    error = []
+    for i in range (100):
+        observations_x = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "x")
+        observations_y = read_file("scratch/UOS_UE_Scenario_5.ns_movements", i, "y")
+
+        kf = KalmanFilter(transition_matrices=np.array([[1, 1], [0, 1]]),
+                          transition_covariance=0.01 * np.eye(2))
+        states_pred_x = kf.em(observations_x).smooth(observations_x)[0]
+        states_pred_y = kf.em(observations_y).smooth(observations_y)[0]
+
+        mse = sum((states_pred_x[:, 0] - observations_x)**2) / len(observations_x)
+ 
+    return (states_pred_x[:,0], states_pred_y[:,0])
+        #error.append(mse)
+    #return error
+
+#Arima = arima()
+#print(Arima)
+#Kalman = kalman()
+#print(Kalman)
 
 
+def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
+    
+    DBClusters = DBSCAN(eps=EPS, min_samples=MIN_SAMPLES, metric ='euclidean',algorithm = 'auto')#'kd_tree')
+    DBClusters.fit(X)
+    #DBClusters.labels_
+    
+    # Number of clusters in labels, ignoring noise if present.
+    n_clusters_ = len(set(DBClusters.labels_)) - (1 if -1 in DBClusters.labels_ else 0)
+    core_samples = np.zeros_like(DBClusters.labels_, dtype = bool)
+    core_samples[DBClusters.core_sample_indices_] = True
+    
+    # PRINT CLUSTERS & # of CLUSTERS
+#    print("Clusters:"+str(DBClusters.labels_))
+#    
+#    print('Estimated number of clusters: %d' % n_clusters_)
+    
+    clusters = [X[DBClusters.labels_ == i] for i in range(n_clusters_)]
+    outliers = X[DBClusters.labels_ == -1]
+    
+    # Plot Outliers
+#    plt.scatter(outliers[:,0], outliers[:,1], c="black", label="Outliers")
+    
+    
+    # Plot Clusters
+#    cmap = get_cmap(len(clusters))
+    x_clusters = [None] * len(clusters)
+    y_clusters = [None] * len(clusters)
+    #colors = [0]
+#    colors = "bgrcmykw"
+    color_index = 0
+    for i in range(len(clusters)):
+        x_clusters[i] = []
+        y_clusters[i] = []
+       # print("Tamano Cluster "+ str(i) + ": " + str(len(clusters[i])))
+        for j in range(len(clusters[i])):
+            x_clusters[i].append(clusters[i][j][0])
+            y_clusters[i].append(clusters[i][j][1])
+            
+    #        
+        
+#        plt.scatter(x_clusters[i], y_clusters[i], label= "Cluster %d" %i,  s=8**2, c=colors[color_index]) #c=cmap(i)) 
+        color_index += 1
+        
+    
+    #plot the Clusters 
+    #plt.title("Clusters Vs Serving UABS")
+#    plt.scatter(x2,y2,c="yellow", label= "UABSs", s=10**2) #plot UABS new position
+#    plt.xlabel('x (meters)', fontsize = 16)
+#    plt.ylabel('y (meters)', fontsize = 16)
+#    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+#              fancybox=True, shadow=True, ncol=5)
+#    plt.savefig("Graph_Clustered_UOS_Scenario.pdf", format='pdf', dpi=1000)
+#    plt.show()      
+    
+    return clusters, x_clusters, y_clusters  
+    
+#-----------------------------------Main---------------------------------------------------------------- 
 
 # generate 2d classification dataset (this will represent the users and the eNodeBs)
 #X, y = make_blobs(n_samples=10000, centers= 4, n_features=2, shuffle = False, cluster_std=1.2)
@@ -39,6 +171,9 @@ with open('UEsLowSinr') as fUEsLow:
 
 with open('UABS_Energy_Status') as fUABS_Energy:
     data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
+
+#with open('UEs_UDP_Throughput') as fUE_Throughput:
+#    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
 
 
 #print("enBs: "+ str(data1))
@@ -64,6 +199,10 @@ X = np.array(list(zip(x3,y3)))
 
 time, Uabs_Id, Remaining_Energy = data5.T
 
+#time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
+### ----------------Here i have to just create a X Y pair with lowest throughput users.
+#X1 = np.array(list(zip(x4,y4)))
+
 #plt.title('BS and UABS Scenario 1')
 #plt.xlabel('x (meters)')
 #plt.ylabel('y (meters)')
@@ -72,52 +211,18 @@ time, Uabs_Id, Remaining_Energy = data5.T
 #plt.show()
 #print(X.size)
 
-##Clustering with DBSCAN
-DBClusters = DBSCAN( eps=1000, min_samples=2, metric ='euclidean',algorithm = 'auto')
-DBClusters.fit(X)
-#DBClusters.labels_
-
-# Number of clusters in labels, ignoring noise if present.
-n_clusters_ = len(set(DBClusters.labels_)) - (1 if -1 in DBClusters.labels_ else 0)
-core_samples = np.zeros_like(DBClusters.labels_, dtype = bool)
-core_samples[DBClusters.core_sample_indices_] = True
-
-# PRINT CLUSTERS & # of CLUSTERS
-#print("Clusters:"+str(DBClusters.labels_))
-
-#print('Estimated number of clusters: %d' % n_clusters_)
-
-clusters = [X[DBClusters.labels_ == i] for i in range(n_clusters_)]
-outliers = X[DBClusters.labels_ == -1]
-
-# Plot Outliers
-#plt.scatter(outliers[:,0], outliers[:,1], c="black", label="Outliers")
+#---------------Clustering with DBSCAN for Users with Low SINR---------------------
+eps_low_SINR=1000
+min_samples_low_SINR=2
+clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
-# Plot Clusters
-x_clusters = [None] * len(clusters)
-y_clusters = [None] * len(clusters)
-colors = [0]
-for i in range(len(clusters)):
-    x_clusters[i] = []
-    y_clusters[i] = []
-   # print("Tamano Cluster "+ str(i) + ": " + str(len(clusters[i])))
-    for j in range(len(clusters[i])):
-        x_clusters[i].append(clusters[i][j][0])
-        y_clusters[i].append(clusters[i][j][1])
-        
-#        
-#    plt.scatter(x_clusters[i], y_clusters[i], label= "Cluster %d" %i)
-    colors+=[i]
+#---------------Clustering with DBSCAN for Users with Low Throughput---------------------
+#eps_low_tp=1000
+#min_samples_low_tp=8
+#DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
 
-#plot the Clusters 
-#plt.title("DBSCAN Clustering")
-#plt.scatter(x2,y2,c="green", label= "UABSs") #plot UABS new position
-#plt.xlabel('x (meters)')
-#plt.ylabel('y (meters)')
-#plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.09),
-#          fancybox=True, shadow=True, ncol=5))
-#plt.show()     
+
  
 #Sum of SINR and mean to later prioritize the clusters  
 SUMSinr = [None] * len(clusters)
