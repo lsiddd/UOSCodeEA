@@ -199,9 +199,12 @@ plt.scatter(x3,y3,c="red", label= "UEsLowSINR")
 
 time, Uabs_Id, Remaining_Energy = data5.T
 
-time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
+
+
+if (data6.size != 0):
+     time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
 ## ----------------Here i have to just create a X Y pair with lowest throughput users.
-X1 = np.array(list(zip(x4,y4)))
+     X1 = np.array(list(zip(x4,y4)))
 
 #circle2 = plt.Circle((0.5, 0.5), 0.2, color='blue', fill=False)
 #fig, ax = plt.subplots()
@@ -226,7 +229,7 @@ clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_sa
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
 eps_low_tp=1000
-min_samples_low_tp=8
+min_samples_low_tp=2
 DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
  
 

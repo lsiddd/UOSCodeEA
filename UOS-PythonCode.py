@@ -151,12 +151,7 @@ def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     
 #-----------------------------------Main---------------------------------------------------------------- 
 
-# generate 2d classification dataset (this will represent the users and the eNodeBs)
-#X, y = make_blobs(n_samples=10000, centers= 4, n_features=2, shuffle = False, cluster_std=1.2)
-# scatter plot, dots colored by class value
-#print(X.shape)
-
-# with open('/home/emanuel/source/ns-3.29/enBs') as fenBs:
+#-----------------------------------Import data files---------------------------------------------------#
 with open('enBs') as fenBs:
     data1 = np.array(list((float(x), float(y), float(z), int(cellid)) for x, y, z, cellid in csv.reader(fenBs, delimiter= ',')))
     
@@ -174,42 +169,27 @@ with open('UABS_Energy_Status') as fUABS_Energy:
 
 #with open('UEs_UDP_Throughput') as fUE_Throughput:
 #    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
+#
 
-
-#print("enBs: "+ str(data1))
-#print("UEs: "+ str(data2))
-#print("UABSs: "+ str(data3))
-#print("UEsLowSinr: "+ str(data4[0:2][0]))
+#---------------Parse Data----------------------#
 x,y,z, cellid= data1.T
-#plt.scatter(x,y,c="blue", label= "enBs")
 
 x1,y1,z1= data2.T
-#plt.scatter(x1,y1,c="gray", label= "UEs")
 
 x2,y2,z2, cellid3= data3.T
-#plt.scatter(x2,y2,c="green", label= "UABSs")
 UABSCoordinates = np.array(list(zip(x2,y2)))
 
 x3,y3,z3, sinr, imsi, cellid4= data4.T
 X = np.array(list(zip(x3,y3)))
-#X = StandardScaler().fit_transform(X)
-#print(X)
-
-#plt.scatter(x3,y3,c="red", label= "UEsSINRLow")
 
 time, Uabs_Id, Remaining_Energy = data5.T
 
-#time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
+#if (data6.size != 0):
+#     time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
 ### ----------------Here i have to just create a X Y pair with lowest throughput users.
-#X1 = np.array(list(zip(x4,y4)))
+#     X1 = np.array(list(zip(x4,y4)))
+    
 
-#plt.title('BS and UABS Scenario 1')
-#plt.xlabel('x (meters)')
-#plt.ylabel('y (meters)')
-#plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-#          fancybox=True, shadow=True, ncol=5)
-#plt.show()
-#print(X.size)
 
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
 eps_low_SINR=1000

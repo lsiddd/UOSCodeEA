@@ -92,14 +92,11 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 10; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 20; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
-const uint16_t numberOfUABS = 6;
+const uint16_t numberOfUABS = 4;
 double simTime = 400; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
-// -------- Inter packet interval in ms ------//
-//Time interPacketInterval = MilliSeconds (100);
-Time interPacketInterval = Seconds (0.5);
 bool disableDl = false;
 bool disableUl = false;
 int evalvidId = 0;
@@ -140,7 +137,6 @@ int scen = 4;
 // Scen[2]: one enB damaged (off) with supporting UABS; Scen[3]:Overloaded enB(s) with no UABS support; Scen[4]:Overloaded enB(s) with UABS support; ]
 int enBpowerFailure=0;
 int transmissionStart = 0;
-//double UABSPriority[20];
 bool graphType = false; // If "true" generates all the graphs based in FlowsVSThroughput, if "else" generates all the graphs based in TimeVSThroughput
 std::stringstream Users_UABS; // To UEs cell id in every second of the simulation
 std::stringstream Qty_UABS; //To get the quantity of UABS used per RUNS
@@ -905,18 +901,22 @@ NodeContainer ueNodes;
 				
 				
 				// Save in datasets to later plot the results. If graphtype is True, plots will be based in Flows, if False will be based in time (seconds)
-				if (graphType == true){
-				datasetThroughput.Add((double)iter->first,(double) Throughput);
-				datasetPDR.Add((double)iter->first,(double) PDR);
-				datasetPLR.Add((double)iter->first,(double) PLR);
-				datasetAPD.Add((double)iter->first,(double) APD);}
-				else{
-				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
-				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
-				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
-				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
+				if (graphType == true)
+				{
+					datasetThroughput.Add((double)iter->first,(double) Throughput);
+					datasetPDR.Add((double)iter->first,(double) PDR);
+					datasetPLR.Add((double)iter->first,(double) PLR);
+					datasetAPD.Add((double)iter->first,(double) APD);
+				}
+				else
+				{
+					datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
+					datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
+					datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
+					datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
 				}
 			}
+			
 			if (tp_num == 4)
 			{
 				tp_num = 0;
@@ -1105,7 +1105,7 @@ NodeContainer ueNodes;
 		          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
 		          dlClient.SetAttribute ("Interval", TimeValue (interPacketInterval));
 		          dlClient.SetAttribute ("MaxPackets", UintegerValue (1000000));
-		          dlClient.SetAttribute ("PacketSize", UintegerValue (2048));
+		          dlClient.SetAttribute ("PacketSize", UintegerValue (1024));
 		          clientApps.Add (dlClient.Install (remoteHost));
 		         }
 
@@ -1834,8 +1834,8 @@ NodeContainer ueNodes;
 
 		
 		// -----------------------Activate EPSBEARER---------------------------//
-		lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VIDEO_TCP_DEFAULT), EpcTft::Default ());
-		lteHelper->ActivateDedicatedEpsBearer (OverloadingUeLteDevs, EpsBearer (EpsBearer::NGBR_VOICE_VIDEO_GAMING), EpcTft::Default ());
+		//lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VIDEO_TCP_DEFAULT), EpcTft::Default ());
+		lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VOICE_VIDEO_GAMING), EpcTft::Default ());
 	  
 	  	//------------------------Get Sinr-------------------------------------//
 	  	if(scen != 0)
@@ -1861,7 +1861,7 @@ NodeContainer ueNodes;
 		{	
 				
 			//Simulator::Schedule(Seconds(30), &enB_Failure,enbLteDevs,ueLteDevs,lteHelper,enBpowerFailure);
-			Simulator::Schedule(Seconds(20), &enB_Failure,enbLteDevs,ueLteDevs,lteHelper,enBpowerFailure);
+			//Simulator::Schedule(Seconds(20), &enB_Failure,enbLteDevs,ueLteDevs,lteHelper,enBpowerFailure);
 		}
 
 
@@ -1875,7 +1875,7 @@ NodeContainer ueNodes;
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
-		NS_LOG_UNCOND("Resquesting-sending Evalvid Video...");
+		NS_LOG_UNCOND ("Resquesting-sending Evalvid Video...");
 	  	NS_LOG_INFO ("Create Applications.");
 	   
 	  	 //requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
