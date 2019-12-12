@@ -92,9 +92,9 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 20; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 50; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
-const uint16_t numberOfUABS = 4;
+const uint16_t numberOfUABS = 6;
 double simTime = 400; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
 bool disableDl = false;
@@ -538,8 +538,6 @@ NodeContainer ueNodes;
 			uenodes << "UEsLowSinr";    
 			std::ofstream UE;
 			UE.open(uenodes.str());
-			// NodeContainer::Iterator j = ueNodes.Begin();
-			// NodeContainer::Iterator q = ueOverloadNodes.Begin();
 			int k =0;
 			int z =0;
 			int i =0;
@@ -644,7 +642,7 @@ NodeContainer ueNodes;
 								//if (source->GetInitialEnergy() != INITIAL_ENERGY && UABS_Energy_ON[i] == true)
 								if (UABS_Energy_ON[i] == false)
 								{
-									NS_LOG_UNCOND("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
+									NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
 									source->SetInitialEnergy(INITIAL_ENERGY);
 									UABS_Energy_ON[i] = true;
 									// NS_LOG_UNCOND(UABS_Energy_ON[i]);
@@ -696,7 +694,7 @@ NodeContainer ueNodes;
 								//if (source->GetInitialEnergy() != INITIAL_ENERGY)
 								if (UABS_Energy_ON[i] == false)
 								{
-									NS_LOG_UNCOND("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
+									NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
 									source->SetInitialEnergy(INITIAL_ENERGY);
 									UABS_Energy_ON[i] = true;
 									// NS_LOG_UNCOND(UABS_Energy_ON[i]);
@@ -819,7 +817,9 @@ NodeContainer ueNodes;
 			std::ofstream UE_TP_Log;
 			UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
 			Time now = Simulator::Now (); 
-			double Window_avg_Throughput[5];
+			double Window_avg_Throughput[numberOfUENodes];
+			double Total_UE_Avg= 0;
+
 
 			
 			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
@@ -855,26 +855,19 @@ NodeContainer ueNodes;
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = (Delaysum / rxPacketsum); // APD = (Delaysum / txPacketsum); //to check
 
-
-						
-				for (uint16_t i = 0; i < numberOfUENodes ; i++) 
+				
+				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)		 
 				{	
-					
+					double sumTP = 0;
 					if (ue_IP_Address[i] == t.destinationAddress) // to save just to download throughput (Server --> User)
 					{
 						//std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
 						
 						Arr_Througput[i][tp_num] = Throughput;
 
-						// std::cout << "Arr_Througput["<< i <<"][0] = " << Arr_Througput[i][0] <<std::endl;
-						// std::cout << "Arr_Througput["<< i <<"][1] = " << Arr_Througput[i][1] <<std::endl;
-						// std::cout << "Arr_Througput["<< i <<"][2] = " << Arr_Througput[i][2] <<std::endl;
-						// std::cout << "Arr_Througput["<< i <<"][3] = " << Arr_Througput[i][3] <<std::endl;
-						// std::cout << "Arr_Througput["<< i <<"][4] = " << Arr_Througput[i][4] <<std::endl;
-
-						if (tp_num == 4) //schedule every 4 seconds
+						if (tp_num == 4) //schedule every 4 seconds. This is because we calculate the throughput in a windows of 5 positions to find average throughput of every user.
 						{
-							for (uint16_t i = 0; i < numberOfUENodes ; i++) 
+							for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
 							{
 								double sumThroughput = 0;
 								for (uint16_t j = 0; j < 5 ; j++) 
@@ -882,19 +875,26 @@ NodeContainer ueNodes;
 									sumThroughput += Arr_Througput[i][j]; //sum all the throughputs 
 									
 								}
-								Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 throughput measurements
-								
+								Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 UE throughput measurements
+								sumTP += Window_avg_Throughput[i]; // here we sum all the throughputs.
 							}
 							//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
-						
+							if (i == (ueNodes.GetN()-1))
+							{	
+								Total_UE_Avg = sumTP / numberOfUENodes;
+								std::cout << "Total Throughput Average: "<< Total_UE_Avg << std::endl;
+							}
+
 							Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 							NS_ASSERT (UEposition != 0);
 							Vector pos = UEposition->GetPosition ();
-
-							UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
-			   	
-				   			UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
 							
+							if (Window_avg_Throughput[i] < Total_UE_Avg)
+							{
+								UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
+			   	
+				   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
+							}
 						}
 					}
 				}
@@ -1368,12 +1368,12 @@ NodeContainer ueNodes;
 	  //   	lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 	  //   	Config::SetDefault ("ns3::RadioBearerStatsCalculator::EpochDuration", TimeValue (Seconds(1.00)));
 
-	    	NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
+	    	NS_LOG_INFO("Pathloss model: ItuR1411LosPropagationLossModel ");
 			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
 			lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 
 
-			NS_LOG_UNCOND("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
+			NS_LOG_INFO("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
 			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411NlosOverRooftopPropagationLossModel"));
 			lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 			lteHelper->SetPathlossModelAttribute("Environment", StringValue("Urban"));
@@ -1404,12 +1404,12 @@ NodeContainer ueNodes;
 			// lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (1e6));
 			// lteHelper->SetSpectrumChannelType ("ns3::MultiModelSpectrumChannel");
 
-			NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
+			NS_LOG_INFO("Pathloss model: ItuR1411LosPropagationLossModel ");
 			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
 			lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 
 
-			NS_LOG_UNCOND("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
+			NS_LOG_INFO("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
 			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411NlosOverRooftopPropagationLossModel"));
 			lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 			lteHelper->SetPathlossModelAttribute("Environment", StringValue("Urban"));
@@ -1557,14 +1557,6 @@ NodeContainer ueNodes;
 		//BuildingsHelper::Install (enbNodes);
 		
 		//---------------Set Power of eNodeBs------------------//  
-		// Ptr<LteEnbPhy> enodeBPhy; 
-
-		// for( uint16_t i = 0; i < enbLteDevs.GetN(); i++) 
-		// {
-		// 	enodeBPhy = enbLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetPhy();
-		// 	enodeBPhy->SetTxPower(eNodeBTxPower);
-			
-		// }
 		Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (eNodeBTxPower));
 		Config::SetDefault( "ns3::LteEnbPhy::NoiseFigure", DoubleValue(5) );    // Default 5
 		
@@ -1712,24 +1704,7 @@ NodeContainer ueNodes;
 
 		}
 
-		
-
-		
-		// for (uint16_t i = 0; i < UABSNodes.GetN(); i++) 
-	 //  	{
-	 //  		Ptr<ConstantVelocityMobilityModel> UABSmobilityModel = UABSNodes.Get(i)->GetObject<ConstantVelocityMobilityModel> ();
-		// 	//Ptr<LiIonEnergySource> source = UABSNodes.Get(0)->GetObject<LiIonEnergySource>();
-		// 	Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
-
-		// 	source->TraceConnectWithoutContext ("RemainingEnergy", MakeCallback (&RemainingEnergy));
-		
-		// 	//DeviceEnergyCont.Get(i)->TraceConnectWithoutContext ("EnergyDepleted",MakeBoundCallback (&EnergyDepleted, UABSmobilityModel));
-		// }
-		
-
-
-		//------------------------------------------------------------------//
-		
+	
 		 
 
 		// ------------------- Install LTE Devices to the nodes --------------------------------//
@@ -1886,7 +1861,7 @@ NodeContainer ueNodes;
 		{	
 			//NS_LOG_UNCOND("Resquesting-sending EvalVid...");
 			//Simulator::Schedule(Seconds(11),&requestVideoStream, remoteHost, ueOverloadNodes, remoteHostAddr, simTime); //estaba en 11 segundos
-			NS_LOG_UNCOND("Resquesting-sending UDPApp...");
+			NS_LOG_UNCOND("Starting UDPApp...");
 			//UDPApp(remoteHost, ueOverloadNodes, remoteHostAddr, ue_all_IpIfaces); // ver si tengo que crear un remoteHostUDP, remoteHostAddrUDP.
 			UDPApp(remoteHost, ueNodes, remoteHostAddr, ue_all_IpIfaces);
 			//UDPApp2(remoteHost, ueNodes, remoteHostAddr, ue_all_IpIfaces);

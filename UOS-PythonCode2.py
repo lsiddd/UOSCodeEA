@@ -230,7 +230,8 @@ clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_sa
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
 eps_low_tp=1000
 min_samples_low_tp=2
-DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
+if (data6.size != 0):
+    DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
  
 
 
