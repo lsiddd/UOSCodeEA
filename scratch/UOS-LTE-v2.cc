@@ -92,7 +92,7 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 10; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
 double simTime = 400; // 120 secs ||100 secs || 300 secs
@@ -115,6 +115,8 @@ int minSINR = 0; //  minimum SINR to be considered to clusterization
 string GetClusterCoordinates;
 double Throughput=0.0;
 double Arr_Througput[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Throughput X]
+double Arr_Delay[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Delay X]
+double Arr_PacketLoss[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Packet Loss X]
 int tp_num = 0; //variable to count the number of throughput measurements
 double PDR=0.0; //Packets Delay Rate
 double PLR=0.0; //Packets Lost Rate
@@ -295,10 +297,10 @@ NodeContainer ueNodes;
 				Ptr<LteEnbPhy> UABSPhy = UABSLteDevs.Get(i)->GetObject<LteEnbNetDevice>()->GetPhy();
 				
 				//-------------Check Remaining Energy and send to UABS Recharging Station (URS)--------------//
-  				double UABS_Energy_Restrain=INITIAL_ENERGY*15/100;
+  				double UABS_Energy_Restrain=INITIAL_ENERGY*5/100;
   				if(UABS_Remaining_Energy <= UABS_Energy_Restrain)
   				{
-  					NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Battery is at 15%, going back to URS.");
+  					NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Battery is at 5%, going back to URS.");
   					
   					
   					// Check_UABS_BS_Distance(UABS_Position,UABS_Remaining_Energy);  //Create a function to verify if is possible to UABS get to Home (Recharge Base Station)
@@ -374,10 +376,10 @@ NodeContainer ueNodes;
 				UABS_Position = UABS_Pos->GetPosition();
 				
 				//-------------Check Remaining Energy and send to UABS Recharging Station (URS)--------------//
-  				double UABS_Energy_Restrain=INITIAL_ENERGY*15/100;
+  				double UABS_Energy_Restrain=INITIAL_ENERGY*5/100;
   				if(UABS_Remaining_Energy <= UABS_Energy_Restrain)
   				{
-  					NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Battery is at 15%, going back to URS.");
+  					NS_LOG_UNCOND("UABS Cell ID" << to_string(UABSCellId) << ": " << "Battery is at 5%, going back to URS.");
   					
   					
   					// Check_UABS_BS_Distance(UABS_Position,UABS_Remaining_Energy);  //Create a function to verify if is possible to UABS get to Home (Recharge Base Station)
@@ -486,7 +488,7 @@ NodeContainer ueNodes;
 			}
 			enB.close();
 
-
+			i=0;
 			for (NodeContainer::Iterator j = ueNodes.Begin ();j != ueNodes.End (); ++j)
 			{
 				Ptr<Node> object = *j;
@@ -497,7 +499,7 @@ NodeContainer ueNodes;
 
 				UEImsi = ueLteDevs.Get(i)->GetObject<LteUeNetDevice>()->GetImsi();
 				UE_Log << now.GetSeconds() << ","  << pos.x << "," << pos.y << "," << pos.z << "," << UEImsi << "," << ue_info_cellid[UEImsi-1] << std::endl;
-				
+				i++;
 				
 			}
 			UE.close();
@@ -828,8 +830,11 @@ NodeContainer ueNodes;
 			UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
 			Time now = Simulator::Now (); 
 			double Window_avg_Throughput[numberOfUENodes];
-			double Total_UE_Avg= 0;
-
+			double Window_avg_Delay[numberOfUENodes];
+			double Window_avg_Packetloss[numberOfUENodes];
+			double Total_UE_TP_Avg= 0;
+			double Total_UE_Del_Avg= 0;
+			double Total_UE_PL_Avg= 0;
 
 			
 			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
@@ -869,41 +874,59 @@ NodeContainer ueNodes;
 				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)		 
 				{	
 					double sumTP = 0;
+					double sumDel = 0;
+					double sumPL = 0;
+
 					if (ue_IP_Address[i] == t.destinationAddress) // to save just to download throughput (Server --> User)
 					{
 						//std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
 						
 						Arr_Througput[i][tp_num] = Throughput;
+						Arr_Delay[i][tp_num] = APD;
+						Arr_PacketLoss[i][tp_num] = PLR;
 
 						if (tp_num == 4) //schedule every 4 seconds. This is because we calculate the throughput in a windows of 5 positions to find average throughput of every user.
 						{
 							for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
 							{
 								double sumThroughput = 0;
+								double sumDelay = 0;
+								double sumPacketloss = 0;
 								for (uint16_t j = 0; j < 5 ; j++) 
 								{
-									sumThroughput += Arr_Througput[i][j]; //sum all the throughputs 
+									sumThroughput += Arr_Througput[i][j]; //sum all the throughputs
+									sumDelay += Arr_Delay[i][j]; //sum all the Delay 
+									sumPacketloss += Arr_PacketLoss[i][j]; //sum all the Packetloss  
 									
 								}
 								Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 UE throughput measurements
 								sumTP += Window_avg_Throughput[i]; // here we sum all the throughputs.
+								Window_avg_Delay[i] = sumDelay / 5; //get the average of the 5 UE throughput measurements
+								sumDel += Window_avg_Delay[i]; // here we sum all the throughputs.
+								Window_avg_Packetloss[i] = sumPacketloss / 5; //get the average of the 5 UE throughput measurements
+								sumPL += Window_avg_Packetloss[i]; // here we sum all the throughputs.
 							}
 							//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
 							if (i == (ueNodes.GetN()-1))
 							{	
-								Total_UE_Avg = sumTP / numberOfUENodes;
-								std::cout << now.GetSeconds () << " Total Throughput Average: "<< Total_UE_Avg << std::endl;
+								Total_UE_TP_Avg = sumTP / numberOfUENodes;
+								std::cout << now.GetSeconds () << "s Total Throughput Average: "<< Total_UE_TP_Avg << std::endl;
+								Total_UE_Del_Avg = sumDel / numberOfUENodes;
+								std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
+								Total_UE_PL_Avg = sumPL / numberOfUENodes;
+								std::cout << now.GetSeconds () << "s Total Packet Loss Average: "<< Total_UE_PL_Avg << std::endl;
 							}
 
 							Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 							NS_ASSERT (UEposition != 0);
 							Vector pos = UEposition->GetPosition ();
 							
-							if (Window_avg_Throughput[i] < Total_UE_Avg)
+							if (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg ) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 							{
-								UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
+								NS_LOG_INFO(std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
+								UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << Window_avg_Delay[i] << "," << Window_avg_Packetloss[i] << std::endl;
 			   	
-				   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << std::endl;
+				   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << Window_avg_Delay[i] << "," << Window_avg_Packetloss[i] << std::endl;
 							}
 						}
 					}
@@ -930,13 +953,13 @@ NodeContainer ueNodes;
 			if (tp_num == 4)
 			{
 				tp_num = 0;
-				UE_TP.close();
+				//UE_TP.close();
 			}	
 			else tp_num++;	
 			
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
-			//UE_TP.close();
+			UE_TP.close();
 			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		}
 

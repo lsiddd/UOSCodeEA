@@ -172,18 +172,25 @@ with open('UEs_UDP_Throughput') as fUE_Throughput:
 
 
 #---------------Parse Data----------------------#
+
+#----------enBs--------------#
 x,y,z, cellid= data1.T
 
+#----------Total LTE Users--------------#
 x1,y1,z1= data2.T
 
+#----------UABS--------------#
 x2,y2,z2, cellid3= data3.T
 UABSCoordinates = np.array(list(zip(x2,y2)))
 
+#----------Users with Low SINR--------------#
 x3,y3,z3, sinr, imsi, cellid4= data4.T
 X = np.array(list(zip(x3,y3)))
 
+#----------UABS Energy--------------#
 time, Uabs_Id, Remaining_Energy = data5.T
 
+#----------QoS Parameters--------------#
 if (data6.size != 0):
      time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
 ## ----------------Here i have to just create a X Y pair with lowest throughput users.
