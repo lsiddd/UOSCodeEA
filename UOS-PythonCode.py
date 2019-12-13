@@ -167,9 +167,9 @@ with open('UEsLowSinr') as fUEsLow:
 with open('UABS_Energy_Status') as fUABS_Energy:
     data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
 
-#with open('UEs_UDP_Throughput') as fUE_Throughput:
-#    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
-#
+with open('UEs_UDP_Throughput') as fUE_Throughput:
+    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
+
 
 #---------------Parse Data----------------------#
 x,y,z, cellid= data1.T
@@ -184,10 +184,10 @@ X = np.array(list(zip(x3,y3)))
 
 time, Uabs_Id, Remaining_Energy = data5.T
 
-#if (data6.size != 0):
-#     time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
-### ----------------Here i have to just create a X Y pair with lowest throughput users.
-#     X1 = np.array(list(zip(x4,y4)))
+if (data6.size != 0):
+     time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
+## ----------------Here i have to just create a X Y pair with lowest throughput users.
+     X1 = np.array(list(zip(x4,y4)))
     
 
 

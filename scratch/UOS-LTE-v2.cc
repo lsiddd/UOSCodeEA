@@ -92,7 +92,7 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 50; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
 double simTime = 400; // 120 secs ||100 secs || 300 secs
@@ -440,13 +440,15 @@ NodeContainer ueNodes;
 
 
 		// ---------------This function generates position files of every node in the network: enB, UABS, Users Equip. ----------//
-		void GetPositionUEandenB(NodeContainer ueNodes, NodeContainer enbNodes, NodeContainer UABSNodes, NetDeviceContainer enbLteDevs,NetDeviceContainer UABSLteDevs, NodeContainer ueOverloadNodes)
+		void GetPositionUEandenB(NodeContainer enbNodes, NodeContainer UABSNodes, NetDeviceContainer enbLteDevs,NetDeviceContainer UABSLteDevs, NodeContainer ueOverloadNodes, NetDeviceContainer ueLteDevs)
 		{
 		// iterate our nodes and print their position.
 			std::stringstream enodeB;
 			enodeB << "enBs"; 
 			std::stringstream uenodes;
 			uenodes << "LTEUEs";
+			std::stringstream uenodes_log;
+			uenodes_log << "LTEUEs_Log";
 			std::stringstream OverloadingUenodes;
 			OverloadingUenodes << "LTE_Overloading_UEs";
 			std::stringstream UABSnod;
@@ -454,7 +456,9 @@ NodeContainer ueNodes;
 			std::ofstream enB;
 			enB.open(enodeB.str());    
 			std::ofstream UE;
-			UE.open(uenodes.str());  
+			UE.open(uenodes.str()); 
+			std::ofstream UE_Log;
+			UE_Log.open(uenodes_log.str(),std::ios_base::app); 
 			std::ofstream OverloadingUE;
 			OverloadingUE.open(OverloadingUenodes.str());    
 			std::ofstream UABS;
@@ -462,6 +466,8 @@ NodeContainer ueNodes;
 			uint16_t enBCellId;
 			uint16_t UABSCellId;
 			Ptr<LteEnbPhy> UABSPhy;
+			Time now = Simulator::Now (); 
+			uint64_t UEImsi;
 			
 			int i=0; 
 			int k=0;
@@ -488,6 +494,10 @@ NodeContainer ueNodes;
 				NS_ASSERT (UEposition != 0);
 				Vector pos = UEposition->GetPosition ();
 				UE << pos.x << "," << pos.y << "," << pos.z << std::endl;
+
+				UEImsi = ueLteDevs.Get(i)->GetObject<LteUeNetDevice>()->GetImsi();
+				UE_Log << now.GetSeconds() << ","  << pos.x << "," << pos.y << "," << pos.z << "," << UEImsi << "," << ue_info_cellid[UEImsi-1] << std::endl;
+				
 				
 			}
 			UE.close();
@@ -525,7 +535,7 @@ NodeContainer ueNodes;
 
 			UABS.close();
 
-			Simulator::Schedule(Seconds(5), &GetPositionUEandenB,ueNodes,enbNodes,UABSNodes,enbLteDevs,UABSLteDevs,ueOverloadNodes);
+			Simulator::Schedule(Seconds(5), &GetPositionUEandenB,enbNodes,UABSNodes,enbLteDevs,UABSLteDevs,ueOverloadNodes, ueLteDevs);
 			
 		}
 
@@ -798,7 +808,7 @@ NodeContainer ueNodes;
 				UABS_Qty << "UABS needed " << std::to_string(j) << std::endl;
 			}
 			
-			Simulator::Schedule(Seconds(6), &GetPrioritizedClusters,UABSNodes,  speedUABS,  UABSLteDevs);
+			Simulator::Schedule(Seconds(5), &GetPrioritizedClusters,UABSNodes,  speedUABS,  UABSLteDevs);
 		}
 
 
@@ -882,7 +892,7 @@ NodeContainer ueNodes;
 							if (i == (ueNodes.GetN()-1))
 							{	
 								Total_UE_Avg = sumTP / numberOfUENodes;
-								std::cout << "Total Throughput Average: "<< Total_UE_Avg << std::endl;
+								std::cout << now.GetSeconds () << " Total Throughput Average: "<< Total_UE_Avg << std::endl;
 							}
 
 							Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
@@ -920,13 +930,13 @@ NodeContainer ueNodes;
 			if (tp_num == 4)
 			{
 				tp_num = 0;
+				UE_TP.close();
 			}	
 			else tp_num++;	
 			
-			UE_TP.close();
-
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
+			//UE_TP.close();
 			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		}
 
@@ -1724,7 +1734,7 @@ NodeContainer ueNodes;
 		if(scen != 0)
 		{
 		// ---------------Get position of enBs, UABSs and UEs. -------------------//
-		Simulator::Schedule(Seconds(5), &GetPositionUEandenB,ueNodes,enbNodes,UABSNodes,enbLteDevs,UABSLteDevs,ueOverloadNodes);
+		Simulator::Schedule(Seconds(5), &GetPositionUEandenB,enbNodes,UABSNodes,enbLteDevs,UABSLteDevs,ueOverloadNodes,ueLteDevs);
 		}
 
 
@@ -1828,7 +1838,7 @@ NodeContainer ueNodes;
 		//----------------Run Python Command to get centroids------------------------//
 		if (scen == 2 || scen == 4)
 		{
-			Simulator::Schedule(Seconds(6), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
+			Simulator::Schedule(Seconds(5), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
 		}
 
 		//Scenario A: Failure of an enB, overloads the system (the other enBs):

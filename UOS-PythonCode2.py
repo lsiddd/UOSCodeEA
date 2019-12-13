@@ -231,6 +231,7 @@ clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_sa
 eps_low_tp=1000
 min_samples_low_tp=2
 if (data6.size != 0):
+    print("Clustering users with low throughput:")
     DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
  
 
