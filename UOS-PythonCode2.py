@@ -149,7 +149,42 @@ def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     plt.show()      
     
     return clusters, x_clusters, y_clusters  
+
+def Sum_Parameter(clusters,x3,Metric_Flag):
+    #Sum of SINR and mean to later prioritize the clusters  
+    SUMSinr = [None] * len(clusters)
     
+    for i in range(len(clusters)):
+        SUMSinrClusters = 0
+        for j in range(len(clusters[i])):
+            index_x3 = np.where(x3 == clusters[i][j][0])
+    #        print("Found x3: "+str(np.where(x3 == clusters[i][j][0]))) # para comparar con x3
+    #        print("Found y3: "+str(np.where(y3 == clusters[i][j][1]))) # para comparar con x3
+            for k in range(len(index_x3)):
+                if (y3[index_x3[k]] == clusters[i][j][1]):
+    #                print("SINR FOUND: " + str(sinr[index_x3[k]]))
+                    if Metric_Flag == 0:
+                        SUMSinrClusters += sinr[index_x3[k]]
+                    elif Metric_Flag == 1:
+                        SUMSinrClusters += UE_Throughput[index_x3[k]]
+                    elif Metric_Flag == 2:
+                        SUMSinrClusters += UE_Delay[index_x3[k]]
+                    elif Metric_Flag == 3:
+                        SUMSinrClusters += UE_Packet_Loss[index_x3[k]]
+    #                print(sinr[index_x3[k]])
+    #                print(SUMSinrClusters)
+    #   SUMSinr[i] = sinr[index_x3[k]]
+        SUMSinr[i] = SUMSinrClusters        
+    
+    SINRAvg = [None] * len(clusters)
+    
+    for i in range(len(SUMSinr)):
+        SINRAvg[i] = SUMSinr[i]/len(clusters[i])
+        
+    return SINRAvg
+
+
+
 #-----------------------------------Main----------------------------------------------------------------   
 
 # generate 2d classification dataset (this will represent the users and the eNodeBs)
@@ -248,32 +283,28 @@ eps_low_tp=1000
 min_samples_low_tp=2
 if (data6.size != 0):
     print("Clustering users with low QoS:")
-    DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
+    clusters_QoS, x_clusters_QoS, y_clusters_QoS = DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
  
 
+#Sum of SINR and mean to later prioritize the clusters
+Metric_Flag = 0
+SINRAvg= Sum_Parameter(clusters,x3, Metric_Flag)
 
-#Sum of SINR and mean to later prioritize the clusters  
-SUMSinr = [None] * len(clusters)
+#Sum of Throughput and mean to later prioritize the clusters
+Metric_Flag = 1
+if (data6.size != 0): 
+    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
+    
+#Sum of Delay and mean to later prioritize the clusters
+Metric_Flag = 2
+if (data6.size != 0): 
+    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
+    
+#Sum of Packet Loss and mean to later prioritize the clusters
+Metric_Flag = 3
+if (data6.size != 0): 
+    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
 
-for i in range(len(clusters)):
-    SUMSinrClusters = 0
-    for j in range(len(clusters[i])):
-        index_x3 = np.where(x3 == clusters[i][j][0])
-#        print("Found x3: "+str(np.where(x3 == clusters[i][j][0]))) # para comparar con x3
-#        print("Found y3: "+str(np.where(y3 == clusters[i][j][1]))) # para comparar con x3
-        for k in range(len(index_x3)):
-            if (y3[index_x3[k]] == clusters[i][j][1]):
-#                print("SINR FOUND: " + str(sinr[index_x3[k]]))
-                SUMSinrClusters += sinr[index_x3[k]]
-#                print(sinr[index_x3[k]])
-#                print(SUMSinrClusters)
-#   SUMSinr[i] = sinr[index_x3[k]]
-    SUMSinr[i] = SUMSinrClusters        
-
-SINRAvg = [None] * len(clusters)
-
-for i in range(len(SUMSinr)):
-    SINRAvg[i] = SUMSinr[i]/len(clusters[i])
 
 #Prioritize by greater SINR    
 CopySINRAvg = SINRAvg.copy()
