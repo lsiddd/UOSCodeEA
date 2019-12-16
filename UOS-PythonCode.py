@@ -11,6 +11,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 from pandas import DataFrame
 from sklearn import metrics
 import statistics
@@ -167,8 +168,8 @@ with open('UEsLowSinr') as fUEsLow:
 with open('UABS_Energy_Status') as fUABS_Energy:
     data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
 
-with open('UEs_UDP_Throughput') as fUE_Throughput:
-    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput)) for time, UE_ID, x, y, z, UE_Throughput in csv.reader(fUE_Throughput, delimiter= ',')))
+with open('UEs_UDP_Throughput') as fUE_QoS:
+    data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput), float(UE_Delay) , float(UE_Packet_Loss)) for time, UE_ID, x, y, z, UE_Throughput, UE_Delay, UE_Packet_Loss in csv.reader(fUE_QoS, delimiter= ',')))
 
 
 #---------------Parse Data----------------------#
@@ -192,7 +193,11 @@ time, Uabs_Id, Remaining_Energy = data5.T
 
 #----------QoS Parameters--------------#
 if (data6.size != 0):
-     time_UE, UE_ID, x4, y4, z4, UE_Throughput = data6.T
+    # Normalize throughput, delay and Packet Loss columns
+     data6[:,5] = preprocessing.normalize([data6[:,5]])
+     data6[:,6] = preprocessing.normalize([data6[:,6]])
+     data6[:,7] = preprocessing.normalize([data6[:,7]])
+     time_UE, UE_ID, x4, y4, z4, UE_Throughput, UE_Delay, UE_Packet_Loss = data6.T
 ## ----------------Here i have to just create a X Y pair with lowest throughput users.
      X1 = np.array(list(zip(x4,y4)))
     
