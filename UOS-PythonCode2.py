@@ -150,7 +150,7 @@ def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     
     return clusters, x_clusters, y_clusters  
 
-def Sum_Parameter(clusters,x3,Metric_Flag):
+def Sum_Avg_Parameter(clusters,x3,Metric_Flag):
     #Sum of SINR and mean to later prioritize the clusters  
     SUMSinr = [None] * len(clusters)
     
@@ -161,16 +161,19 @@ def Sum_Parameter(clusters,x3,Metric_Flag):
     #        print("Found x3: "+str(np.where(x3 == clusters[i][j][0]))) # para comparar con x3
     #        print("Found y3: "+str(np.where(y3 == clusters[i][j][1]))) # para comparar con x3
             for k in range(len(index_x3)):
-                if (y3[index_x3[k]] == clusters[i][j][1]):
-    #                print("SINR FOUND: " + str(sinr[index_x3[k]]))
                     if Metric_Flag == 0:
-                        SUMSinrClusters += sinr[index_x3[k]]
+                        if (y3[index_x3[k]] == clusters[i][j][1]):
+    #                print("SINR FOUND: " + str(sinr[index_x3[k]]))
+                            SUMSinrClusters += sinr[index_x3[k]]
                     elif Metric_Flag == 1:
-                        SUMSinrClusters += UE_Throughput[index_x3[k]]
+                        if (y4[index_x3[k]] == clusters[i][j][1]):
+                            SUMSinrClusters += UE_Throughput[index_x3[k]]
                     elif Metric_Flag == 2:
-                        SUMSinrClusters += UE_Delay[index_x3[k]]
+                        if (y4[index_x3[k]] == clusters[i][j][1]):
+                            SUMSinrClusters += UE_Delay[index_x3[k]]
                     elif Metric_Flag == 3:
-                        SUMSinrClusters += UE_Packet_Loss[index_x3[k]]
+                        if (y4[index_x3[k]] == clusters[i][j][1]):
+                            SUMSinrClusters += UE_Packet_Loss[index_x3[k]]
     #                print(sinr[index_x3[k]])
     #                print(SUMSinrClusters)
     #   SUMSinr[i] = sinr[index_x3[k]]
@@ -246,7 +249,7 @@ time, Uabs_Id, Remaining_Energy = data5.T
 #----------QoS Parameters--------------#
 if (data6.size != 0):
     # Normalize throughput, delay and Packet Loss columns
-     data6[:,5] = preprocessing.normalize([data6[:,5]])
+     data6[:,5] = preprocessing.normalize([data6[:,5]], norm= 'max')
      data6[:,6] = preprocessing.normalize([data6[:,6]])
      data6[:,7] = preprocessing.normalize([data6[:,7]])
      time_UE, UE_ID, x4, y4, z4, UE_Throughput, UE_Delay, UE_Packet_Loss = data6.T
@@ -288,23 +291,36 @@ if (data6.size != 0):
 
 #Sum of SINR and mean to later prioritize the clusters
 Metric_Flag = 0
-SINRAvg= Sum_Parameter(clusters,x3, Metric_Flag)
+SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
 
 #Sum of Throughput and mean to later prioritize the clusters
 Metric_Flag = 1
 if (data6.size != 0): 
-    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
+    QoS_Throughput_Avg= Sum_Avg_Parameter(clusters_QoS,x4, Metric_Flag)
+    print("Stdev: "+ str(np.std(QoS_Throughput_Avg)))
     
 #Sum of Delay and mean to later prioritize the clusters
 Metric_Flag = 2
 if (data6.size != 0): 
-    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
+    QoS_Delay_Avg= Sum_Avg_Parameter(clusters_QoS,x4, Metric_Flag)
     
 #Sum of Packet Loss and mean to later prioritize the clusters
 Metric_Flag = 3
 if (data6.size != 0): 
-    QoS_Throughput_Avg= Sum_Parameter(clusters_QoS,x4, Metric_Flag)
+    QoS_PLR_Avg= Sum_Avg_Parameter(clusters_QoS,x4, Metric_Flag)
 
+#Calculate total weight of QoS Clustering
+if (data6.size != 0):
+    weight_QoS_Throughput = 0.4
+    weight_QoS_Delay = 0.3
+    weight_QoS_PLR = 0.3
+    weight_QoS_Total = []
+
+#Weight of Throughput + Weight of Delay + Weight of PLR = 1
+    for i in range(len(QoS_Throughput_Avg)):
+        weight_QoS_Total.append((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
+#        print("QoS: "+ str((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR)))
+   
 
 #Prioritize by greater SINR    
 CopySINRAvg = SINRAvg.copy()

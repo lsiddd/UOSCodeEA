@@ -901,10 +901,10 @@ NodeContainer ueNodes;
 								}
 								Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 UE throughput measurements
 								sumTP += Window_avg_Throughput[i]; // here we sum all the throughputs.
-								Window_avg_Delay[i] = sumDelay / 5; //get the average of the 5 UE throughput measurements
-								sumDel += Window_avg_Delay[i]; // here we sum all the throughputs.
-								Window_avg_Packetloss[i] = sumPacketloss / 5; //get the average of the 5 UE throughput measurements
-								sumPL += Window_avg_Packetloss[i]; // here we sum all the throughputs.
+								Window_avg_Delay[i] = sumDelay / 5; //get the average of the 5 UE Delay measurements
+								sumDel += Window_avg_Delay[i]; // here we sum all the Delay.
+								Window_avg_Packetloss[i] = sumPacketloss / 5; //get the average of the 5 UE Packetloss measurements
+								sumPL += Window_avg_Packetloss[i]; // here we sum all the Packetloss.
 							}
 							//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
 							if (i == (ueNodes.GetN()-1))
@@ -921,11 +921,11 @@ NodeContainer ueNodes;
 							NS_ASSERT (UEposition != 0);
 							Vector pos = UEposition->GetPosition ();
 							
-							if (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg ) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
+							if (now.GetSeconds () > 5 && (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 							{
-								NS_LOG_INFO(std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
-								NS_LOG_INFO(std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
-								NS_LOG_INFO(std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
+								// NS_LOG_UNCOND(std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
+								// NS_LOG_UNCOND(std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
+								// NS_LOG_UNCOND(std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
 								UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << Window_avg_Delay[i] << "," << Window_avg_Packetloss[i] << std::endl;
 			   	
 				   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << Window_avg_Delay[i] << "," << Window_avg_Packetloss[i] << std::endl;
