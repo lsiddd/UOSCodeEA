@@ -297,7 +297,7 @@ SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
 Metric_Flag = 1
 if (data6.size != 0): 
     QoS_Throughput_Avg= Sum_Avg_Parameter(clusters_QoS,x4, Metric_Flag)
-    print("Stdev: "+ str(np.std(QoS_Throughput_Avg)))
+    #print("Stdev: "+ str(np.std(QoS_Throughput_Avg)))
     
 #Sum of Delay and mean to later prioritize the clusters
 Metric_Flag = 2

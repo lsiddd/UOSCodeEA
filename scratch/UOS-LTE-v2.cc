@@ -92,10 +92,10 @@ using namespace ns3;
 using namespace psc; //to use PSC functions
 
 const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 50; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
 const uint16_t numberOfUABS = 6;
-double simTime = 200; // 120 secs ||100 secs || 300 secs
+double simTime = 100; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
 bool disableDl = false;
 bool disableUl = false;
@@ -921,7 +921,8 @@ NodeContainer ueNodes;
 							NS_ASSERT (UEposition != 0);
 							Vector pos = UEposition->GetPosition ();
 							
-							if (now.GetSeconds () > 5 && (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
+							//if (now.GetSeconds () > 5 && (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
+							if ( ( Window_avg_Delay[i] > Total_UE_Del_Avg)) //|| Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 							{
 								// NS_LOG_UNCOND(std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
 								// NS_LOG_UNCOND(std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
@@ -1367,7 +1368,7 @@ NodeContainer ueNodes;
   		//lteHelper->SetSchedulerAttribute("PssFdSchedulerType", StringValue("CoItA")); // PF scheduler type in PSS
 		
 		// Modo de transmissão (SISO [0], MIMO [1])
-    	Config::SetDefault("ns3::LteEnbRrc::DefaultTransmissionMode",UintegerValue(1));
+    	Config::SetDefault("ns3::LteEnbRrc::DefaultTransmissionMode",UintegerValue(0));
 
 		Ptr<Node> pgw = epcHelper->GetPgwNode ();
 	  
