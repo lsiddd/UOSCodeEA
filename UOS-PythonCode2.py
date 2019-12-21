@@ -186,8 +186,46 @@ def Sum_Avg_Parameter(clusters,x3,Metric_Flag):
         
     return SINRAvg
 
+def Priotirize(SINRAvg):
+    #Prioritize by greater SINR    
+    CopySINRAvg = SINRAvg.copy()
+    SINRAvgPrioritized = []
+    for i in range(len(SINRAvg)):
+        #print("SINR Max:" + str(max(CopySINRAvg)))
+        SINRAvgPrioritized.append(min(CopySINRAvg))  #evaluar si es MAX o MIN que quiero para obtener el cluster con mayor SINR
+        CopySINRAvg.remove(min(CopySINRAvg))
+    
+    return SINRAvgPrioritized
 
+def Centroids_Clusters(clusters,x_clusters,y_clusters):
+    #Centroids - median of clusters
+    x_clusters_mean = [None] * len(clusters)
+    y_clusters_mean = [None] * len(clusters)
+    for i in range(len(clusters)):
+        x_clusters_mean[i] = []
+        y_clusters_mean[i] = []
+        x_clusters_mean[i].append(statistics.mean(x_clusters[i]))
+        y_clusters_mean[i].append(statistics.mean(y_clusters[i]))
+        
+    Centroids = list(zip([i[0] for i in x_clusters_mean],[i[0] for i in y_clusters_mean]))
+    
+    return Centroids
 
+def Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized):
+    #Reorder Centroides based on prioritized AVGSINR
+    CentroidsPrio = []   
+    for i in range(len(SINRAvg)):
+        index_SAP = np.where(SINRAvg == SINRAvgPrioritized[i] )
+    #    print(index_SAP[0])
+    #    print(Centroids[int(index_SAP[0])])
+        CentroidsPrio.append(Centroids[int(index_SAP[0])])
+        
+    #for i in CentroidsPrio:
+    #    print("{} {} ".format(i[0], i[1]))
+    #centroidsarray = np.asarray(Centroids)
+    #print(centroidsarray)
+    
+    return  CentroidsPrio
 #-----------------------------------Main----------------------------------------------------------------   
 
 # generate 2d classification dataset (this will represent the users and the eNodeBs)
@@ -235,12 +273,13 @@ plt.scatter(x2,y2,c="yellow", label= "UABSs", s=10**2)
 UABSCoordinates = np.array(list(zip(x2,y2)))
 
 #----------Users with Low SINR--------------#
-x3,y3,z3, sinr, imsi, cellid4= data4.T
-X = np.array(list(zip(x3,y3)))
-#X = StandardScaler().fit_transform(X)
-#print(X)
-
-plt.scatter(x3,y3,c="red", label= "UEsLowSINR")
+if (data4.size != 0):
+    x3,y3,z3, sinr, imsi, cellid4= data4.T
+    X = np.array(list(zip(x3,y3)))
+    #X = StandardScaler().fit_transform(X)
+    #print(X)
+    
+    plt.scatter(x3,y3,c="red", label= "UEsLowSINR")
 
 #----------UABS Energy--------------#
 time, Uabs_Id, Remaining_Energy = data5.T
@@ -278,7 +317,8 @@ plt.show()
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
 eps_low_SINR=1000
 min_samples_low_SINR=2
-clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
+if (data4.size != 0):
+    clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
@@ -291,7 +331,10 @@ if (data6.size != 0):
 
 #Sum of SINR and mean to later prioritize the clusters
 Metric_Flag = 0
-SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
+if (data4.size != 0):
+    SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
+    weight_SINR_Total = []
+    weight_SINR = 0.6 
 
 #Sum of Throughput and mean to later prioritize the clusters
 Metric_Flag = 1
@@ -311,57 +354,82 @@ if (data6.size != 0):
 
 #Calculate total weight of QoS Clustering
 if (data6.size != 0):
-    weight_QoS_Throughput = 0.4
-    weight_QoS_Delay = 0.3
+    weight_QoS_Throughput = 0.5
+    weight_QoS_Delay = 0.2
     weight_QoS_PLR = 0.3
     weight_QoS_Total = []
+    weight_QoS = 0.4
 
 #Weight of Throughput + Weight of Delay + Weight of PLR = 1
+    SINRAvg_norm = SINRAvg.copy()
     for i in range(len(QoS_Throughput_Avg)):
         weight_QoS_Total.append((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
 #        print("QoS: "+ str((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR)))
-   
-
-#Prioritize by greater SINR    
-CopySINRAvg = SINRAvg.copy()
-SINRAvgPrioritized = []
-for i in range(len(SINRAvg)):
-    #print("SINR Max:" + str(max(CopySINRAvg)))
-    SINRAvgPrioritized.append(min(CopySINRAvg))  #evaluar si es MAX o MIN que quiero para obtener el cluster con mayor SINR
-    CopySINRAvg.remove(min(CopySINRAvg))
-
-#Convert SINR to dB just to see which cluster has bigger SINR    
-SINRinDB = []
-for i in range(len(SINRAvgPrioritized)):
-      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
-       
+    for i in range(len(SINRAvg)):
+#        SINRAvg_norm[i] = preprocessing.normalize(SINRAvg[i])
+        weight_SINR_Total.append(SINRAvg[i]*weight_SINR)
+        
+#if (len(weight_SINR_Total) > len(weight_QoS_Total)):
+if (weight_SINR_Total > weight_QoS_Total):
+#    print("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)))
+#    print("UABS will be positionated by Low SINR")
+    #Prioritize by greater SINR or QoS
+    SINRAvgPrioritized = Priotirize(SINRAvg) #Here we reorder-prioritize based on the clusters with min SINR.
      
-#Centroids - median of clusters
-x_clusters_mean = [None] * len(clusters)
-y_clusters_mean = [None] * len(clusters)
-for i in range(len(clusters)):
-    x_clusters_mean[i] = []
-    y_clusters_mean[i] = []
-    x_clusters_mean[i].append(statistics.mean(x_clusters[i]))
-    y_clusters_mean[i].append(statistics.mean(y_clusters[i]))
+    ##Convert SINR to dB just to see which cluster has bigger SINR    
+    #SINRinDB = []
+    #for i in range(len(SINRAvgPrioritized)):
+    #      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
+           
+    #Centroids - median of clusters
+    Centroids = Centroids_Clusters(clusters,x_clusters,y_clusters)
     
-Centroids = list(zip([i[0] for i in x_clusters_mean],[i[0] for i in y_clusters_mean]))
-
-
+    #Reorder Centroides based on prioritized AVGSINR
+    CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
     
-#Reorder Centroides based on prioritized AVGSINR
-CentroidsPrio = []   
-for i in range(len(SINRAvg)):
-    index_SAP = np.where(SINRAvg == SINRAvgPrioritized[i] )
-#    print(index_SAP[0])
-#    print(Centroids[int(index_SAP[0])])
-    CentroidsPrio.append(Centroids[int(index_SAP[0])])
+    file = open("UOS_Clustering_Decitions.txt","a") 
+ 
+    file.write("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)) + "\n") 
+    file.write("UABS will be positionated by Low SINR" + "\n")
+     
+    file.close() 
     
-#for i in CentroidsPrio:
-#    print("{} {} ".format(i[0], i[1]))
-#centroidsarray = np.asarray(Centroids)
-#print(centroidsarray)
-
+else:
+#    print("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)))
+#    print("UABS will be positionated by Low QoS")
+    #Prioritize by greater SINR or QoS
+    QoSAvgPrioritized = Priotirize(QoS_Throughput_Avg)  #Here we reorder-prioritize based on the clusters with min throughput.
+           
+    #Centroids - median of clusters
+    Centroids = Centroids_Clusters(clusters_QoS,x_clusters_QoS,y_clusters_QoS)
+    
+    #Reorder Centroides based on prioritized AVG_QoS
+    CentroidsPrio = Reorder_Centroids(Centroids, QoS_Throughput_Avg, QoSAvgPrioritized)
+    
+    file = open("UOS_Clustering_Decitions.txt","a") 
+ 
+    file.write("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)) + "\n") 
+    file.write("UABS will be positionated by Low QoS" + "\n")
+     
+    file.close() 
+        
+    
+##Prioritize by greater SINR or QoS
+#SINRAvgPrioritized = Priotirize(SINRAvg)
+#    
+#    
+###Convert SINR to dB just to see which cluster has bigger SINR    
+##SINRinDB = []
+##for i in range(len(SINRAvgPrioritized)):
+##      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
+#           
+#    
+##Centroids - median of clusters
+#Centroids = Centroids_Clusters(clusters,x_clusters,y_clusters)
+#    
+#    
+##Reorder Centroides based on prioritized AVGSINR
+#CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
 
 
 #  KNN Implementation for finding the nearest UABS to the X Centroid.
@@ -375,7 +443,7 @@ if  (CentroidsPrio):
       Knnpredict= knn.predict(CentroidsPrio)
       j=0
       for i in CentroidsPrio:
-            print("{} {} {} ".format(i[0], i[1], Knnpredict[j]))
+            print("{} {} {} ".format(i[0], i[1], Knnpredict[j])) #Format: Centroid_X , Centroid_Y , Nearest_UABS
             j+=1 
 else:
       for i in CentroidsPrio:

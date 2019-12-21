@@ -911,16 +911,16 @@ NodeContainer ueNodes;
 							if (i == (ueNodes.GetN()-1))
 							{	
 								Total_UE_TP_Avg = sumTP / numberOfUENodes;
-								std::cout << now.GetSeconds () << "s Total Throughput Average: "<< Total_UE_TP_Avg << std::endl;
+								//std::cout << now.GetSeconds () << "s Total Throughput Average: "<< Total_UE_TP_Avg << std::endl;
 								Total_UE_Del_Avg = sumDel / numberOfUENodes;
-								std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
+								//std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
 
-								std::cout << now.GetSeconds () << "s 1 / Total Delay Average: "<< 1 / Total_UE_Del_Avg << std::endl;
+								//std::cout << now.GetSeconds () << "s 1 / Total Delay Average: "<< 1 / Total_UE_Del_Avg << std::endl;
 								
 								Total_UE_PL_Avg = sumPL / numberOfUENodes;
-								std::cout << now.GetSeconds () << "s Total Packet Loss Average: "<< Total_UE_PL_Avg << std::endl;
+								//std::cout << now.GetSeconds () << "s Total Packet Loss Average: "<< Total_UE_PL_Avg << std::endl;
 
-								std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
+								//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
 							
 								for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
 								{
@@ -931,9 +931,9 @@ NodeContainer ueNodes;
 									//if ( (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 									if ( ( Window_avg_Delay[i] > Total_UE_Del_Avg) || (Window_avg_Packetloss[i] >= Total_UE_PL_Avg)) // //|| Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 									{
-										//  NS_LOG_UNCOND("Compare UE_TP vs Avg TP: "<< std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
-										 NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
-										 NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
+										  NS_LOG_UNCOND("Compare UE_TP vs Avg TP: "<< std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
+										// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
+										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
 										UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 					   	
 						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
