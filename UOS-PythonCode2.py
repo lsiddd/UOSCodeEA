@@ -370,67 +370,67 @@ if (data6.size != 0):
 #        SINRAvg_norm[i] = preprocessing.normalize(SINRAvg[i])
         weight_SINR_Total.append(SINRAvg[i]*weight_SINR)
         
-#if (len(weight_SINR_Total) > len(weight_QoS_Total)):
-if (weight_SINR_Total > weight_QoS_Total):
-#    print("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)))
-#    print("UABS will be positionated by Low SINR")
-    #Prioritize by greater SINR or QoS
-    SINRAvgPrioritized = Priotirize(SINRAvg) #Here we reorder-prioritize based on the clusters with min SINR.
+    #if (len(weight_SINR_Total) > len(weight_QoS_Total)):
+    if (weight_SINR_Total > weight_QoS_Total):
+    #    print("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)))
+    #    print("UABS will be positionated by Low SINR")
+        #Prioritize by greater SINR or QoS
+        SINRAvgPrioritized = Priotirize(SINRAvg) #Here we reorder-prioritize based on the clusters with min SINR.
+         
+        ##Convert SINR to dB just to see which cluster has bigger SINR    
+        #SINRinDB = []
+        #for i in range(len(SINRAvgPrioritized)):
+        #      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
+               
+        #Centroids - median of clusters
+        Centroids = Centroids_Clusters(clusters,x_clusters,y_clusters)
+        
+        #Reorder Centroides based on prioritized AVGSINR
+        CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
+        
+        file = open("UOS_Clustering_Decitions.txt","a") 
      
+        file.write("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)) + "\n") 
+        file.write("UABS will be positionated by Low SINR" + "\n")
+         
+        file.close() 
+        
+    else:
+    #    print("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)))
+    #    print("UABS will be positionated by Low QoS")
+        #Prioritize by greater SINR or QoS
+        QoSAvgPrioritized = Priotirize(QoS_Throughput_Avg)  #Here we reorder-prioritize based on the clusters with min throughput.
+               
+        #Centroids - median of clusters
+        Centroids = Centroids_Clusters(clusters_QoS,x_clusters_QoS,y_clusters_QoS)
+        
+        #Reorder Centroides based on prioritized AVG_QoS
+        CentroidsPrio = Reorder_Centroids(Centroids, QoS_Throughput_Avg, QoSAvgPrioritized)
+        
+        file = open("UOS_Clustering_Decitions.txt","a") 
+     
+        file.write("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)) + "\n") 
+        file.write("UABS will be positionated by Low QoS" + "\n")
+         
+        file.close() 
+        
+if (data6.size == 0):    
+    #Prioritize by greater SINR or QoS
+    SINRAvgPrioritized = Priotirize(SINRAvg)
+        
+        
     ##Convert SINR to dB just to see which cluster has bigger SINR    
     #SINRinDB = []
     #for i in range(len(SINRAvgPrioritized)):
     #      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
-           
+               
+        
     #Centroids - median of clusters
     Centroids = Centroids_Clusters(clusters,x_clusters,y_clusters)
-    
+        
+        
     #Reorder Centroides based on prioritized AVGSINR
     CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
-    
-    file = open("UOS_Clustering_Decitions.txt","a") 
- 
-    file.write("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)) + "\n") 
-    file.write("UABS will be positionated by Low SINR" + "\n")
-     
-    file.close() 
-    
-else:
-#    print("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)))
-#    print("UABS will be positionated by Low QoS")
-    #Prioritize by greater SINR or QoS
-    QoSAvgPrioritized = Priotirize(QoS_Throughput_Avg)  #Here we reorder-prioritize based on the clusters with min throughput.
-           
-    #Centroids - median of clusters
-    Centroids = Centroids_Clusters(clusters_QoS,x_clusters_QoS,y_clusters_QoS)
-    
-    #Reorder Centroides based on prioritized AVG_QoS
-    CentroidsPrio = Reorder_Centroids(Centroids, QoS_Throughput_Avg, QoSAvgPrioritized)
-    
-    file = open("UOS_Clustering_Decitions.txt","a") 
- 
-    file.write("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)) + "\n") 
-    file.write("UABS will be positionated by Low QoS" + "\n")
-     
-    file.close() 
-        
-    
-##Prioritize by greater SINR or QoS
-#SINRAvgPrioritized = Priotirize(SINRAvg)
-#    
-#    
-###Convert SINR to dB just to see which cluster has bigger SINR    
-##SINRinDB = []
-##for i in range(len(SINRAvgPrioritized)):
-##      SINRinDB.append(10 * math.log(SINRAvgPrioritized[i]))  
-#           
-#    
-##Centroids - median of clusters
-#Centroids = Centroids_Clusters(clusters,x_clusters,y_clusters)
-#    
-#    
-##Reorder Centroides based on prioritized AVGSINR
-#CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
 
 
 #  KNN Implementation for finding the nearest UABS to the X Centroid.
