@@ -244,8 +244,8 @@ with open('UABSs') as fUABS:
 with open('UEsLowSinr') as fUEsLow:
     data4 = np.array(list((float(x), float(y), float(z), float (Sinr), int (Imsi),int(cellid)) for x, y, z, Sinr,Imsi, cellid in csv.reader(fUEsLow, delimiter= ',')))
 
-with open('UABS_Energy_Status') as fUABS_Energy:
-    data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
+#with open('UABS_Energy_Status') as fUABS_Energy:
+#    data5 = np.array(list((int(time), int(UABSID), int(Remaining_Energy)) for time, UABSID, Remaining_Energy in csv.reader(fUABS_Energy, delimiter= ',')))
 
 with open('UEs_UDP_Throughput') as fUE_QoS:
     data6 = np.array(list((int(time), int(UE_ID), float(x), float(y), float(z), float(UE_Throughput), float(UE_Delay) , float(UE_Packet_Loss)) for time, UE_ID, x, y, z, UE_Throughput, UE_Delay, UE_Packet_Loss in csv.reader(fUE_QoS, delimiter= ',')))
@@ -269,7 +269,8 @@ if (data4.size != 0):
     X = np.array(list(zip(x3,y3)))
 
 #----------UABS Energy--------------#
-time, Uabs_Id, Remaining_Energy = data5.T
+#if (data5.size != 0):
+#    time, Uabs_Id, Remaining_Energy = data5.T
 
 #----------QoS Parameters--------------#
 if (data6.size != 0):
