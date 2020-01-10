@@ -152,7 +152,8 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 
 // UE Trace File directory
 //std::string traceFile = "home/emanuel/Desktop/ns-allinone-3.30/PSC-NS3/UOSCodeEA/scenarioUEs1.ns_movements";
-std::string traceFile = "scratch/UOS_UE_Scenario_5.ns_movements";
+//std::string traceFile = "scratch/UOS_UE_Scenario_5.ns_movements";
+std::string traceFile;
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
@@ -1355,6 +1356,9 @@ NodeContainer ueNodes;
 			
 				UE_UABS.open(Users_UABS.str());
 				UABS_Qty.open(Qty_UABS.str());
+
+				 traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
+				 NS_LOG_UNCOND(traceFile);
 
 
 		Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
