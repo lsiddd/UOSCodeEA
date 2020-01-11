@@ -1634,7 +1634,7 @@ NodeContainer ueNodes;
 
 		NS_LOG_UNCOND("Installing Mobility Model in UEs...");
 
-		------------------Install Mobility Model User Equipments-------------------//
+		//------------------Install Mobility Model User Equipments-------------------//
 
 		MobilityHelper mobilityUEs;
 		mobilityUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
