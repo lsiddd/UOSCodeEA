@@ -1357,8 +1357,8 @@ NodeContainer ueNodes;
 				UE_UABS.open(Users_UABS.str());
 				UABS_Qty.open(Qty_UABS.str());
 
-				 traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
-				 NS_LOG_UNCOND(traceFile);
+				 // traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
+				 // NS_LOG_UNCOND(traceFile);
 
 
 		Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
@@ -1495,17 +1495,17 @@ NodeContainer ueNodes;
 			ueOverloadNodes.Create(numberOfOverloadUENodes);
 		}
 
-		NS_LOG_UNCOND("Installing Mobility Model in UEs from Trace File...");
-		Ns2MobilityHelper UEMobility_tf = Ns2MobilityHelper (traceFile);
-		// MobilityHelper mobilityUEs;
-		// mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
-		// 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
-		// mobilityUEs.Install(ueNodes);
+		// NS_LOG_UNCOND("Installing Mobility Model in UEs from Trace File...");
+		// Ns2MobilityHelper UEMobility_tf = Ns2MobilityHelper (traceFile);
+		// // MobilityHelper mobilityUEs;
+		// // mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
+		// // 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// // 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		// // 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		// // mobilityUEs.Install(ueNodes);
 
-		//UEMobility_tf.Install ();
-		UEMobility_tf.Install (ueNodes.Begin(), ueNodes.End());
+		// //UEMobility_tf.Install ();
+		// UEMobility_tf.Install (ueNodes.Begin(), ueNodes.End());
 
 		
 		//------------//
@@ -1632,27 +1632,27 @@ NodeContainer ueNodes;
 		NetDeviceContainer enbLteDevs = lteHelper->InstallEnbDevice (enbNodes);
 
 
-		//NS_LOG_UNCOND("Installing Mobility Model in UEs...");
+		NS_LOG_UNCOND("Installing Mobility Model in UEs...");
 
-		// ------------------Install Mobility Model User Equipments-------------------//
+		------------------Install Mobility Model User Equipments-------------------//
 
-		// MobilityHelper mobilityUEs;
-		// mobilityUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
-		// 							 "Mode", StringValue ("Time"),
-		// 							 "Time", StringValue ("1s"),//("1s"),
-		// 							 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=4.0]"),
-		// 							 //"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
-		// 							 "Speed", StringValue ("ns3::UniformRandomVariable[Min=1.0|Max=4.0]"),
-		// 							 "Bounds", StringValue ("0|6000|0|6000"));
-		// // mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
-		// // 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// // 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
-		// mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
+		MobilityHelper mobilityUEs;
+		mobilityUEs.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+									 "Mode", StringValue ("Time"),
+									 "Time", StringValue ("1s"),//("1s"),
+									 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=4.0]"),
+									 //"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
+									 "Speed", StringValue ("ns3::UniformRandomVariable[Min=1.0|Max=4.0]"),
+									 "Bounds", StringValue ("0|6000|0|6000"));
+		// mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
 		// 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		// 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
-		// //mobilityUEs.SetPositionAllocator(positionAllocUEs);
-		// mobilityUEs.Install(ueNodes);
+		// 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
+		mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
+			 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+										 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+										 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		//mobilityUEs.SetPositionAllocator(positionAllocUEs);
+		mobilityUEs.Install(ueNodes);
 
 		
 
