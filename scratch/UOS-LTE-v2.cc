@@ -121,6 +121,7 @@ int tp_num = 0; //variable to count the number of throughput measurements
 double PDR=0.0; //Packets Delay Rate
 double PLR=0.0; //Packets Lost Rate
 double APD=0.0;	//Average Packet Delay
+double Avg_Jitter=0.0;	//Average Packet Jitter
 bool UABSFlag;
 bool UABS_On_Flag = false;
 bool UABS_Energy_ON [numberOfUABS] = {false}; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
@@ -129,6 +130,7 @@ uint32_t rxPacketsum = 0;
 uint32_t DropPacketsum = 0;
 uint32_t LostPacketsum = 0;
 double Delaysum = 0;
+double Jittersum = 0;
 std::stringstream cmd;
 double UABSHeight = 40;
 double enBHeight = 30;
@@ -144,6 +146,7 @@ std::stringstream Users_UABS; // To UEs cell id in every second of the simulatio
 std::stringstream Qty_UABS; //To get the quantity of UABS used per RUNS
 std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
+Gnuplot2dDataset datasetAvg_Jitter;
 
 //------------------Energy Variables---------//
 double INITIAL_ENERGY = 356400;//2052000; //10000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
@@ -649,23 +652,23 @@ NodeContainer ueNodes;
 
 								
 							  	//Ptr<LiIonEnergySource> source = UABSNodes.Get(i)->GetObject<LiIonEnergySource>();
-								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
-								// NS_LOG_UNCOND("UABS_Energy_Flag: ");
-								// NS_LOG_UNCOND(UABS_Energy_ON[i]);
-								//if (source->GetInitialEnergy() != INITIAL_ENERGY && UABS_Energy_ON[i] == true)
-								if (UABS_Energy_ON[i] == false)
-								{
-									NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
-									source->SetInitialEnergy(INITIAL_ENERGY);
-									UABS_Energy_ON[i] = true;
-									// NS_LOG_UNCOND(UABS_Energy_ON[i]);
+								// Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+								// // NS_LOG_UNCOND("UABS_Energy_Flag: ");
+								// // NS_LOG_UNCOND(UABS_Energy_ON[i]);
+								// //if (source->GetInitialEnergy() != INITIAL_ENERGY && UABS_Energy_ON[i] == true)
+								// if (UABS_Energy_ON[i] == false)
+								// {
+								// 	NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
+								// 	source->SetInitialEnergy(INITIAL_ENERGY);
+								// 	UABS_Energy_ON[i] = true;
+								// 	// NS_LOG_UNCOND(UABS_Energy_ON[i]);
 
-								}
-								else if (UABS_Energy_ON[i] == true)
-								{
+								// }
+								// else if (UABS_Energy_ON[i] == true)
+								// {
 
-									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
-								}
+								// 	Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
+								// }
 								
 							}
 				 		}
@@ -701,23 +704,23 @@ NodeContainer ueNodes;
 
 								// ---------------Energy on----------------//
 
-								Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
-								// NS_LOG_UNCOND("UABS_Energy_Flag: ");
-								// NS_LOG_UNCOND(UABS_Energy_ON[i]);
-								//if (source->GetInitialEnergy() != INITIAL_ENERGY)
-								if (UABS_Energy_ON[i] == false)
-								{
-									NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
-									source->SetInitialEnergy(INITIAL_ENERGY);
-									UABS_Energy_ON[i] = true;
-									// NS_LOG_UNCOND(UABS_Energy_ON[i]);
+								// Ptr<BasicEnergySource> source = UABSNodes.Get(i)->GetObject<BasicEnergySource>();
+								// // NS_LOG_UNCOND("UABS_Energy_Flag: ");
+								// // NS_LOG_UNCOND(UABS_Energy_ON[i]);
+								// //if (source->GetInitialEnergy() != INITIAL_ENERGY)
+								// if (UABS_Energy_ON[i] == false)
+								// {
+								// 	NS_LOG_INFO("Setting initial energy on UABS Cell ID " << to_string(UABSCellId));
+								// 	source->SetInitialEnergy(INITIAL_ENERGY);
+								// 	UABS_Energy_ON[i] = true;
+								// 	// NS_LOG_UNCOND(UABS_Energy_ON[i]);
 
-								}
-								else if (UABS_Energy_ON[i] == true)
-								{
+								// }
+								// else if (UABS_Energy_ON[i] == true)
+								// {
 
-									Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
-								}
+								// 	Check_UABS_Batt_Status(source, PosUABS, UABSCellId, i, UABSPhy);
+								// }
 								
 							}
 						}	
@@ -833,9 +836,9 @@ NodeContainer ueNodes;
 			double Window_avg_Throughput[numberOfUENodes];
 			double Window_avg_Delay[numberOfUENodes];
 			double Window_avg_Packetloss[numberOfUENodes];
-			double Total_UE_TP_Avg;
-			double Total_UE_Del_Avg;
-			double Total_UE_PL_Avg;
+			double Total_UE_TP_Avg = 0;
+			double Total_UE_Del_Avg = 0;
+			double Total_UE_PL_Avg = 0;
 
 			
 			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
@@ -850,6 +853,7 @@ NodeContainer ueNodes;
 				LostPacketsum = txPacketsum-rxPacketsum;
 				DropPacketsum += iter->second.packetsDropped.size();
 				Delaysum += iter->second.delaySum.GetSeconds();
+				Jittersum += iter->second.jitterSum.GetSeconds();
 
 				// std::cout<<"Flow ID: " << iter->first << " Src Addr " << t.sourceAddress << " Dst Addr " << t.destinationAddress<<"\n";
 				// std::cout<<"Tx Packets = " << iter->second.txPackets<<"\n";
@@ -870,7 +874,7 @@ NodeContainer ueNodes;
 				PDR = ((rxPacketsum * 100) / txPacketsum);
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = (Delaysum / rxPacketsum); // APD = (Delaysum / txPacketsum); //to check
-
+				Avg_Jitter = (Jittersum / rxPacketsum);
 				
 				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)		 
 				{	
@@ -922,8 +926,8 @@ NodeContainer ueNodes;
 
 								//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
 							
-								for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
-								{
+								//for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+								//{
 									Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 									NS_ASSERT (UEposition != 0);
 									Vector pos = UEposition->GetPosition ();
@@ -938,7 +942,7 @@ NodeContainer ueNodes;
 					   	
 						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 									}
-								}
+								//}
 						}
 						}
 					}
@@ -952,6 +956,7 @@ NodeContainer ueNodes;
 					datasetPDR.Add((double)iter->first,(double) PDR);
 					datasetPLR.Add((double)iter->first,(double) PLR);
 					datasetAPD.Add((double)iter->first,(double) APD);
+					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
 				}
 				else
 				{
@@ -959,6 +964,7 @@ NodeContainer ueNodes;
 					datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
 					datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
 					datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
+					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
 				}
 			}
 			
@@ -1527,14 +1533,14 @@ NodeContainer ueNodes;
 		//----------------------------Setting energy model-------------------------------------//
 		
 		//Creating the helper for movility and energy model used in PSC model.
-		UavMobilityEnergyModelHelper EnergyHelper;
+		//UavMobilityEnergyModelHelper EnergyHelper;
 
 		//Basic Energy Source
-  		EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
-                         "BasicEnergySourceInitialEnergyJ",
-                         DoubleValue (INITIAL_ENERGY),
-  						"BasicEnergySupplyVoltageV",
-  						DoubleValue(INITIAL_Batt_Voltage));
+  		// EnergyHelper.SetEnergySource("ns3::BasicEnergySource",
+    //                      "BasicEnergySourceInitialEnergyJ",
+    //                      DoubleValue (INITIAL_ENERGY),
+  		// 				"BasicEnergySupplyVoltageV",
+  		// 				DoubleValue(INITIAL_Batt_Voltage));
 
   		//LiIon (no ta funcionando por ahora)
   		// EnergyHelper.SetEnergySource("ns3::LiIonEnergySource",
@@ -1746,8 +1752,8 @@ NodeContainer ueNodes;
 
 		//---------- Installing Energy Model on UABS----------------------//
 
-		NS_LOG_UNCOND("Installing UAV Energy Model in UABSs based in mobility...");
-		DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
+		// NS_LOG_UNCOND("Installing UAV Energy Model in UABSs based in mobility...");
+		// DeviceEnergyModelContainer DeviceEnergyCont = EnergyHelper.Install (UABSNodes);
 		
 
 		}
@@ -2001,6 +2007,13 @@ NodeContainer ueNodes;
 		string plotTitleAPD              = "APD Mean";
 		string dataTitleAPD               = "Average Packet Delay Mean";
 
+		//Gnuplot parameters for APD
+		string fileNameWithNoExtensionJitter = "Jitter_run_";
+		string graphicsFileNameJitter       = fileNameWithNoExtensionJitter + std::to_string(z) +".png";
+		string plotFileNameJitter            = fileNameWithNoExtensionJitter + std::to_string(z)+".plt";
+		string plotTitleJitter              = "Jitter Mean";
+		string dataTitleJitter              = "Jitter Mean";
+
 		// Instantiate the plot and set its title.
 		//Throughput
 		Gnuplot gnuplot (graphicsFileName);
@@ -2014,6 +2027,9 @@ NodeContainer ueNodes;
 		//APD
 		Gnuplot gnuplotAPD (graphicsFileNameAPD);
 		gnuplotAPD.SetTitle (plotTitleAPD);
+		//Jitter
+		Gnuplot gnuplotJitter (graphicsFileNameJitter);
+		gnuplotJitter.SetTitle (plotTitleJitter);
 
 		// Make the graphics file, which the plot file will be when it is used with Gnuplot, be a PNG file.
 		//Throughput
@@ -2024,6 +2040,8 @@ NodeContainer ueNodes;
 		gnuplotPLR.SetTerminal ("png");
 		//APD
 		gnuplotAPD.SetTerminal ("png");
+		//Jitter
+		gnuplotJitter.SetTerminal ("png");
 
 		// Set the labels for each axis.
 		//Throughput
@@ -2034,6 +2052,8 @@ NodeContainer ueNodes;
 		gnuplotPLR.SetLegend ("Time (Seconds)", "Packet Lost Ratio (%)");
 		//APD
 		gnuplotAPD.SetLegend ("Time (Seconds)", "Average Packet Delay (%)");
+		//Jitter
+		gnuplotAPD.SetLegend ("Time (Seconds)", "Jitter (%)");
 
 		Gnuplot2dDataset datasetThroughput;
 		Gnuplot2dDataset datasetPDR;
@@ -2044,11 +2064,13 @@ NodeContainer ueNodes;
 		datasetPDR.SetTitle (dataTitlePDR);
 		datasetPLR.SetTitle (dataTitlePLR);
 		datasetAPD.SetTitle (dataTitleAPD);
+		datasetAvg_Jitter.SetTitle (dataTitleJitter);
 
 		datasetThroughput.SetStyle (Gnuplot2dDataset::LINES_POINTS);
 		datasetPDR.SetStyle (Gnuplot2dDataset::LINES_POINTS);
 		datasetPLR.SetStyle (Gnuplot2dDataset::LINES_POINTS);
 		datasetAPD.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+		datasetAvg_Jitter.SetStyle (Gnuplot2dDataset::LINES_POINTS);
 
 		//Flow Monitor Setup
 		FlowMonitorHelper flowmon;
@@ -2084,6 +2106,9 @@ NodeContainer ueNodes;
 		gnuplotPLR.AddDataset (datasetPLR);
 		//APD
 		gnuplotAPD.AddDataset (datasetAPD);
+		//Jitter
+		gnuplotJitter.AddDataset (datasetAvg_Jitter);
+
 
 		// Open the plot file.
 		//Throughput
@@ -2113,6 +2138,13 @@ NodeContainer ueNodes;
 		gnuplotAPD.GenerateOutput (plotFileAPD);
 		// Close the plot file.
 		plotFileAPD.close ();
+
+		//Jitter
+		ofstream plotFileJitter (plotFileNameJitter.c_str());
+		// Write the plot file.
+		gnuplotJitter.GenerateOutput (plotFileJitter);
+		// Close the plot file.
+		plotFileJitter.close ();
 
 
 		UE_UABS.close();
