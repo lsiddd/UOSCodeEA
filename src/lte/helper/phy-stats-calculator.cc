@@ -23,8 +23,6 @@
 #include "ns3/string.h"
 #include <ns3/simulator.h>
 #include <ns3/log.h>
-#include<ctime>
-
 
 namespace ns3 {
 
@@ -55,17 +53,17 @@ PhyStatsCalculator::GetTypeId (void)
     .AddConstructor<PhyStatsCalculator> ()
     .AddAttribute ("DlRsrpSinrFilename",
                    "Name of the file where the RSRP/SINR statistics will be saved.",
-                   StringValue ("DlRsrpSinrStats_" + std::to_string(std::time(nullptr)) + ".txt"),
+                   StringValue ("DlRsrpSinrStats.txt"),
                    MakeStringAccessor (&PhyStatsCalculator::SetCurrentCellRsrpSinrFilename),
                    MakeStringChecker ())
     .AddAttribute ("UlSinrFilename",
                    "Name of the file where the UE SINR statistics will be saved.",
-                   StringValue ("UlSinrStats_" + std::to_string(std::time(nullptr)) + ".txt"),
+                   StringValue ("UlSinrStats.txt"),
                    MakeStringAccessor (&PhyStatsCalculator::SetUeSinrFilename),
                    MakeStringChecker ())
     .AddAttribute ("UlInterferenceFilename",
                    "Name of the file where the interference statistics will be saved.",
-                   StringValue ("UlInterferenceStats._" + std::to_string(std::time(nullptr)) + ".txt"),
+                   StringValue ("UlInterferenceStats.txt"),
                    MakeStringAccessor (&PhyStatsCalculator::SetInterferenceFilename),
                    MakeStringChecker ())
   ;
