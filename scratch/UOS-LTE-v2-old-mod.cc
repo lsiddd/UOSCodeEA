@@ -1488,8 +1488,10 @@ NodeContainer ueNodes;
 	  
 		// Create node containers: UE, UE Overloaded Group ,  eNodeBs, UABSs.
 		//NodeContainer ueNodes;
-		ueNodes.Create(numberOfUENodes);
-		NodeContainer ueOverloadNodes;
+        NodeContainer ueNodesN;
+        ueNodes = ueNodesN;
+        ueNodes.Create(numberOfUENodes);
+        NodeContainer ueOverloadNodes;
 		if (scen == 3 || scen == 4)
 		{
 			ueOverloadNodes.Create(numberOfOverloadUENodes);
