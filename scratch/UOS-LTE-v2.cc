@@ -502,7 +502,7 @@ NodeContainer ueNodes;
 				UE << pos.x << "," << pos.y << "," << pos.z << std::endl;
 
 				UEImsi = ueLteDevs.Get(i)->GetObject<LteUeNetDevice>()->GetImsi();
-				UE_Log << now.GetSeconds() << ","  << pos.x << "," << pos.y << "," << pos.z << "," << UEImsi << "," << ue_info_cellid[UEImsi-1] << std::endl;
+				UE_Log << now.GetSeconds() << ","  << pos.x << "," << pos.y << "," << pos.z << "," << UEImsi << "," << ue_info_cellid[UEImsi-1]  << "," << ue_imsi_sinr_linear[UEImsi-1] << std::endl;
 				i++;
 				
 			}
@@ -1882,7 +1882,7 @@ NodeContainer ueNodes;
 		//----------------Run Python Command to get centroids------------------------//
 		if (scen == 2 || scen == 4)
 		{
-			Simulator::Schedule(Seconds(5), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
+			Simulator::Schedule(Seconds(6), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
 		}
 
 		//Scenario A: Failure of an enB, overloads the system (the other enBs):
