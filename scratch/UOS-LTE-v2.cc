@@ -927,8 +927,8 @@ NodeContainer ueNodes;
 
 								//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
 							
-								//for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
-								//{
+								for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+								{
 									Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 									NS_ASSERT (UEposition != 0);
 									Vector pos = UEposition->GetPosition ();
@@ -943,7 +943,7 @@ NodeContainer ueNodes;
 					   	
 						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 									}
-								//}
+								}
 						    }
 						}
 					}
