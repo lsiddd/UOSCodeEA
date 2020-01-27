@@ -117,7 +117,6 @@ double Throughput=0.0;
 double Arr_Througput[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Throughput X]
 double Arr_Delay[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Delay X]
 double Arr_PacketLoss[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Packet Loss X]
-int tp_num = 0; //variable to count the number of throughput measurements
 double PDR=0.0; //Packets Delay Rate
 double PLR=0.0; //Packets Lost Rate
 double APD=0.0;	//Average Packet Delay
@@ -774,7 +773,7 @@ NodeContainer ueNodes;
 			std::vector<ns3::Vector3D>  CoorPriorities_Vector;
 			int j=0;
 			double UABSPriority[20];
-
+			
 			// Call Python code to get string with clusters prioritized and trajectory optimized (Which UABS will serve which cluster).
 			cmd << "python3 UOS-PythonCode.py " << " 2>/dev/null ";
 			GetClusterCoordinates =  exec(cmd.str().c_str());
@@ -821,13 +820,16 @@ NodeContainer ueNodes;
 		//--------------------Function to calculate metrics (Throughput, PLR, PDR, APD) using Flowmonitor -------------//
 		void ThroughputCalc(Ptr<FlowMonitor> monitor, Ptr<Ipv4FlowClassifier> classifier,Gnuplot2dDataset datasetThroughput,Gnuplot2dDataset datasetPDR,Gnuplot2dDataset datasetPLR, Gnuplot2dDataset datasetAPD)
 		{
-
+			static int tp_num = 0; //variable to count the number of throughput measurements
+			static bool schedule = false; //when true, ThroughputCalc will schedule new events
 			monitor->CheckForLostPackets ();
 			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput";    
 			std::ofstream UE_TP;
-			UE_TP.open(uenodes_TP.str());
-
+			if(tp_num == 4)
+			{
+				UE_TP.open(uenodes_TP.str());
+			}
 			std::stringstream uenodes_TP_log;
 			uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
 			std::ofstream UE_TP_Log;
@@ -840,7 +842,6 @@ NodeContainer ueNodes;
 			double Total_UE_Del_Avg = 0;
 			double Total_UE_PL_Avg = 0;
 
-			
 			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
 			std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
 
@@ -926,8 +927,8 @@ NodeContainer ueNodes;
 
 								//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
 							
-								//for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
-								//{
+								for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+								{
 									Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 									NS_ASSERT (UEposition != 0);
 									Vector pos = UEposition->GetPosition ();
@@ -942,8 +943,8 @@ NodeContainer ueNodes;
 					   	
 						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 									}
-								//}
-						}
+								}
+						    }
 						}
 					}
 				}
@@ -971,14 +972,20 @@ NodeContainer ueNodes;
 			if (tp_num == 4)
 			{
 				tp_num = 0;
-				//UE_TP.close();
+				schedule = true;
+				UE_TP.close();
 			}	
 			else tp_num++;	
 			
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
-			UE_TP.close();
-			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
+			if(tp_num == 0 && schedule)
+			{
+				for(int i=1; i<=5; i++)
+				{
+					Simulator::Schedule(Seconds(i),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
+				}
+			}
 		}
 
 		 // void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps) //https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html
@@ -1499,6 +1506,8 @@ NodeContainer ueNodes;
 	  
 		// Create node containers: UE, UE Overloaded Group ,  eNodeBs, UABSs.
 		//NodeContainer ueNodes;
+		NodeContainer ueNodesN;
+		ueNodes = ueNodesN;
 		ueNodes.Create(numberOfUENodes);
 		NodeContainer ueOverloadNodes;
 		if (scen == 3 || scen == 4)
@@ -1879,12 +1888,6 @@ NodeContainer ueNodes;
 		// Simulator::Schedule(Seconds(1), &Battery_Status,UABSNodes,UABSLteDevs);
 		// }
 
-		//----------------Run Python Command to get centroids------------------------//
-		if (scen == 2 || scen == 4)
-		{
-			Simulator::Schedule(Seconds(6), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
-		}
-
 		//Scenario A: Failure of an enB, overloads the system (the other enBs):
 		if (scen == 1 || scen == 2)
 		{	
@@ -2083,7 +2086,15 @@ NodeContainer ueNodes;
 		// monitor = flowmon.Install(enbNodes);
 
 		Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon.GetClassifier ());
-		Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
+		for(int i=1; i<=5; i++){
+			Simulator::Schedule(Seconds(i),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
+		}
+		
+		//----------------Run Python Command to get centroids------------------------//
+		if (scen == 2 || scen == 4)
+		{
+			Simulator::Schedule(Seconds(5), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
+		}
 		
 		NS_LOG_UNCOND("Running simulation...");
 		NS_LOG_INFO ("Run Simulation.");
