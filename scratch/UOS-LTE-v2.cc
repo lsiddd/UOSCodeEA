@@ -2062,7 +2062,7 @@ NodeContainer ueNodes;
 		//APD
 		gnuplotAPD.SetLegend ("Time (Seconds)", "Average Packet Delay (%)");
 		//Jitter
-		gnuplotAPD.SetLegend ("Time (Seconds)", "Jitter (%)");
+		gnuplotJitter.SetLegend ("Time (Seconds)", "Jitter (%)");
 
 		Gnuplot2dDataset datasetThroughput;
 		Gnuplot2dDataset datasetPDR;
