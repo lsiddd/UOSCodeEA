@@ -18,6 +18,10 @@ build/
 /.project
 
 LTE*
-*Stats.txt
+/D*.txt
+/U*.txt
+/U*.xml
 *_RUN*
 *_run*
+enBs
+UEs_UDP*

@@ -285,14 +285,14 @@ if (data6.size != 0):
 
 
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
-eps_low_SINR=1000
+eps_low_SINR=750
 min_samples_low_SINR=2
 if (data4.size != 0):
     clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
-eps_low_tp=1000
+eps_low_tp=750
 min_samples_low_tp=2
 if (data6.size != 0):
     clusters_QoS, x_clusters_QoS, y_clusters_QoS = DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
