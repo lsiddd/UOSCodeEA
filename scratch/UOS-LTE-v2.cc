@@ -110,7 +110,7 @@ int UDP_ID = 0;
 int eNodeBTxPower = 46; //Set enodeB Power dBm 46dBm --> 20MHz  |  43dBm --> 5MHz
 int UABSTxPower = 0;//23;   //Set UABS Power
 uint8_t bandwidth_enb = 100; // 100 RB --> 20MHz  |  25 RB --> 5MHz
-uint8_t bandwidth_UABS = 25; // 100 RB --> 20MHz  |  25 RB --> 5MHz
+uint8_t bandwidth_UABS = 100; // 100 RB --> 20MHz  |  25 RB --> 5MHz
 double speedUABS = 0;
 double ue_info[numberOfeNodeBNodes + numberOfUABS][numberOfUENodes]; //UE Connection Status Register Matrix
 double ue_imsi_sinr[numberOfUENodes]; //UE Connection Status Register Matrix
