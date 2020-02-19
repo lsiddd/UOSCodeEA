@@ -137,7 +137,7 @@ uint32_t LostPacketsum = 0;
 double Delaysum = 0;
 double Jittersum = 0;
 std::stringstream cmd;
-double UABSHeight = 40;
+double UABSHeight = 80;
 double enBHeight = 30;
 uint32_t nRuns = 1;
 uint32_t randomSeed = 1234;
@@ -627,7 +627,7 @@ NodeContainer ueNodes;
 			if (UABSFlag == true )//&& UABS_On_Flag == false) 
 			{
 				UABSTxPower = 23;
-				speedUABS = 10;
+				speedUABS = 0.1;
 
 				if (CoorPriorities_Vector.size() <= UABSNodes.GetN())
 				{
@@ -1419,7 +1419,7 @@ NodeContainer ueNodes;
 		Config::SetDefault ("ns3::LteEnbRrc::SrsPeriodicity", UintegerValue(320));
 
 
-		 Config::SetDefault( "ns3::LteUePhy::TxPower", DoubleValue(10) );         // Transmission power in dBm
+		 Config::SetDefault( "ns3::LteUePhy::TxPower", DoubleValue(12) );         // Transmission power in dBm
 		 Config::SetDefault( "ns3::LteUePhy::NoiseFigure", DoubleValue(9) );     // Default 5
 		
 
