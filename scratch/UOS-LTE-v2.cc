@@ -41,7 +41,6 @@
 #include <sstream>      // std::stringstream
 #include <memory>
 #include <random>
-#include <unordered_set>
 #include "ns3/double.h"
 #include <ns3/boolean.h>
 #include <ns3/enum.h>
@@ -776,9 +775,7 @@ NodeContainer ueNodes;
 			std::vector<std::string> Split_coord_Prior;
 			ns3::Vector3D CoorPriorities;
 			std::vector<ns3::Vector3D>  CoorPriorities_Vector;
-			std::unordered_set<double> used_UABs;
 			int j=0;
-			double priority;
 			double UABSPriority[20];
 			
 			// Call Python code to get string with clusters prioritized and trajectory optimized (Which UABS will serve which cluster).
@@ -794,16 +791,12 @@ NodeContainer ueNodes;
 				boost::split(Split_coord_Prior, GetClusterCoordinates, boost::is_any_of(" "), boost::token_compress_on);
 				UABSPriority [Split_coord_Prior.size()];
 
-				for (uint16_t i = 0; i < Split_coord_Prior.size()-2 && used_UABs.size() < numberOfUABS; i+=3)
+				for (uint16_t i = 0; i < Split_coord_Prior.size()-2; i+=3)
 				{
-					priority = std::stod(Split_coord_Prior[i+2]); //Save priority into a double array. // cambie UABSPriority [i] por UABSPriority [j] porque i incrementa de 3 en 3. 
-					if(used_UABs.count(priority)==0){
-						used_UABs.insert(priority);
-						UABSPriority [j] = priority;
-						CoorPriorities = Vector(std::stod(Split_coord_Prior[i]),std::stod(Split_coord_Prior[i+1]),UABSHeight); //Vector containing: [X,Y,FixedHeight]
-						CoorPriorities_Vector.push_back(CoorPriorities); 
-						j++;
-					}
+					UABSPriority [j] = std::stod(Split_coord_Prior[i+2]); //Save priority into a double array. // cambie UABSPriority [i] por UABSPriority [j] porque i incrementa de 3 en 3. 
+					CoorPriorities = Vector(std::stod(Split_coord_Prior[i]),std::stod(Split_coord_Prior[i+1]),UABSHeight); //Vector containing: [X,Y,FixedHeight]
+					CoorPriorities_Vector.push_back(CoorPriorities); 
+					j++;
 				}
 			}
 			else 
@@ -985,7 +978,12 @@ NodeContainer ueNodes;
 			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		}
 
-			//}
+		 // void CalculateThroughput (NodeContainer ueNodes, ApplicationContainer clientApps) //https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html
+ 		// {
+ 		// 	std::stringstream uenodes_TP;
+			// uenodes_TP << "UEs_UDP_Throughput_RUN_";    
+			// std::ofstream UE_TP;
+			// UE_TP.open(uenodes_TP.str());
 
 			// std::stringstream uenodes_TP_log;
 			// uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
