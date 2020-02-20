@@ -1440,8 +1440,8 @@ NodeContainer ueNodes;
 		//Pathlossmodel
 		if (scen == 0 || scen == 1 || scen == 3)
 		{
-			// NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
-			// lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
+			NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
+			lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
 
 			NS_LOG_UNCOND("Pathloss model: OkumuraHata ");
 			ObjectFactory modelFactory;
@@ -1454,8 +1454,8 @@ NodeContainer ueNodes;
 	     	Config::SetDefault ("ns3::RadioBearerStatsCalculator::EpochDuration", TimeValue (Seconds(1.00)));
 
 	    	//NS_LOG_INFO("Pathloss model: ItuR1411LosPropagationLossModel ");
-			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
-			lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
+			//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
+			//lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 
 
 			// NS_LOG_UNCOND("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
@@ -2150,7 +2150,7 @@ NodeContainer ueNodes;
 		
 		Ptr<RadioEnvironmentMapHelper> remHelper = CreateObject<RadioEnvironmentMapHelper> ();
 		if (remMode > 0){
-		remHelper->SetAttribute ("ChannelPath", StringValue ("/ChannelList/0"));
+		remHelper->SetAttribute ("ChannelPath", StringValue ("/ChannelList/2"));
 		remHelper->SetAttribute ("XMin", DoubleValue (0.0));
 		remHelper->SetAttribute ("XMax", DoubleValue (6000.0));
 		remHelper->SetAttribute ("XRes", UintegerValue (500));
