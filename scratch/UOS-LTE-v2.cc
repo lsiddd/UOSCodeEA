@@ -1751,14 +1751,14 @@ NodeContainer ueNodes;
 			// ----------------Install Mobility Model UABS--------------------//
 
 			Ptr<ListPositionAllocator> positionAllocUABS = CreateObject<ListPositionAllocator> ();
-			positionAllocUABS->Add (Vector( 1500, 1500 , enBHeight)); //1
-			positionAllocUABS->Add (Vector( 4500, 1500 , enBHeight)); //2
-			positionAllocUABS->Add (Vector( 1500, 4500 , enBHeight)); //3
-			positionAllocUABS->Add (Vector( 4500, 4500 , enBHeight)); //4
-			positionAllocUABS->Add (Vector( 1500, 1500 , enBHeight)); //5
-			positionAllocUABS->Add (Vector( 4500, 1500 , enBHeight)); //6
-			positionAllocUABS->Add (Vector( 1500, 4500 , enBHeight)); //7
-			positionAllocUABS->Add (Vector( 4500, 4500 , enBHeight)); //8
+			positionAllocUABS->Add (Vector( 1400, 1400 , enBHeight)); //1
+			positionAllocUABS->Add (Vector( 4600, 1400 , enBHeight)); //2
+			positionAllocUABS->Add (Vector( 1400, 4600 , enBHeight)); //3
+			positionAllocUABS->Add (Vector( 4600, 4600 , enBHeight)); //4
+			positionAllocUABS->Add (Vector( 1600, 1600 , enBHeight)); //5
+			positionAllocUABS->Add (Vector( 4400, 1600 , enBHeight)); //6
+			positionAllocUABS->Add (Vector( 1600, 4400 , enBHeight)); //7
+			positionAllocUABS->Add (Vector( 4400, 4400 , enBHeight)); //8
 			// have to add as many os UABS will be used in the simulation, in this example there are 8 UABS available 
 
 			MobilityHelper mobilityUABS;
