@@ -119,7 +119,6 @@ double ue_info_cellid[numberOfUENodes];
 Ipv4Address ue_IP_Address[numberOfUENodes];
 int minSINR = 0; //  minimum SINR to be considered to clusterization
 string GetClusterCoordinates;
-double Throughput=0.0;
 double Arr_Througput[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Throughput X]
 double Arr_Delay[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Delay X]
 double Arr_PacketLoss[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Packet Loss X]
@@ -130,12 +129,6 @@ double Avg_Jitter=0.0;	//Average Packet Jitter
 bool UABSFlag;
 bool UABS_On_Flag = false;
 bool UABS_Energy_ON [numberOfUABS] = {false}; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
-uint32_t txPacketsum = 0;
-uint32_t rxPacketsum = 0;
-uint32_t DropPacketsum = 0;
-uint32_t LostPacketsum = 0;
-double Delaysum = 0;
-double Jittersum = 0;
 std::stringstream cmd;
 double UABSHeight = 80;
 double enBHeight = 30;
@@ -840,6 +833,13 @@ NodeContainer ueNodes;
 		{
 			static int tp_num = 0; //variable to count the number of throughput measurements
 			static bool schedule = false; //when true, ThroughputCalc will schedule new events
+			uint32_t txPacketsum = 0; 
+			uint32_t rxPacketsum = 0; 
+			uint32_t DropPacketsum = 0; 
+			uint32_t LostPacketsum = 0; 
+			double Delaysum = 0; 
+			double Jittersum = 0;
+			double Throughput=0.0;
 			monitor->CheckForLostPackets ();
 			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput";    
@@ -872,31 +872,15 @@ NodeContainer ueNodes;
 				LostPacketsum = txPacketsum-rxPacketsum;
 				DropPacketsum += iter->second.packetsDropped.size();
 				Delaysum += iter->second.delaySum.GetSeconds();
-				Jittersum += iter->second.jitterSum.GetSeconds();
-
-				// std::cout<<"Flow ID: " << iter->first << " Src Addr " << t.sourceAddress << " Dst Addr " << t.destinationAddress<<"\n";
-				// std::cout<<"Tx Packets = " << iter->second.txPackets<<"\n";
-				// std::cout<<"Rx Packets = " << iter->second.rxPackets<<"\n";
-
-				// //std::cout << "  All Tx Packets: " << txPacketsum << "\n";
-				// //std::cout << "  All Rx Packets: " << rxPacketsum << "\n";
-				// //std::cout << "  All Delay/Average Packet Delay (APD): " << Delaysum / txPacketsum << "\n"; //APD = Average Packet Delay : to do !
-				// //std::cout << "  All Lost Packets: " << LostPacketsum << "\n";
-				// //std::cout << "  All Drop Packets: " << DropPacketsum << "\n";
-
-				// std::cout<<"Throughput: " << iter->second.rxBytes * 8.0 / (iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()) /1024 << " Kbps\n";///1024 << " Mbps\n";
-				// std::cout << "Packets Delivery Ratio: " << ((rxPacketsum * 100) / txPacketsum) << "%" << "\n";
-				// std::cout << "Packets Loss Ratio: " << ((LostPacketsum * 100) / txPacketsum) << "%" << "\n";
-				// std::cout << "Average Packet Delay: " << Delaysum / rxPacketsum << "\n"; 
+				Jittersum += iter->second.jitterSum.GetSeconds(); 
 				
-				Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 				PDR = ((rxPacketsum * 100) / txPacketsum);
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = rxPacketsum ? (Delaysum / rxPacketsum) : 0; // APD = (Delaysum / txPacketsum); //to check
 				Avg_Jitter = (Jittersum / rxPacketsum);
 				
-				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)		 
-				{	
+				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+				{
 					double sumTP = 0;
 					double sumDel = 0;
 					double sumPL = 0;
@@ -959,7 +943,7 @@ NodeContainer ueNodes;
 										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
 										UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 					   	
-						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (1 / Window_avg_Delay[i]) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
+						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (1 / Window_avg_Packetloss[i]) << std::endl;
 									}
 								}
 						    }
@@ -969,22 +953,24 @@ NodeContainer ueNodes;
 				
 				
 				// Save in datasets to later plot the results. If graphtype is True, plots will be based in Flows, if False will be based in time (seconds)
-				if (graphType == true)
-				{
+				if (graphType == true){
+					Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 					datasetThroughput.Add((double)iter->first,(double) Throughput);
 					datasetPDR.Add((double)iter->first,(double) PDR);
 					datasetPLR.Add((double)iter->first,(double) PLR);
 					datasetAPD.Add((double)iter->first,(double) APD);
 					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
+				} else {
+					Throughput += ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 				}
-				else
-				{
-					datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
-					datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
-					datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
-					datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
-					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
-				}
+			}
+			if (graphType == false)
+			{
+				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
+				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
+				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
+				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
+				datasetAvg_Jitter.Add((double)Simulator::Now().GetSeconds(),(double) Avg_Jitter);
 			}
 			
 			if (tp_num == 4)
@@ -2239,6 +2225,6 @@ NodeContainer ueNodes;
 	  
 		NS_LOG_INFO ("Done.");
 	}
-		return 0;
-	}
-	 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
+	return 0;
+}
+
