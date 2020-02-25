@@ -316,14 +316,14 @@ plt.show()
 #print(X.size)
 
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
-eps_low_SINR=750
+eps_low_SINR=600
 min_samples_low_SINR=2
 if (data4.size != 0):
     clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
-eps_low_tp=750
+eps_low_tp=600
 min_samples_low_tp=2
 if (data6.size != 0):
     print("Clustering users with low QoS:")
