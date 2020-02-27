@@ -832,7 +832,6 @@ NodeContainer ueNodes;
 		void ThroughputCalc(Ptr<FlowMonitor> monitor, Ptr<Ipv4FlowClassifier> classifier,Gnuplot2dDataset datasetThroughput,Gnuplot2dDataset datasetPDR,Gnuplot2dDataset datasetPLR, Gnuplot2dDataset datasetAPD)
 		{
 			static int tp_num = 0; //variable to count the number of throughput measurements
-			static bool schedule = false; //when true, ThroughputCalc will schedule new events
 			uint32_t txPacketsum = 0; 
 			uint32_t rxPacketsum = 0; 
 			uint32_t DropPacketsum = 0; 
@@ -976,20 +975,13 @@ NodeContainer ueNodes;
 			if (tp_num == 4)
 			{
 				tp_num = 0;
-				schedule = true;
 				UE_TP.close();
 			}	
-			else tp_num++;	
+			else tp_num++;
 			
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
-			if(tp_num == 0 && schedule)
-			{
-				for(int i=1; i<=5; i++)
-				{
-					Simulator::Schedule(Seconds(i),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
-				}
-			}
+			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		}
 
 			//}
@@ -2124,14 +2116,12 @@ NodeContainer ueNodes;
 		// monitor = flowmon.Install(enbNodes);
 
 		Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon.GetClassifier ());
-		for(int i=1; i<=5; i++){
-			Simulator::Schedule(Seconds(i),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
-		}
+		Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		
 		//----------------Run Python Command to get centroids------------------------//
 		if (scen == 2 || scen == 4)
 		{
-			Simulator::Schedule(Seconds(5), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
+			Simulator::Schedule(Seconds(5.1), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
 		}
 		
 		Ptr<RadioEnvironmentMapHelper> remHelper = CreateObject<RadioEnvironmentMapHelper> ();
