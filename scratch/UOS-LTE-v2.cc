@@ -1878,25 +1878,13 @@ NodeContainer ueNodes;
 		lteHelper->Attach (ueLteDevs);
 		lteHelper->Attach(OverloadingUeLteDevs);
 		
-		// this enables handover for macro eNBs
-		lteHelper->AddX2Interface (enbNodes); // X2 interface for macrocells
-		
 		if (scen == 2 || scen == 4)
 		{
-		lteHelper->AddX2Interface (UABSNodes); // X2 interface for UABSs
-
-		//Set a X2 interface between UABS and all enBs to enable handover.
-		for (uint16_t i = 0; i < UABSNodes.GetN(); i++) 
-		{
-			Ptr<Node> PosUABS = UABSNodes.Get(i)->GetObject<Node>();
-			for (uint16_t j = 0; j < enbNodes.GetN(); j++) 
-			{
-				Ptr<Node> PosUABS = enbNodes.Get(j)->GetObject<Node>();
-				//Set a X2 interface between UABS and all enBs	
-				lteHelper->AddX2Interface(UABSNodes.Get(i), enbNodes.Get(j));
-				//NS_LOG_UNCOND("Creating X2 Interface between UABS " << UABSNodes.Get(i) << " and enB " << enbNodes.Get(j));
-			}
-		}
+			//Set X2 interfaces between all UABS and enBs to enable handover.
+			lteHelper->AddX2Interface (NodeContainer (enbNodes, UABSNodes));
+		} else {
+			// this enables handover for macro eNBs
+			lteHelper->AddX2Interface (enbNodes); // X2 interface for macrocells
 		}
 
 		
