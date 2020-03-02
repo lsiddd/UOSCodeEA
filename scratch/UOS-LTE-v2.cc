@@ -1441,7 +1441,7 @@ NodeContainer ueNodes;
 			// lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 			// lteHelper->SetPathlossModelAttribute("Environment", StringValue("Urban"));
 			// lteHelper->SetPathlossModelAttribute("RooftopLevel", DoubleValue(20.0));
-			lteHelper->Initialize ();
+			//lteHelper->Initialize ();
 			//lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 			//lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 		}
@@ -1491,7 +1491,7 @@ NodeContainer ueNodes;
 			//modelFactory.Set ("Environment", StringValue("Urban"));
 			//modelFactory.Set ("RooftopLevel", DoubleValue(20.0));
 		
-			lteHelper->Initialize ();
+			//lteHelper->Initialize ();
 			//lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 			//lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 
@@ -2126,7 +2126,7 @@ NodeContainer ueNodes;
 		
 		Ptr<RadioEnvironmentMapHelper> remHelper = CreateObject<RadioEnvironmentMapHelper> ();
 		if (remMode > 0){
-		remHelper->SetAttribute ("ChannelPath", StringValue ("/ChannelList/2"));
+		remHelper->SetAttribute ("ChannelPath", StringValue ("/ChannelList/3"));
 		remHelper->SetAttribute ("XMin", DoubleValue (0.0));
 		remHelper->SetAttribute ("XMax", DoubleValue (6000.0));
 		remHelper->SetAttribute ("XRes", UintegerValue (500));
