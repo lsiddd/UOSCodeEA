@@ -981,6 +981,7 @@ NodeContainer ueNodes;
 			
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
+			NS_LOG_UNCOND("Current simulation time: " << Simulator::Now().GetSeconds() << "s");
 			Simulator::Schedule(Seconds(1),&ThroughputCalc, monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
 		}
 
