@@ -1631,10 +1631,10 @@ NodeContainer ueNodes;
 		// }  }
 
 		Ptr<ListPositionAllocator> positionAlloc2 = CreateObject<ListPositionAllocator> ();
-		positionAlloc2->Add (Vector( 1500, 1500 , enBHeight));
-		positionAlloc2->Add (Vector( 4500, 1500 , enBHeight));
-		positionAlloc2->Add (Vector( 1500, 4500 , enBHeight));
-		positionAlloc2->Add (Vector( 4500, 4500 , enBHeight));
+		positionAlloc2->Add (Vector( 1000, 1000 , enBHeight));
+		positionAlloc2->Add (Vector( 3000, 1000 , enBHeight));
+		positionAlloc2->Add (Vector( 1000, 3000 , enBHeight));
+		positionAlloc2->Add (Vector( 3000, 3000 , enBHeight));
 
 		MobilityHelper mobilityenB;
 		mobilityenB.SetMobilityModel("ns3::ConstantPositionMobilityModel");
@@ -1688,13 +1688,13 @@ NodeContainer ueNodes;
 		// 							 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=4.0]"),
 		// 							 //"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
 		 							 "Speed", StringValue ("ns3::UniformRandomVariable[Min=1.0|Max=4.0]"),
-		 							 "Bounds", StringValue ("0|6000|0|6000"));
+		 							 "Bounds", StringValue ("0|4000|0|4000"));
 		// // mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
 		// // 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
 		// // 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
 		mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
-		 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
-		 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
+		 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
+		 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
 		 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
 		// //mobilityUEs.SetPositionAllocator(positionAllocUEs);
 		mobilityUEs.Install(ueNodes);
@@ -1729,14 +1729,14 @@ NodeContainer ueNodes;
 			// ----------------Install Mobility Model UABS--------------------//
 
 			Ptr<ListPositionAllocator> positionAllocUABS = CreateObject<ListPositionAllocator> ();
-			positionAllocUABS->Add (Vector( 1400, 1400 , enBHeight)); //1
-			positionAllocUABS->Add (Vector( 4600, 1400 , enBHeight)); //2
-			positionAllocUABS->Add (Vector( 1400, 4600 , enBHeight)); //3
-			positionAllocUABS->Add (Vector( 4600, 4600 , enBHeight)); //4
-			positionAllocUABS->Add (Vector( 1600, 1600 , enBHeight)); //5
-			positionAllocUABS->Add (Vector( 4400, 1600 , enBHeight)); //6
-			positionAllocUABS->Add (Vector( 1600, 4400 , enBHeight)); //7
-			positionAllocUABS->Add (Vector( 4400, 4400 , enBHeight)); //8
+			positionAllocUABS->Add (Vector( 950, 950 , enBHeight)); //1
+			positionAllocUABS->Add (Vector( 3050, 950 , enBHeight)); //2
+			positionAllocUABS->Add (Vector( 950, 3050 , enBHeight)); //3
+			positionAllocUABS->Add (Vector( 3050, 3050 , enBHeight)); //4
+			positionAllocUABS->Add (Vector( 1050, 1050 , enBHeight)); //5
+			positionAllocUABS->Add (Vector( 2950, 1050 , enBHeight)); //6
+			positionAllocUABS->Add (Vector( 1050, 2950 , enBHeight)); //7
+			positionAllocUABS->Add (Vector( 2950, 2950 , enBHeight)); //8
 			// have to add as many os UABS will be used in the simulation, in this example there are 8 UABS available 
 
 			MobilityHelper mobilityUABS;
@@ -2116,10 +2116,10 @@ NodeContainer ueNodes;
 		if (remMode > 0){
 		remHelper->SetAttribute ("ChannelPath", StringValue ("/ChannelList/2"));
 		remHelper->SetAttribute ("XMin", DoubleValue (0.0));
-		remHelper->SetAttribute ("XMax", DoubleValue (6000.0));
+		remHelper->SetAttribute ("XMax", DoubleValue (4000.0));
 		remHelper->SetAttribute ("XRes", UintegerValue (1000));
 		remHelper->SetAttribute ("YMin", DoubleValue (0.0));
-		remHelper->SetAttribute ("YMax", DoubleValue (6000.0));
+		remHelper->SetAttribute ("YMax", DoubleValue (4000.0));
 		remHelper->SetAttribute ("YRes", UintegerValue (1000));
 		remHelper->SetAttribute ("Z", DoubleValue (1.0));
 		remHelper->SetAttribute ("Bandwidth", UintegerValue (100));
