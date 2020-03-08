@@ -331,11 +331,12 @@ if (data6.size != 0):
  
 
 #Sum of SINR and mean to later prioritize the clusters
+SINRAvg = []
 Metric_Flag = 0
 if (data4.size != 0):
     SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
-    weight_SINR_Total = []
-    weight_SINR = 0.6 
+weight_SINR_Total = 0.0
+weight_SINR = 0.6 
 
 #Sum of Throughput and mean to later prioritize the clusters
 Metric_Flag = 1
@@ -358,17 +359,17 @@ if (data6.size != 0):
     weight_QoS_Throughput = 0.5
     weight_QoS_Delay = 0.2
     weight_QoS_PLR = 0.3
-    weight_QoS_Total = []
+    weight_QoS_Total = 0.0
     weight_QoS = 0.4
 
 #Weight of Throughput + Weight of Delay + Weight of PLR = 1
     SINRAvg_norm = SINRAvg.copy()
     for i in range(len(QoS_Throughput_Avg)):
-        weight_QoS_Total.append((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
+        weight_QoS_Total += ((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
 #        print("QoS: "+ str((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR)))
-    for i in range(len(SINRAvg)):
+    for sinr in SINRAvg:
 #        SINRAvg_norm[i] = preprocessing.normalize(SINRAvg[i])
-        weight_SINR_Total.append(SINRAvg[i]*weight_SINR)
+        weight_SINR_Total += sinr*weight_SINR
         
     #if (len(weight_SINR_Total) > len(weight_QoS_Total)):
     if (weight_SINR_Total > weight_QoS_Total):
@@ -390,7 +391,7 @@ if (data6.size != 0):
         
         file = open("UOS_Clustering_Decitions.txt","a") 
      
-        file.write("There are more SIRN clusters than QoS Clusters: " + str(len(weight_SINR_Total)) + " vs " + str(len(weight_QoS_Total)) + "\n") 
+        file.write("SINR clusters have more weight than QoS Clusters: " + str(weight_SINR_Total) + " vs " + str(weight_QoS_Total) + "\n") 
         file.write("UABS will be positionated by Low SINR" + "\n")
          
         file.close() 
@@ -409,7 +410,7 @@ if (data6.size != 0):
         
         file = open("UOS_Clustering_Decitions.txt","a") 
      
-        file.write("There are more QoS clusters than SINR Clusters: " + str(len(weight_QoS_Total)) + " vs " + str(len(weight_SINR_Total)) + "\n") 
+        file.write("QoS clusters have more weight than SINR Clusters: " + str(weight_QoS_Total) + " vs " + str(weight_SINR_Total) + "\n") 
         file.write("UABS will be positionated by Low QoS" + "\n")
          
         file.close() 
