@@ -1692,17 +1692,31 @@ NodeContainer ueNodes;
 		// // mobilityUEs.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
 		// // 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"),
 		// // 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=6000.0]"));
-		mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
-		 	 							 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
-		 								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
-		 								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		//mobilityUEs.SetPositionAllocator("ns3::RandomBoxPositionAllocator",  // to use OkumuraHataPropagationLossModel needs to be in a height greater then 0.
+		//								 "X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
+		//								 "Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=4000.0]"),
+		//								 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
 		// //mobilityUEs.SetPositionAllocator(positionAllocUEs);
-		mobilityUEs.Install(ueNodes);
-
+		//mobilityUEs.Install(ueNodes);
+		ObjectFactory positionAllocFactory;
+		positionAllocFactory.SetTypeId (RandomBoxPositionAllocator::GetTypeId());
+		positionAllocFactory.Set ("Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
+		int UEs = ueNodes.GetN();
+		int start = 0;                                                                                                                        
+		int end = 0;
+		for(int i=0; i<4; i++){
+			positionAllocFactory.Set ("X", StringValue ("ns3::UniformRandomVariable[Min=" + to_string(2000 * (i%2)) + "|Max=" + to_string(2000      * (i%2) + 2000) + "]"));
+			positionAllocFactory.Set ("Y", StringValue ("ns3::UniformRandomVariable[Min=" + to_string(2000 * (i/2)) + "|Max=" + to_string(2000      * (i/2) + 2000) + "]"));
+			mobilityUEs.SetPositionAllocator(positionAllocFactory.Create<RandomBoxPositionAllocator>());
+			end += UEs/4;
+			if(i < UEs%4)
+				end++;
+			for(int j=start; j<end; j++){
+				mobilityUEs.Install(ueNodes.Get(j));
+			}
+			start = end;
+		}
 		
-
-		
-
 		if (scen == 3 || scen == 4)
 		{
 			// ------------------Install Mobility Model User Equipments that will overload the enB-------------------//
