@@ -2138,13 +2138,13 @@ NodeContainer ueNodes;
 		remHelper->SetAttribute ("YRes", UintegerValue (1000));
 		remHelper->SetAttribute ("Z", DoubleValue (1.0));
 		remHelper->SetAttribute ("Bandwidth", UintegerValue (100));
-		remHelper->SetAttribute ("StopWhenDone", BooleanValue (true));
 		if(remMode == 1){
 			remHelper->SetAttribute ("OutputFile", StringValue ("rem-noUABs.out"));
 			Simulator::Schedule (Seconds (1.0),&RadioEnvironmentMapHelper::Install,remHelper);
 		} else {
+			remHelper->SetAttribute ("StopWhenDone", BooleanValue (false));
 			remHelper->SetAttribute ("OutputFile", StringValue ("rem-withUABs.out"));
-			Simulator::Schedule (Seconds (simTime/2.0),&RadioEnvironmentMapHelper::Install,remHelper);
+			Simulator::Schedule (Seconds (simTime-0.06),&RadioEnvironmentMapHelper::Install,remHelper);
 			}
 		}
 
