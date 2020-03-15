@@ -1376,8 +1376,7 @@ NodeContainer ueNodes;
 
 				//traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
 				//NS_LOG_UNCOND(traceFile);
-
-
+		
 		Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
 		//Ptr<EpcHelper>  epcHelper = CreateObject<EpcHelper> ();
 		Ptr<PointToPointEpcHelper>  epcHelper = CreateObject<PointToPointEpcHelper> ();
@@ -1419,10 +1418,10 @@ NodeContainer ueNodes;
 		//Pathlossmodel
 		if (scen == 0 || scen == 1 || scen == 3)
 		{
-			NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
-			lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
+			//NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
+			//lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
 
-			ObjectFactory modelFactory;
+			//ObjectFactory modelFactory;
 			//NS_LOG_UNCOND("Pathloss model: OkumuraHata ");
 			//modelFactory.SetTypeId (OkumuraHataPropagationLossModel::GetTypeId());
 			//modelFactory.Set ("Environment", StringValue("Urban"));
@@ -1431,31 +1430,41 @@ NodeContainer ueNodes;
 	     	//lteHelper->SetPathlossModelAttribute("Environment", StringValue("Urban"));
 	     	//lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(1.8e9));
 
-	    	NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
+	    	//NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
 			//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
 			//lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
-			modelFactory.SetTypeId (ItuR1411LosPropagationLossModel::GetTypeId());
-			modelFactory.Set ("Frequency", DoubleValue(1.8e9));
+			//modelFactory.SetTypeId (ItuR1411LosPropagationLossModel::GetTypeId());
+			//modelFactory.Set ("Frequency", DoubleValue(1.8e9));
 
 			// NS_LOG_UNCOND("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");	
 			// lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411NlosOverRooftopPropagationLossModel"));
 			// lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(18100));
 			// lteHelper->SetPathlossModelAttribute("Environment", StringValue("Urban"));
 			// lteHelper->SetPathlossModelAttribute("RooftopLevel", DoubleValue(20.0));
+			
+			NS_LOG_UNCOND("Pathloss model: HybridBuildingsPropagationLossModel ");
+			Config::SetDefault("ns3::ItuR1411NlosOverRooftopPropagationLossModel::StreetsOrientation", DoubleValue (10));
+			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::HybridBuildingsPropagationLossModel"));
+			lteHelper->SetPathlossModelAttribute ("Frequency", DoubleValue (1.8e9));
+			//lteHelper->SetPathlossModelAttribute ("Environment", EnumValue (EnvironmentType::OpenAreasEnvironment));
+			//lteHelper->SetPathlossModelAttribute ("CitySize", EnumValue (CitySize::MediumCity));
+			lteHelper->SetPathlossModelAttribute ("ShadowSigmaExtWalls", DoubleValue (0));
+			lteHelper->SetPathlossModelAttribute ("ShadowSigmaOutdoor", DoubleValue (2.0));
+			lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (500));
+			
 			lteHelper->Initialize ();
-			lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
-			lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
+			//lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
+			//lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 		}
 
 		//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::FriisPropagationLossModel"));
 		
 		if (scen == 2 || scen == 4)
-		{	
-			
-			NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
-			lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
+		{
+			//NS_LOG_UNCOND("Pathloss model: Nakagami Propagation ");
+			//lteHelper->SetAttribute("PathlossModel",StringValue("ns3::NakagamiPropagationLossModel"));
 
-			ObjectFactory modelFactory;
+			//ObjectFactory modelFactory;
 			//NS_LOG_UNCOND("Pathloss model: OkumuraHata ");
 			//modelFactory.SetTypeId (OkumuraHataPropagationLossModel::GetTypeId());
 			//modelFactory.Set ("Environment", StringValue("Urban"));
@@ -1465,20 +1474,21 @@ NodeContainer ueNodes;
 	    	//lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(1.8e9));
 	    
 			//modelFactory.SetTypeId (Cost231PropagationLossModel::GetTypeId());
-			// NS_LOG_UNCOND("Pathloss model: HybridBuildingsPropagationLossModel ");
-			// lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::HybridBuildingsPropagationLossModel"));
-			// lteHelper->SetPathlossModelAttribute ("ShadowSigmaExtWalls", DoubleValue (0));
-			// lteHelper->SetPathlossModelAttribute ("ShadowSigmaOutdoor", DoubleValue (1));
-			// lteHelper->SetPathlossModelAttribute ("ShadowSigmaIndoor", DoubleValue (1.5));
-			//  // use always LOS model
-			// lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (1e6));
-			// lteHelper->SetSpectrumChannelType ("ns3::MultiModelSpectrumChannel");
+			NS_LOG_UNCOND("Pathloss model: HybridBuildingsPropagationLossModel ");
+			Config::SetDefault("ns3::ItuR1411NlosOverRooftopPropagationLossModel::StreetsOrientation", DoubleValue (10));
+			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::HybridBuildingsPropagationLossModel"));
+			lteHelper->SetPathlossModelAttribute ("Frequency", DoubleValue (1.8e9));
+			//lteHelper->SetPathlossModelAttribute ("Environment", EnumValue (EnvironmentType::OpenAreasEnvironment));
+			//lteHelper->SetPathlossModelAttribute ("CitySize", EnumValue (CitySize::MediumCity));
+			lteHelper->SetPathlossModelAttribute ("ShadowSigmaExtWalls", DoubleValue (0));
+			lteHelper->SetPathlossModelAttribute ("ShadowSigmaOutdoor", DoubleValue (2.0));
+			lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (500));
 
-			NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
+			//NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
 			//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
 			//lteHelper->SetPathlossModelAttribute("Frequency", DoubleValue(1.8e9));
-			modelFactory.SetTypeId (ItuR1411LosPropagationLossModel::GetTypeId());
-			modelFactory.Set ("Frequency", DoubleValue(1.8e9));
+			//modelFactory.SetTypeId (ItuR1411LosPropagationLossModel::GetTypeId());
+			//modelFactory.Set ("Frequency", DoubleValue(1.8e9));
 
 			//NS_LOG_UNCOND("Pathloss model: ItuR1411NlosOverRooftopPropagationLossModel ");
 			//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411NlosOverRooftopPropagationLossModel"));
@@ -1492,8 +1502,8 @@ NodeContainer ueNodes;
 			//modelFactory.Set ("Frequency", DoubleValue(1.8e9));
 		
 			lteHelper->Initialize ();
-			lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
-			lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
+			//lteHelper->GetDownlinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
+			//lteHelper->GetUplinkSpectrumChannel()->AddPropagationLossModel(modelFactory.Create<PropagationLossModel>());
 
 			//NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
 			//modelFactory.SetTypeId (ItuR1411LosPropagationLossModel::GetTypeId());
@@ -1609,8 +1619,9 @@ NodeContainer ueNodes;
 		remotehostmobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 		//remotehostmobility.SetPositionAllocator(positionAlloc2);
 		remotehostmobility.Install(remoteHostContainer);
+		BuildingsHelper::Install (remoteHostContainer);
 		remotehostmobility.Install(pgw);
-  		
+		BuildingsHelper::Install (pgw);
 
 		NS_LOG_UNCOND("Installing Mobility Model in enBs...");
 
@@ -1641,9 +1652,8 @@ NodeContainer ueNodes;
 		mobilityenB.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 		mobilityenB.SetPositionAllocator(positionAlloc2);
 		mobilityenB.Install(enbNodes);
+		BuildingsHelper::Install (enbNodes);
 		
-
-		//BuildingsHelper::Install (enbNodes);
 		
 		//---------------Set Power of eNodeBs------------------//  
 		Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (eNodeBTxPower));
@@ -1717,6 +1727,8 @@ NodeContainer ueNodes;
 			}
 			start = end;
 		}
+
+		BuildingsHelper::Install (ueNodes);
 		
 		if (scen == 3 || scen == 4)
 		{
@@ -1736,6 +1748,7 @@ NodeContainer ueNodes;
 										 "Z", StringValue ("ns3::UniformRandomVariable[Min=0.5|Max=1.50]"));
 		
 		mobilityOverloadingUEs.Install(ueOverloadNodes);
+		BuildingsHelper::Install (ueOverloadNodes);
 		}
 	  
 		if (scen == 2 || scen == 4)
@@ -1772,6 +1785,7 @@ NodeContainer ueNodes;
 			// 								"LayoutType", StringValue ("RowFirst"));
 
 			mobilityUABS.Install(UABSNodes);
+			BuildingsHelper::Install (UABSNodes);
 			UABSTxPower = 0;
 			Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (UABSTxPower));
 			Config::SetDefault( "ns3::LteEnbPhy::NoiseFigure", DoubleValue(5) );    // Default 5
@@ -2126,6 +2140,8 @@ NodeContainer ueNodes;
 		{
 			Simulator::Schedule(Seconds(5.1), &GetPrioritizedClusters, UABSNodes,  speedUABS,  UABSLteDevs);
 		}
+		
+		BuildingsHelper::MakeMobilityModelConsistent ();
 		
 		Ptr<RadioEnvironmentMapHelper> remHelper = CreateObject<RadioEnvironmentMapHelper> ();
 		if (remMode > 0){
