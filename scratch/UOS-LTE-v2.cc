@@ -1952,7 +1952,7 @@ NodeContainer ueNodes;
 		}
 
 		// ---------------------- Setting video transmition - Start sending-receiving -----------------------//
-		NS_LOG_UNCOND ("Resquesting-sending Evalvid Video...");
+		// NS_LOG_UNCOND ("Requesting-sending Evalvid Video...");
 	  	NS_LOG_INFO ("Create Applications.");
 	   
 	  	 //requestVideoStream(remoteHost, ueNodes, remoteHostAddr, simTime);//, transmissionStart);
