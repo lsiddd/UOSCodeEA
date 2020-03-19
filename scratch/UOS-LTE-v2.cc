@@ -1475,14 +1475,14 @@ NodeContainer ueNodes;
 	    
 			//modelFactory.SetTypeId (Cost231PropagationLossModel::GetTypeId());
 			NS_LOG_UNCOND("Pathloss model: HybridBuildingsPropagationLossModel ");
-			Config::SetDefault("ns3::ItuR1411NlosOverRooftopPropagationLossModel::StreetsOrientation", DoubleValue (0));
+			Config::SetDefault("ns3::ItuR1411NlosOverRooftopPropagationLossModel::StreetsOrientation", DoubleValue (5));
 			lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::HybridBuildingsPropagationLossModel"));
 			lteHelper->SetPathlossModelAttribute ("Frequency", DoubleValue (1.8e9));
 			//lteHelper->SetPathlossModelAttribute ("Environment", EnumValue (EnvironmentType::OpenAreasEnvironment));
 			//lteHelper->SetPathlossModelAttribute ("CitySize", EnumValue (CitySize::MediumCity));
 			lteHelper->SetPathlossModelAttribute ("ShadowSigmaExtWalls", DoubleValue (0));
-			lteHelper->SetPathlossModelAttribute ("ShadowSigmaOutdoor", DoubleValue (2.0));
-			lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (500));
+			lteHelper->SetPathlossModelAttribute ("ShadowSigmaOutdoor", DoubleValue (3.0));
+			lteHelper->SetPathlossModelAttribute ("Los2NlosThr", DoubleValue (300));
 
 			//NS_LOG_UNCOND("Pathloss model: ItuR1411LosPropagationLossModel ");
 			//lteHelper->SetAttribute ("PathlossModel", StringValue ("ns3::ItuR1411LosPropagationLossModel"));
