@@ -1340,7 +1340,7 @@ NodeContainer ueNodes;
 
 		// File to Log all Users that will be connected to UABS and how many UABS will be activated.
 		
-
+		unsigned short resume = 0;
 		CommandLine cmm;
     	cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
     	cmm.AddValue("scen", "scenario to run", scen);
@@ -1353,9 +1353,10 @@ NodeContainer ueNodes;
     	//cmm.AddValue("numberOfeNodeBNodes", "Number of enBs", numberOfeNodeBNodes);
     	cmm.AddValue("remMode","Radio environment map mode",remMode);
 		cmm.AddValue("enableNetAnim","Generate NetAnim XML",enableNetAnim);
+		cmm.AddValue("resume","Continue from specified iteration",resume);
     	cmm.Parse(argc, argv);
 
-		for (uint32_t z = 0; z < nRuns; z++){
+		for (uint32_t z = resume; z < nRuns; z++){
 				uint32_t seed = randomSeed + z;
 				SeedManager::SetSeed (seed);
 				NS_LOG_UNCOND("Run # " << std::to_string(z));
