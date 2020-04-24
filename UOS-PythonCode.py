@@ -228,7 +228,16 @@ def Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized):
     
     return  CentroidsPrio
 
-    
+# KNN Implementation for finding the nearest UABS to the X Centroid.
+# Create the knn model.
+def nearest_UABS(UABSCoordinates, cellIds, Centroids):
+      Kneighbors = 2 
+      knn = KNeighborsClassifier(n_neighbors= Kneighbors, weights= "uniform" ,algorithm="auto")
+      knn.fit(UABSCoordinates,cellIds)
+      #predict witch UABS will be serving to the X Centroid.
+      Knnpredict= knn.predict(Centroids)
+      return Knnpredict
+
 #-----------------------------------Main---------------------------------------------------------------- 
 
 #-----------------------------------Import data files---------------------------------------------------#
@@ -401,21 +410,23 @@ if (data6.size == 0):
         
     #Reorder Centroides based on prioritized AVGSINR
     CentroidsPrio = Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized)
-    
 
-#  KNN Implementation for finding the nearest UABS to the X Centroid.
-# Create the knn model.
-# Look at the five closest neighbors.
 if  (CentroidsPrio):
-      Kneighbors = 2
-      knn = KNeighborsClassifier(n_neighbors= Kneighbors, weights= "uniform" , algorithm="auto")
-      knn.fit(UABSCoordinates,cellid3)
-#predict witch UABS will be serving to the X Centroid.
-      Knnpredict= knn.predict(CentroidsPrio)
-      j=0
-      for i in CentroidsPrio:
-            print("{} {} {} ".format(i[0], i[1], Knnpredict[j]))
-            j+=1 
+    while len(CentroidsPrio) > 0 and len(cellid3) > 0:
+        used_UABS_ids = set()
+        nearest = nearest_UABS(UABSCoordinates, cellid3, CentroidsPrio)
+        j=0
+        for i in CentroidsPrio:
+            if nearest[j] in used_UABS_ids: break
+            print("{} {} {} ".format(i[0], i[1], nearest[j]))
+            used_UABS_ids.add(nearest[j])
+            j+=1
+        #find indices of UABSs coordinates to delete
+        indices = [i for i in range(len(cellid3)) if cellid3[i] in used_UABS_ids]
+        #delete coordinates by index
+        UABSCoordinates = np.delete(UABSCoordinates, indices, 0)
+        cellid3 = [x for x in cellid3 if x not in used_UABS_ids]
+        CentroidsPrio = CentroidsPrio[j:]
 else:
       for i in CentroidsPrio:
             print("{} {} ".format(i[0], i[1]))
