@@ -167,6 +167,8 @@ NodeContainer ueNodes;
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
+std::string exec(const char* cmd);
+
 		void RemainingEnergy (double oldValue, double remainingEnergy)
 		{
   			std::cout << Simulator::Now ().GetSeconds () <<"s Current remaining energy = " << remainingEnergy << "J\n";
@@ -446,6 +448,38 @@ NodeContainer ueNodes;
 
 		}
 
+void save_ues_position(NodeContainer UEs, std::ofstream* ues_position){
+	double now = Simulator::Now().GetSeconds();
+	for (NodeContainer::Iterator i = UEs.Begin(); i != UEs.End (); ++i){
+		Ptr<Node> UE = *i;
+		Ptr<MobilityModel> UEposition = UE->GetObject<MobilityModel> ();
+		Vector pos = UEposition->GetPosition ();
+		*ues_position << now << "," << UE->GetId() << "," << pos.x << "," << pos.y << "\n";
+	}
+	ues_position->flush();
+	Simulator::Schedule(Seconds(5), &save_ues_position, UEs, ues_position);
+}
+
+std::vector<Vector2D> do_predictions(){
+	static double last_time;
+	static std::vector<Vector2D> predicted_coords;
+	std::string prediction;
+	std::vector<std::string> split;
+	Vector2D coordinate;
+
+	if(last_time == Simulator::Now().GetSeconds())
+		return predicted_coords; //return cached prediction
+
+	predicted_coords.clear();
+	last_time = Simulator::Now().GetSeconds();
+	prediction = exec("python3 UOS-Prediction.py 2>>prediction_errors.txt");
+	boost::split(split, prediction, boost::is_any_of(" "), boost::token_compress_on);
+	for(unsigned int i = 0; i < split.size()-1; i+=3){
+		coordinate = Vector2D(std::stod(split[i+1]), std::stod(split[i+2]));
+		predicted_coords.push_back(coordinate);
+	}
+	return predicted_coords;
+}
 
 		// ---------------This function generates position files of every node in the network: enB, UABS, Users Equip. ----------//
 		void GetPositionUEandenB(NodeContainer enbNodes, NodeContainer UABSNodes, NetDeviceContainer enbLteDevs,NetDeviceContainer UABSLteDevs, NodeContainer ueOverloadNodes, NetDeviceContainer ueLteDevs)
@@ -560,48 +594,63 @@ NodeContainer ueNodes;
 			int z =0;
 			int i =0;
 			int q =0;
-
+			double now = Simulator::Now().GetSeconds();
+			std::vector<Vector2D> predicted_coords;
+			Vector2D coords;
 			
-				for (NodeContainer::Iterator j = ueNodes.Begin ();j != ueNodes.End (); ++j)
+			if(now >= 10){
+				predicted_coords = do_predictions();
+			}
+
+			for (NodeContainer::Iterator j = ueNodes.Begin ();j != ueNodes.End (); ++j)
+			{
+				UEImsi = ueLteDevs.Get(i)->GetObject<LteUeNetDevice>()->GetImsi();
+				if (ue_imsi_sinr[UEImsi-1] < minSINR) 
 				{
-					UEImsi = ueLteDevs.Get(i)->GetObject<LteUeNetDevice>()->GetImsi();
-					if (ue_imsi_sinr[UEImsi-1] < minSINR) 
-					{	
-						//NS_LOG_UNCOND("Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi );
-						//UE << "Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi << std::endl;
-						
-						Ptr<Node> object = *j;
-						Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
-						NS_ASSERT (UEposition != 0);
-						Vector pos = UEposition->GetPosition ();
+					//NS_LOG_UNCOND("Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi );
+					//UE << "Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi << std::endl;
+					
+					Ptr<Node> object = *j;
+					Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
+					NS_ASSERT (UEposition != 0);
+					Vector pos = UEposition->GetPosition ();
+					if(now >= 10){
+						coords = predicted_coords[UEImsi-1];
+						UE << coords.x << "," << coords.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEImsi-1] << ","<< UEImsi<< "," << ue_info_cellid[UEImsi-1]<< std::endl;
+					} else {
 						UE << pos.x << "," << pos.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEImsi-1] << ","<< UEImsi<< "," << ue_info_cellid[UEImsi-1]<< std::endl;
-						++i;
-						++k;
-						
 					}
+					++i;
+					++k;
+					
 				}
+			}
 			NS_LOG_UNCOND("Users with low sinr: "); //To know if after an UABS is functioning this number decreases.
 			NS_LOG_UNCOND(k);
-			Qty_UE_SINR_file << Simulator::Now().GetSeconds() << "," << k << std::endl;
+			Qty_UE_SINR_file << now << "," << k << std::endl;
 
 			
-				for (NodeContainer::Iterator j = ueOverloadNodes.Begin ();j != ueOverloadNodes.End (); ++j)
+			for (NodeContainer::Iterator j = ueOverloadNodes.Begin ();j != ueOverloadNodes.End (); ++j)
+			{
+				UEOverloadImsi = OverloadingUeLteDevs.Get(q)->GetObject<LteUeNetDevice>()->GetImsi();
+				if (ue_imsi_sinr[UEOverloadImsi-1] < minSINR) 
 				{
-					UEOverloadImsi = OverloadingUeLteDevs.Get(q)->GetObject<LteUeNetDevice>()->GetImsi();
-					if (ue_imsi_sinr[UEOverloadImsi-1] < minSINR) 
-					{	
-						//NS_LOG_UNCOND("Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi );
-						//UE << "Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi << std::endl;
-						
-						Ptr<Node> object = *j;
-						Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
-						NS_ASSERT (UEposition != 0);
-						Vector pos = UEposition->GetPosition ();
+					//NS_LOG_UNCOND("Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi );
+					//UE << "Sinr: "<< ue_imsi_sinr[UEImsi] << " Imsi: " << UEImsi << std::endl;
+					
+					Ptr<Node> object = *j;
+					Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
+					NS_ASSERT (UEposition != 0);
+					Vector pos = UEposition->GetPosition ();
+					if(now >= 10){
+						coords = predicted_coords[UEOverloadImsi-1];
+						UE << coords.x << "," << coords.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEOverloadImsi-1] << ","<< UEOverloadImsi<< "," << ue_info_cellid[UEOverloadImsi-1]<< std::endl;
+					} else {
 						UE << pos.x << "," << pos.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEOverloadImsi-1] << ","<< UEOverloadImsi<< "," << ue_info_cellid[UEOverloadImsi-1]<< std::endl;
-						++q;
-						++z;
-						
 					}
+					++q;
+					++z;
+				}
 			}
 			NS_LOG_UNCOND("Overloading Users with low sinr: "); //To know if after an UABS is functioning this number decreases.
 			NS_LOG_UNCOND(z);
@@ -832,19 +881,23 @@ NodeContainer ueNodes;
 			double Delaysum = 0; 
 			double Jittersum = 0;
 			double Throughput=0.0;
+			Time now = Simulator::Now (); 
 			monitor->CheckForLostPackets ();
 			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput";    
 			std::ofstream UE_TP;
+			std::vector<Vector2D> predicted_coords;
+			Vector2D coords;
 			if(tp_num == 4)
 			{
 				UE_TP.open(uenodes_TP.str());
+				if(now.GetSeconds() >= 10)
+					predicted_coords = do_predictions();
 			}
 			std::stringstream uenodes_TP_log;
 			uenodes_TP_log << "UEs_UDP_Throughput_LOG";    
 			std::ofstream UE_TP_Log;
 			UE_TP_Log.open(uenodes_TP_log.str(),std::ios_base::app);
-			Time now = Simulator::Now (); 
 			double Window_avg_Throughput[numberOfUENodes];
 			double Window_avg_Delay[numberOfUENodes];
 			double Window_avg_Packetloss[numberOfUENodes];
@@ -933,9 +986,16 @@ NodeContainer ueNodes;
 										 // NS_LOG_UNCOND("Compare UE_TP vs Avg TP: "<< std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
 										// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
 										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
-										UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
-					   	
-						   				UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+										if(now.GetSeconds() >= 10){
+											coords = predicted_coords[i];
+											UE_TP << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+											UE_TP_Log << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+
+										} else {
+											UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+							
+											UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+										}
 									}
 								}
 						    }
@@ -1372,6 +1432,9 @@ NodeContainer ueNodes;
 			
 				UE_UABS.open(Users_UABS.str());
 				UABS_Qty.open(Qty_UABS.str());
+				//Open file for writing and overwrite if it already exists
+				ues_position.open("ues_position.txt", std::ofstream::out | std::ofstream::trunc);
+				ues_position << numberOfUENodes << std::endl;
 
 				//traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
 				//NS_LOG_UNCOND(traceFile);
@@ -1831,7 +1894,10 @@ NodeContainer ueNodes;
 		// -----------------------Activate EPSBEARER---------------------------//
 		//lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VIDEO_TCP_DEFAULT), EpcTft::Default ());
 		lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VOICE_VIDEO_GAMING), EpcTft::Default ());
-	  
+ 
+		for(unsigned int i = 1; i <= 5; ++i){
+			Simulator::Schedule(Seconds(i), &save_ues_position, ueNodes, &ues_position);
+		}
 	  	//------------------------Get Sinr-------------------------------------//
 	  	if(scen != 0)
 		{
@@ -2140,11 +2206,11 @@ NodeContainer ueNodes;
 
 		UE_UABS.close();
 		UABS_Qty.close();
-		
+		ues_position.close();
 
 		Simulator::Destroy ();
 	  
-		NS_LOG_INFO ("Done.");
+	NS_LOG_INFO ("Done.");
 	}
 	return 0;
 }
