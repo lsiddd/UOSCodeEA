@@ -30,6 +30,6 @@ UABSs
 
 UEsLowSinr
 
-rem-noUABs.out
-
-rem-noUABs.png
+*.out
+*.png
+/*.txt
