@@ -2144,6 +2144,9 @@ std::vector<Vector2D> do_predictions(){
 			}
 		}
 
+		//GtkConfigStore configstore;
+		//configstore.ConfigureAttributes();
+
 		NS_LOG_UNCOND("Running simulation...");
 		NS_LOG_INFO ("Run Simulation.");
 		Simulator::Stop(Seconds(simTime));
