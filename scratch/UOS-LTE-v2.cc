@@ -87,6 +87,8 @@
 #include <ns3/psc-module.h>
 #include "ns3/li-ion-energy-source.h"
 
+#include <vector>
+#include "matriz.h"
 
 #include <math.h>
 
@@ -96,10 +98,10 @@
 using namespace ns3;
 using namespace psc; //to use PSC functions
 
-const uint16_t numberOfeNodeBNodes = 4;
-const uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
 const uint16_t numberOfOverloadUENodes = 0; // user that will be connected to an specific enB. 
-const uint16_t numberOfUABS = 6;
+uint16_t numberOfeNodeBNodes = 4;
+uint16_t numberOfUENodes = 100; //Number of user to test: 245, 392, 490 (The number of users and their traffic model follow the parameters recommended by the 3GPP)
+uint16_t numberOfUABS = 6;
 double simTime = 100; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
 bool disableDl = false;
@@ -111,28 +113,26 @@ int UABSTxPower = 0;//23;   //Set UABS Power
 uint8_t bandwidth_enb = 100; // 100 RB --> 20MHz  |  25 RB --> 5MHz
 uint8_t bandwidth_UABS = 100; // 100 RB --> 20MHz  |  25 RB --> 5MHz
 double speedUABS = 0;
-double ue_info[numberOfeNodeBNodes + numberOfUABS][numberOfUENodes]; //UE Connection Status Register Matrix
-double ue_imsi_sinr[numberOfUENodes]; //UE Connection Status Register Matrix
-double ue_imsi_sinr_linear[numberOfUENodes];
-double ue_info_cellid[numberOfUENodes];
-Ipv4Address ue_IP_Address[numberOfUENodes];
+matriz<double> ue_info; //UE Connection Status Register Matrix
+vector<double> ue_imsi_sinr; //UE Connection Status Register Matrix
+vector<double> ue_imsi_sinr_linear;
+vector<double> ue_info_cellid;
+vector<Ipv4Address> ue_IP_Address;
 int minSINR = 0; //  minimum SINR to be considered to clusterization
 string GetClusterCoordinates;
-double Arr_Througput[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Throughput X]
-double Arr_Delay[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Delay X]
-double Arr_PacketLoss[numberOfUENodes][5] = {0,0,0,0,0}; // [USUARIO ID][Valor de Packet Loss X]
+matriz<double> Arr_Througput; // [USUARIO ID][Valor de Throughput X]
+matriz<double> Arr_Delay; // [USUARIO ID][Valor de Delay X]
+matriz<double> Arr_PacketLoss; // [USUARIO ID][Valor de Packet Loss X]
 double PDR=0.0; //Packets Delay Rate
 double PLR=0.0; //Packets Lost Rate
 double APD=0.0;	//Average Packet Delay
 double Avg_Jitter=0.0;	//Average Packet Jitter
 bool UABSFlag;
 bool UABS_On_Flag = false;
-bool UABS_Energy_ON [numberOfUABS] = {false}; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
+vector<bool> UABS_Energy_ON; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
 std::stringstream cmd;
 double UABSHeight = 80;
 double enBHeight = 30;
-uint32_t nRuns = 1;
-uint32_t randomSeed = 1234;
 int scen = 4; 
 // [Scenarios --> Scen[0]: General Scenario, with no UABS support, network ok;  Scen[1]: one enB damaged (off) and no UABS;
 // Scen[2]: one enB damaged (off) with supporting UABS; Scen[3]:Overloaded enB(s) with no UABS support; Scen[4]:Overloaded enB(s) with UABS support; ]
@@ -161,13 +161,26 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 //std::string traceFile;
 
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
-uint64_t lastTotalRx[numberOfUENodes] = {0};                     /* The value of the last total received bytes */
+vector<uint64_t> lastTotalRx;                     /* The value of the last total received bytes */
 NodeContainer ueNodes;
 
 
 		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
 std::string exec(const char* cmd);
+
+void alloc_arrays(){
+	ue_info.setDimensions (numberOfeNodeBNodes + numberOfUABS, numberOfUENodes);
+	ue_imsi_sinr.resize (numberOfUENodes);
+	ue_imsi_sinr_linear.resize (numberOfUENodes);
+	ue_info_cellid.resize (numberOfUENodes);
+	ue_IP_Address.resize (numberOfUENodes);
+	Arr_Througput.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Throughput X]
+	Arr_Delay.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Delay X]
+	Arr_PacketLoss.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Packet Loss X]
+	UABS_Energy_ON.assign (numberOfUABS, false); //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
+	lastTotalRx.assign (numberOfUENodes, 0);  /* The value of the last total received bytes */
+}
 
 		void RemainingEnergy (double oldValue, double remainingEnergy)
 		{
@@ -1397,40 +1410,34 @@ std::vector<Vector2D> do_predictions(){
   		LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
 
 		// File to Log all Users that will be connected to UABS and how many UABS will be activated.
-		
-		unsigned short resume = 0;
+		uint32_t randomSeed = 1234;
 		std::ofstream ues_position;
 
 		CommandLine cmm;
-    	cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
+		cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
     	cmm.AddValue("scen", "scenario to run", scen);
-    	cmm.AddValue("nRuns", "Number of runs", nRuns);
     	cmm.AddValue("graphType","Type of graphs", graphType); 
     	//cmm.AddValue("traceFile", "Ns2 movement trace file", traceFile);
     	cmm.AddValue ("disableDl", "Disable downlink data flows", disableDl);
   		cmm.AddValue ("disableUl", "Disable uplink data flows", disableUl);
-    	//cmm.AddValue("numberOfUABS", "Number of UABS", numberOfUABS);
-    	//cmm.AddValue("numberOfeNodeBNodes", "Number of enBs", numberOfeNodeBNodes);
+		cmm.AddValue("nUE", "Number of UEs", numberOfUENodes);
+    	cmm.AddValue("nUABS", "Number of UABS", numberOfUABS);
+    	cmm.AddValue("nENB", "Number of enBs", numberOfeNodeBNodes);
     	cmm.AddValue("remMode","Radio environment map mode",remMode);
 		cmm.AddValue("enableNetAnim","Generate NetAnim XML",enableNetAnim);
-		cmm.AddValue("resume","Continue from specified iteration",resume);
     	cmm.Parse(argc, argv);
-
-		for (uint32_t z = resume; z < nRuns; z++){
-				uint32_t seed = randomSeed + z;
-				SeedManager::SetSeed (seed);
-				NS_LOG_UNCOND("Run # " << std::to_string(z));
-				
+		
+		SeedManager::SetSeed (randomSeed);
+		alloc_arrays();
 				Users_UABS.str(""); //To clean these variables in every run because they are global.
 				Qty_UABS.str("");	//To clean these variables in every run because they are global.
 				uenodes_log.str("");
 				Qty_UE_SINR.str("");
 
-				Users_UABS << "UE_info_UABS_RUN#" << z;
-				Qty_UABS << "Quantity_UABS_per_RUN#" << z;
-				uenodes_log << "LTEUEs_Log_RUN#" << z;
-				Qty_UE_SINR << "Qty_UE_SINR_RUN#" << z;
-
+				Users_UABS << "UE_info_UABS";
+				Qty_UABS << "Quantity_UABS";
+				uenodes_log << "LTEUEs_Log";
+				Qty_UE_SINR << "Qty_UE_SINR";
 			
 				UE_UABS.open(Users_UABS.str());
 				UABS_Qty.open(Qty_UABS.str());
@@ -1518,9 +1525,6 @@ std::vector<Vector2D> do_predictions(){
 		remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 	  
 		// Create node containers: UE, UE Overloaded Group ,  eNodeBs, UABSs.
-		//NodeContainer ueNodes;
-		NodeContainer ueNodesN;
-		ueNodes = ueNodesN;
 		ueNodes.Create(numberOfUENodes);
 		NodeContainer ueOverloadNodes;
 		if (scen == 3 || scen == 4)
@@ -1954,7 +1958,7 @@ std::vector<Vector2D> do_predictions(){
 		AnimationInterface* anim;
 	  	// ---------------------- Configuration of Netanim  -----------------------//
 		if(enableNetAnim){
-			anim = new AnimationInterface("UOSLTE_run_"+std::to_string(z)+".xml"); // Mandatory
+			anim = new AnimationInterface("UOSLTE.xml"); // Mandatory
 			anim->SetMaxPktsPerTraceFile(5000000); // Set animation interface max packets. (TO CHECK: how many packets i will be sending?) 
 			// Cor e Descrição para eNb
 			for (uint32_t i = 0; i < enbNodes.GetN(); ++i) 
@@ -2012,35 +2016,35 @@ std::vector<Vector2D> do_predictions(){
 
 
 		//Gnuplot parameters for Throughput
-		string fileNameWithNoExtension = "Throughput_run_";
-		string graphicsFileName        = fileNameWithNoExtension + std::to_string(z) +".png";
-		string plotFileName            = fileNameWithNoExtension + std::to_string(z)+".plt";
+		string fileNameWithNoExtension = "Throughput";
+		string graphicsFileName        = fileNameWithNoExtension + ".png";
+		string plotFileName            = fileNameWithNoExtension + ".plt";
 		string plotTitle               = "Throughput vs Time";
 		string dataTitle               = "Throughput";
 		//Gnuplot parameters for PDR
-		string fileNameWithNoExtensionPDR = "PDR_run_";
-		string graphicsFileNamePDR        = fileNameWithNoExtensionPDR + std::to_string(z) +".png";
-		string plotFileNamePDR            = fileNameWithNoExtensionPDR + std::to_string(z)+".plt";
+		string fileNameWithNoExtensionPDR = "PDR";
+		string graphicsFileNamePDR        = fileNameWithNoExtensionPDR + ".png";
+		string plotFileNamePDR            = fileNameWithNoExtensionPDR + ".plt";
 		string plotTitlePDR               = "PDR Mean"; //to check later
 		string dataTitlePDR               = "Packet Delivery Ratio Mean";
 		//Gnuplot parameters for PLR
-		string fileNameWithNoExtensionPLR = "PLR_run_";
-		string graphicsFileNamePLR        = fileNameWithNoExtensionPLR + std::to_string(z) +".png";
-		string plotFileNamePLR            = fileNameWithNoExtensionPLR + std::to_string(z)+".plt";
+		string fileNameWithNoExtensionPLR = "PLR";
+		string graphicsFileNamePLR        = fileNameWithNoExtensionPLR + ".png";
+		string plotFileNamePLR            = fileNameWithNoExtensionPLR + ".plt";
 		string plotTitlePLR               = "PLR Mean";
 		string dataTitlePLR               = "Packet Lost Ratio Mean";
 
 		//Gnuplot parameters for APD
-		string fileNameWithNoExtensionAPD = "APD_run_";
-		string graphicsFileNameAPD        = fileNameWithNoExtensionAPD + std::to_string(z) +".png";
-		string plotFileNameAPD            = fileNameWithNoExtensionAPD + std::to_string(z)+".plt";
+		string fileNameWithNoExtensionAPD = "APD";
+		string graphicsFileNameAPD        = fileNameWithNoExtensionAPD + ".png";
+		string plotFileNameAPD            = fileNameWithNoExtensionAPD + ".plt";
 		string plotTitleAPD              = "APD Mean";
 		string dataTitleAPD               = "Average Packet Delay Mean";
 
 		//Gnuplot parameters for APD
-		string fileNameWithNoExtensionJitter = "Jitter_run_";
-		string graphicsFileNameJitter       = fileNameWithNoExtensionJitter + std::to_string(z) +".png";
-		string plotFileNameJitter            = fileNameWithNoExtensionJitter + std::to_string(z)+".plt";
+		string fileNameWithNoExtensionJitter = "Jitter";
+		string graphicsFileNameJitter       = fileNameWithNoExtensionJitter + ".png";
+		string plotFileNameJitter            = fileNameWithNoExtensionJitter + ".plt";
 		string plotTitleJitter              = "Jitter Mean";
 		string dataTitleJitter              = "Jitter Mean";
 
@@ -2157,7 +2161,7 @@ std::vector<Vector2D> do_predictions(){
 
 		// Print per flow statistics
 		ThroughputCalc(monitor,classifier,datasetThroughput,datasetPDR,datasetPLR,datasetAPD);
-		monitor->SerializeToXmlFile("UOSLTE-FlowMonitor_run_"+std::to_string(z)+".xml",true,true);
+		monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
 
 		//Gnuplot ...continued
  		//Throughput
@@ -2216,7 +2220,6 @@ std::vector<Vector2D> do_predictions(){
 		Simulator::Destroy ();
 	  
 	NS_LOG_INFO ("Done.");
-	}
 	return 0;
 }
 
