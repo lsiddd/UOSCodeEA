@@ -18,18 +18,18 @@ build/
 /.project
 
 LTE*
-/D*.txt
-/U*.txt
-/U*.xml
-*_RUN*
-*_run*
 enBs
-UEs_UDP*
+UE*
 
 UABSs
 
-UEsLowSinr
-
+sem/
+results/
 *.out
 *.png
+/*.xml
 /*.txt
+
+Qty_UE_SINR
+
+Quantity_UABS
