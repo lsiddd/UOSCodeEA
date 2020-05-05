@@ -1399,6 +1399,8 @@ std::vector<Vector2D> do_predictions(){
 		// File to Log all Users that will be connected to UABS and how many UABS will be activated.
 		
 		unsigned short resume = 0;
+		std::ofstream ues_position;
+
 		CommandLine cmm;
     	cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
     	cmm.AddValue("scen", "scenario to run", scen);
