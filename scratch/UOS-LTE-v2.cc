@@ -44,6 +44,7 @@
 #include "ns3/double.h"
 #include <ns3/boolean.h>
 #include <ns3/enum.h>
+#include "ns3/system-path.h"
 #include "ns3/gnuplot.h" //gnuplot
 
 #include "ns3/csma-helper.h"
@@ -149,6 +150,7 @@ std::stringstream Qty_UE_SINR;
 std::ofstream UE_UABS; // To UEs cell id in every second of the simulation
 std::ofstream UABS_Qty; //To get the quantity of UABS used per RUNS
 Gnuplot2dDataset datasetAvg_Jitter;
+std::string ns3_dir;
 
 //------------------Energy Variables---------//
 double INITIAL_ENERGY = 356400;//2052000; //10000; //https://www.genstattu.com/ta-10c-25000-6s1p-hv-xt90.html
@@ -485,7 +487,9 @@ std::vector<Vector2D> do_predictions(){
 
 	predicted_coords.clear();
 	last_time = Simulator::Now().GetSeconds();
-	prediction = exec("python3 UOS-Prediction.py 2>>prediction_errors.txt");
+	cmd.str("");
+	cmd << "python3 " << ns3_dir << "/UOS-Prediction.py 2>>prediction_errors.txt";
+	prediction = exec(cmd.str().c_str());
 	boost::split(split, prediction, boost::is_any_of(" "), boost::token_compress_on);
 	for(unsigned int i = 0; i < split.size()-1; i+=3){
 		coordinate = Vector2D(std::stod(split[i+1]), std::stod(split[i+2]));
@@ -841,7 +845,8 @@ std::vector<Vector2D> do_predictions(){
 			double UABSPriority[20];
 			
 			// Call Python code to get string with clusters prioritized and trajectory optimized (Which UABS will serve which cluster).
-			cmd << "python3 UOS-PythonCode.py " << " 2>/dev/null ";
+			cmd.str("");
+			cmd << "python3 " << ns3_dir << "/UOS-PythonCode.py " << " 2>/dev/null ";
 			GetClusterCoordinates =  exec(cmd.str().c_str());
 			
 
@@ -1398,8 +1403,47 @@ std::vector<Vector2D> do_predictions(){
 		}
 
 
-		
+bool IsTopLevelSourceDir (std::string path)
+{
+	bool haveVersion = false;
+	bool haveLicense = false;
 
+	//
+	// If there's a file named VERSION and a file named LICENSE in this
+	// directory, we assume it's our top level source directory.
+	//
+
+	std::list<std::string> files = SystemPath::ReadFiles (path);
+	for (std::list<std::string>::const_iterator i = files.begin (); i != files.end (); ++i)
+	{
+		if (*i == "VERSION")
+		{
+			haveVersion = true;
+		}
+		else if (*i == "LICENSE")
+		{
+			haveLicense = true;
+		}
+	}
+
+	return haveVersion && haveLicense;
+}
+
+std::string GetTopLevelSourceDir (void)
+{
+	std::string self = SystemPath::FindSelfDirectory ();
+	std::list<std::string> elements = SystemPath::Split (self);
+	while (!elements.empty ())
+	{
+		std::string path = SystemPath::Join (elements.begin (), elements.end ());
+		if (IsTopLevelSourceDir (path))
+		{
+			return path;
+		}
+		elements.pop_back ();
+	}
+	NS_FATAL_ERROR ("Could not find source directory from self=" << self);
+}
 
 		// -------------------------------------------MAIN FUNCTION-----------------------------------------//
 		int main (int argc, char *argv[])
@@ -1412,6 +1456,7 @@ std::vector<Vector2D> do_predictions(){
 		// File to Log all Users that will be connected to UABS and how many UABS will be activated.
 		uint32_t randomSeed = 1234;
 		std::ofstream ues_position;
+		ns3_dir = GetTopLevelSourceDir();
 
 		CommandLine cmm;
 		cmm.AddValue("randomSeed", "value of seed for random", randomSeed);
