@@ -15,7 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Author: Emanuel Montero Espaillat <emanuel.montero.e@gmail.com>
+ * Authors: Emanuel Montero Espaillat <emanuel.montero.e@gmail.com>
+ *          Carlos Henrique Almeida Rocha <carlosh2340@gmail.com>
 
 
 
