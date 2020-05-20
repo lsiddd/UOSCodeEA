@@ -2044,10 +2044,10 @@ std::string GetTopLevelSourceDir (void)
 	 
 		//lteHelper->EnableTraces (); Set the traces on or off. 
 	  
+		lteHelper->EnableUlPhyTraces(); //This enables sinr reporting
 		if(phyTraces){
 			//Enabling Traces
 			lteHelper->EnablePhyTraces();
-			lteHelper->EnableUlPhyTraces();
 			lteHelper->EnableMacTraces();
 			lteHelper->EnableRlcTraces();
 			lteHelper->EnablePdcpTraces();
