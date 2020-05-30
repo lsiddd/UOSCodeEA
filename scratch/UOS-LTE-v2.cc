@@ -108,6 +108,7 @@ double simTime = 100; // 120 secs ||100 secs || 300 secs
 const int m_distance = 2000; //m_distance between enBs towers.
 bool disableDl = false;
 bool disableUl = false;
+bool enablePrediction = true;
 int evalvidId = 0;
 int UDP_ID = 0;      
 int eNodeBTxPower = 46; //Set enodeB Power dBm 46dBm --> 20MHz  |  43dBm --> 5MHz
@@ -616,7 +617,7 @@ std::vector<Vector2D> do_predictions(){
 			std::vector<Vector2D> predicted_coords;
 			Vector2D coords;
 			
-			if(now >= 10){
+			if(enablePrediction && now >= 10){
 				predicted_coords = do_predictions();
 			}
 
@@ -632,7 +633,7 @@ std::vector<Vector2D> do_predictions(){
 					Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
 					NS_ASSERT (UEposition != 0);
 					Vector pos = UEposition->GetPosition ();
-					if(now >= 10){
+					if(enablePrediction && now >= 10){
 						coords = predicted_coords[UEImsi-1];
 						UE << coords.x << "," << coords.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEImsi-1] << ","<< UEImsi<< "," << ue_info_cellid[UEImsi-1]<< std::endl;
 					} else {
@@ -660,7 +661,7 @@ std::vector<Vector2D> do_predictions(){
 					Ptr<MobilityModel> UEposition = object->GetObject<MobilityModel> ();
 					NS_ASSERT (UEposition != 0);
 					Vector pos = UEposition->GetPosition ();
-					if(now >= 10){
+					if(enablePrediction && now >= 10){
 						coords = predicted_coords[UEOverloadImsi-1];
 						UE << coords.x << "," << coords.y << "," << pos.z << "," << ue_imsi_sinr_linear[UEOverloadImsi-1] << ","<< UEOverloadImsi<< "," << ue_info_cellid[UEOverloadImsi-1]<< std::endl;
 					} else {
@@ -910,7 +911,7 @@ std::vector<Vector2D> do_predictions(){
 			if(tp_num == 4)
 			{
 				UE_TP.open(uenodes_TP.str());
-				if(now.GetSeconds() >= 10)
+				if(enablePrediction && now.GetSeconds() >= 10)
 					predicted_coords = do_predictions();
 			}
 			std::stringstream uenodes_TP_log;
@@ -1005,7 +1006,7 @@ std::vector<Vector2D> do_predictions(){
 										 // NS_LOG_UNCOND("Compare UE_TP vs Avg TP: "<< std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
 										// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
 										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
-										if(now.GetSeconds() >= 10){
+										if(enablePrediction && now.GetSeconds() >= 10){
 											coords = predicted_coords[i];
 											UE_TP << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
 											UE_TP_Log << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
@@ -1473,6 +1474,7 @@ std::string GetTopLevelSourceDir (void)
     	cmm.AddValue("remMode","Radio environment map mode",remMode);
 		cmm.AddValue("enableNetAnim","Generate NetAnim XML",enableNetAnim);
 		cmm.AddValue("phyTraces","Generate lte phy traces", phyTraces);
+		cmm.AddValue("enablePrediction", "Enable user movement prediction", enablePrediction);
     	cmm.Parse(argc, argv);
 		
 		SeedManager::SetSeed (randomSeed);
@@ -1489,9 +1491,11 @@ std::string GetTopLevelSourceDir (void)
 			
 				UE_UABS.open(Users_UABS.str());
 				UABS_Qty.open(Qty_UABS.str());
-				//Open file for writing and overwrite if it already exists
-				ues_position.open("ues_position.txt", std::ofstream::out | std::ofstream::trunc);
-				ues_position << numberOfUENodes << std::endl;
+				if(enablePrediction){
+					//Open file for writing and overwrite if it already exists
+					ues_position.open("ues_position.txt", std::ofstream::out | std::ofstream::trunc);
+					ues_position << numberOfUENodes << std::endl;
+				}
 
 				//traceFile = "scratch/UOS_UE_Scenario_"+std::to_string(z)+".ns_movements";
 				//NS_LOG_UNCOND(traceFile);
@@ -1948,9 +1952,11 @@ std::string GetTopLevelSourceDir (void)
 		// -----------------------Activate EPSBEARER---------------------------//
 		//lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VIDEO_TCP_DEFAULT), EpcTft::Default ());
 		lteHelper->ActivateDedicatedEpsBearer (ueLteDevs, EpsBearer (EpsBearer::NGBR_VOICE_VIDEO_GAMING), EpcTft::Default ());
- 
-		for(unsigned int i = 1; i <= 5; ++i){
-			Simulator::Schedule(Seconds(i), &save_ues_position, ueNodes, &ues_position);
+
+		if(enablePrediction){
+			for(unsigned int i = 1; i <= 5; ++i){
+				Simulator::Schedule(Seconds(i), &save_ues_position, ueNodes, &ues_position);
+			}
 		}
 	  	//------------------------Get Sinr-------------------------------------//
 	  	if(scen != 0)
