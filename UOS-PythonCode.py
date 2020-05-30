@@ -164,7 +164,9 @@ def Reorder_Centroids(Centroids, SINRAvg, SINRAvgPrioritized):
 # KNN Implementation for finding the nearest UABS to the X Centroid.
 # Create the knn model.
 def nearest_UABS(UABSCoordinates, cellIds, Centroids):
-      Kneighbors = 2 
+      Kneighbors = 2
+      if len(cellIds) == 1:
+        Kneighbors = 1
       knn = KNeighborsClassifier(n_neighbors= Kneighbors, weights= "uniform" ,algorithm="auto")
       knn.fit(UABSCoordinates,cellIds)
       #predict witch UABS will be serving to the X Centroid.
