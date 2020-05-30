@@ -145,6 +145,8 @@ bool graphType = false; // If "true" generates all the graphs based in FlowsVSTh
 int remMode = 0; // [0]: REM disabled; [1]: generate REM at 1 second of simulation;
 //[2]: generate REM at simTime/2 seconds of simulation
 bool enableNetAnim = false;
+int eps_sinr = 600;
+int eps_qos = 600;
 std::stringstream Users_UABS; // To UEs cell id in every second of the simulation
 std::stringstream Qty_UABS; //To get the quantity of UABS used per RUNS
 std::stringstream uenodes_log;
@@ -848,7 +850,10 @@ std::vector<Vector2D> do_predictions(){
 			
 			// Call Python code to get string with clusters prioritized and trajectory optimized (Which UABS will serve which cluster).
 			cmd.str("");
-			cmd << "python3 " << ns3_dir << "/UOS-PythonCode.py " << " 2>/dev/null ";
+			cmd << "python3 " << ns3_dir << "/UOS-PythonCode.py";
+			cmd << " --eps-sinr " << eps_sinr;
+			cmd << " --eps-qos " << eps_qos;
+			cmd << " 2>>clusterization_errors.txt";
 			GetClusterCoordinates =  exec(cmd.str().c_str());
 			
 
@@ -1475,6 +1480,8 @@ std::string GetTopLevelSourceDir (void)
 		cmm.AddValue("enableNetAnim","Generate NetAnim XML",enableNetAnim);
 		cmm.AddValue("phyTraces","Generate lte phy traces", phyTraces);
 		cmm.AddValue("enablePrediction", "Enable user movement prediction", enablePrediction);
+		cmm.AddValue("epsSINR", "EPS parameter for sinr clusterization", eps_sinr);
+		cmm.AddValue("epsQOS", "EPS parameter for qos clusterization", eps_qos);
     	cmm.Parse(argc, argv);
 		
 		SeedManager::SetSeed (randomSeed);

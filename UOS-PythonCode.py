@@ -5,6 +5,7 @@ Created on Fri Apr 12 16:40:04 2019
 
 @author: emanuel
 """
+import argparse
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
@@ -176,6 +177,13 @@ def nearest_UABS(UABSCoordinates, cellIds, Centroids):
 #-----------------------------------Main---------------------------------------------------------------- 
 
 #-----------------------------------Import data files---------------------------------------------------#
+parser = argparse.ArgumentParser(description='UE clusterization script.')
+parser.add_argument('--eps-sinr', default=600,
+                    help='DBSCAN EPS parameter for sinr clusterization')
+parser.add_argument('--eps-qos', default=600,
+                    help='DBSCAN EPS parameter for qos clusterization')
+args = parser.parse_args()
+
 with open('enBs') as fenBs:
     data1 = np.array(list((float(x), float(y), float(z), int(cellid)) for x, y, z, cellid in csv.reader(fenBs, delimiter= ',')))
     
@@ -229,14 +237,14 @@ if (data6.size != 0):
 
 
 #---------------Clustering with DBSCAN for Users with Low SINR---------------------
-eps_low_SINR=600
+eps_low_SINR=int(args.eps_sinr)
 min_samples_low_SINR=2
 if (data4.size != 0):
     clusters, x_clusters, y_clusters = DBSCAN_Clusterization(X, eps_low_SINR, min_samples_low_SINR)
 
 
 #---------------Clustering with DBSCAN for Users with Low Throughput---------------------
-eps_low_tp=600
+eps_low_tp=int(args.eps_qos)
 min_samples_low_tp=2
 if (data6.size != 0):
     clusters_QoS, x_clusters_QoS, y_clusters_QoS = DBSCAN_Clusterization(X1, eps_low_tp, min_samples_low_tp)
