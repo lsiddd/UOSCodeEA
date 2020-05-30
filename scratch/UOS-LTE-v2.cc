@@ -1683,9 +1683,9 @@ std::string GetTopLevelSourceDir (void)
 		// }  }
 
 		Ptr<ListPositionAllocator> positionAlloc2 = CreateObject<ListPositionAllocator> ();
-		positionAlloc2->Add (Vector( 1000, 1000 , enBHeight));
 		positionAlloc2->Add (Vector( 3000, 1000 , enBHeight));
 		positionAlloc2->Add (Vector( 1000, 3000 , enBHeight));
+		positionAlloc2->Add (Vector( 1000, 1000 , enBHeight));
 		positionAlloc2->Add (Vector( 3000, 3000 , enBHeight));
 
 		MobilityHelper mobilityenB;
