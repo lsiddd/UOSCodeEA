@@ -31,5 +31,10 @@ results/
 /*.txt
 
 Qty_UE_SINR
-
 Quantity_UABS
+
+APD.plt
+Jitter.plt
+PDR.plt
+PLR.plt
+Throughput.plt
