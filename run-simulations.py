@@ -21,23 +21,36 @@ param_combinations = {
     'disableDl' : 'false',
     'disableUl' : 'false',
     'enableNetAnim' : 'false',
+    'enablePrediction' : ['true', 'false'],
+    'epsQOS' : [500, 600],
+    'epsSINR' : 600,
     'graphType' : 'false',
-    'nENB' : [2, 4],
-    'nUABS' : 6,
+    'nENB' : 4,
+    'nUABS' : [6, 8],
     'nUE' : [100, 200],
     'phyTraces' : 'false',
-    'randomSeed' : 8000,
+    'randomSeed' : 8005,
     'remMode' : 0,
-    'scen' : [3, 4]
+    'scen' : 4
+}
+
+result_param = {
+    'enablePrediction' : ['true', 'false'],
+    'epsQOS' : [500, 600],
+    'nENB' : [4],
+    'nUABS' : [6, 8],
+    'nUE' : [100, 200]
 }
 
 if not args.save:
     campaign.run_missing_simulations(sem.list_param_combinations(param_combinations),33)
 
-result_param = { 
-    'scen' : [3, 4],
-    'nENB' : [2, 4], 
-    'nUE' : [100, 200]
-}
+campaign.save_to_folders(result_param, results_dir, 33)
+
+param_combinations['nENB'] = 2
+result_param['nENB'] = [2]
+
+if not args.save:
+    campaign.run_missing_simulations(sem.list_param_combinations(param_combinations),33)
 
 campaign.save_to_folders(result_param, results_dir, 33)
