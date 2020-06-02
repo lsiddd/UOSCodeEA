@@ -20,8 +20,11 @@ build/
 LTE*
 enBs
 UE*
-
 UABSs
+Qty_UE_SINR
+Quantity_UABS
+
+Graph_*pdf
 
 sem/
 results/
@@ -29,9 +32,6 @@ results/
 *.png
 /*.xml
 /*.txt
-
-Qty_UE_SINR
-Quantity_UABS
 
 APD.plt
 Jitter.plt
