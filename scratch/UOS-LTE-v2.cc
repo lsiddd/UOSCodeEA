@@ -1160,16 +1160,12 @@ std::vector<Vector2D> do_predictions(){
 			uint16_t ulPort = 2000;
 			  
 			// Ptr<UniformRandomVariable> startTimeSeconds = CreateObject<UniformRandomVariable> ();
-	  //  		startTimeSeconds->SetAttribute ("Min", DoubleValue (0));
-	  //  		startTimeSeconds->SetAttribute ("Max", DoubleValue (interPacketInterval/1000.0));
+			// startTimeSeconds->SetAttribute ("Min", DoubleValue (0));
+			// startTimeSeconds->SetAttribute ("Max", DoubleValue (interPacketInterval/1000.0));
 
 
-		  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-		  {
-		  	
-		  	
-	    	// int startTime = rand() % (int)simTime + 2;
-			int startTime = rand() % (int)4 + 2;
+			for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+			{
 			ulPort++;
 			
 		       if (!disableDl)
@@ -1196,15 +1192,9 @@ std::vector<Vector2D> do_predictions(){
 		          //ulClient.SetAttribute ("PacketSize", UintegerValue (1024));
 		          clientApps.Add (ulClient.Install (ueNodes.Get(u)));
 		         }
-			  serverApps.Start (Seconds(1));
-			  //clientApps.Start (Seconds(startTime));
-			  clientApps.Start (Seconds(startTime));
-
-		   }
-
-		  		
-		  		//Simulator::Schedule (Seconds (1), &CalculateThroughput,ueNodes,clientApps);
-
+			}
+			serverApps.Start (Seconds(1));
+			clientApps.Start (Seconds(2));
 		}
 
 		void UDPApp2 (Ptr<Node> remoteHost, NodeContainer ueNodes, Ipv4Address remoteHostAddr, Ipv4InterfaceContainer ueIpIface)
