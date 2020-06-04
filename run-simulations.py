@@ -22,7 +22,7 @@ print(campaign)
 
 param_combinations = {
     'disableDl' : 'false',
-    'disableUl' : 'false',
+    'disableUl' : 'true',
     'enableNetAnim' : 'false',
     'enablePrediction' : ['true', 'false'],
     'epsQOS' : [500, 600],
