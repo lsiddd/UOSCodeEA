@@ -25,7 +25,7 @@ param_combinations = {
     'disableUl' : 'true',
     'enableNetAnim' : 'false',
     'enablePrediction' : ['true', 'false'],
-    'epsQOS' : [500, 600],
+    'epsQOS' : 450,
     'epsSINR' : 600,
     'graphType' : 'false',
     'nENB' : 4,
@@ -39,7 +39,7 @@ param_combinations = {
 
 result_param = {
     'enablePrediction' : ['true', 'false'],
-    'epsQOS' : [500, 600],
+    'epsQOS' : [450],
     'nENB' : [4],
     'nUABS' : [6, 8],
     'nUE' : [100, 200]
