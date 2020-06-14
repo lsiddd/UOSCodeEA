@@ -74,7 +74,10 @@ def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     #        
         if plot:
             plt.scatter(x_clusters[i], y_clusters[i], label= "Cluster %d" %i,  s=8**2, c=colors[color_index]) #c=cmap(i)) 
-        color_index += 1
+        if color_index == len(colors) - 1:
+            color_index = 0
+        else:
+            color_index += 1
         
     if plot:
     #plot the Clusters 
