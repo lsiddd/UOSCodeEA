@@ -134,7 +134,7 @@ bool UABSFlag;
 bool UABS_On_Flag = false;
 vector<bool> UABS_Energy_ON; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
 std::stringstream cmd;
-double UABSHeight = 80;
+double UABSHeight = 40;
 double enBHeight = 30;
 int scen = 4; 
 // [Scenarios --> Scen[0]: General Scenario, with no UABS support, network ok;  Scen[1]: one enB damaged (off) and no UABS;
