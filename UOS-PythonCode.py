@@ -50,7 +50,8 @@ def DBSCAN_Clusterization(X, EPS, MIN_SAMPLES):
     clusters = [X[DBClusters.labels_ == i] for i in range(n_clusters_)]
     outliers = X[DBClusters.labels_ == -1]
 
-    if plot:    
+    if plot:
+        plt.clf()
         # Plot Outliers
         plt.scatter(outliers[:,0], outliers[:,1], c="black", label="Outliers")
     
