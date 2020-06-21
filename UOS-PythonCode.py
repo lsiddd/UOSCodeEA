@@ -281,8 +281,8 @@ SINRAvg = []
 Metric_Flag = 0
 if (data4.size != 0):
     SINRAvg= Sum_Avg_Parameter(clusters,x3, Metric_Flag)
+weight_SINR = 0.74 
 weight_SINR_Total = 0.0
-weight_SINR = 0.6 
 
 #Sum of Throughput and mean to later prioritize the clusters
 Metric_Flag = 1
@@ -302,17 +302,15 @@ if (data6.size != 0):
 
 #Calculate total weight of QoS Clustering
 if (data6.size != 0):
-    weight_QoS_Throughput = 0.4
-    weight_QoS_Delay = 0.3
-    weight_QoS_PLR = 0.3
+    weight_QoS_Throughput = 0.106
+    weight_QoS_Delay = 0.048
+    weight_QoS_PLR = 0.106
     weight_QoS_Total = 0.0
-    weight_QoS = 0.4
 
 #Weight of Throughput + Weight of Delay + Weight of PLR = 1
 
     for i in range(len(QoS_Throughput_Avg)):
         weight_QoS_Total += ((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
-    weight_QoS_Total = weight_QoS_Total * weight_QoS
 #        print("QoS: "+ str((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR)))
 #    SINRAvg_norm = SINRAvg.copy()   
     for sinr in SINRAvg:
