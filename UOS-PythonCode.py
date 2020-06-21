@@ -312,11 +312,13 @@ if (data6.size != 0):
 
     for i in range(len(QoS_Throughput_Avg)):
         weight_QoS_Total += ((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR))
+    weight_QoS_Total = weight_QoS_Total * weight_QoS
 #        print("QoS: "+ str((QoS_Throughput_Avg[i]*weight_QoS_Throughput)+(QoS_Delay_Avg[i]*weight_QoS_Delay)+(QoS_PLR_Avg[i]*weight_QoS_PLR)))
 #    SINRAvg_norm = SINRAvg.copy()   
     for sinr in SINRAvg:
 #        SINRAvg_norm[i] = preprocessing.normalize(SINRAvg[i])
-        weight_SINR_Total += sinr*weight_SINR
+        weight_SINR_Total += sinr
+    weight_SINR_Total = weight_SINR_Total * weight_SINR
         
     #if (len(weight_SINR_Total) > len(weight_QoS_Total)):
     if (weight_SINR_Total > weight_QoS_Total):
