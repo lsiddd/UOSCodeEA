@@ -170,8 +170,14 @@ Ptr<PacketSink> sink;                         /* Pointer to the packet sink appl
 vector<uint64_t> lastTotalRx;                     /* The value of the last total received bytes */
 NodeContainer ueNodes;
 
+std::vector<Vector> enb_positions {
+	Vector( 3000, 1000 , enBHeight),
+	Vector( 1000, 3000 , enBHeight),
+	Vector( 1000, 1000 , enBHeight),
+	Vector( 3000, 3000 , enBHeight)
+	};
 
-		NS_LOG_COMPONENT_DEFINE ("UOSLTE");
+NS_LOG_COMPONENT_DEFINE ("UOSLTE");
 
 std::string exec(const char* cmd);
 
@@ -1426,6 +1432,63 @@ bool IsTopLevelSourceDir (std::string path)
 	return haveVersion && haveLicense;
 }
 
+void setup_uav_mobility(NodeContainer &uavs){
+	uint16_t uavN = uavs.GetN();
+	uint16_t start = 0;
+	uint16_t end = 0;
+	double distance_from_enbx = 50;
+	double distance_from_enby = 50;
+	uint8_t uav_per_enb;
+	uint8_t cols, rows;
+	double deltax, deltay;
+	Vector enbPos;
+
+	MobilityHelper mobilityUABS;
+	mobilityUABS.SetMobilityModel ("ns3::ConstantVelocityMobilityModel");
+
+	ObjectFactory posAllocFactory;
+	posAllocFactory.SetTypeId(GridPositionAllocator::GetTypeId());
+
+	for(int i=0; i<numberOfeNodeBNodes; ++i) {
+		end += uavN/numberOfeNodeBNodes;
+		if(i < uavN%numberOfeNodeBNodes) {
+			end++;
+		}
+		
+		uav_per_enb = end - start;
+		cols = (uint8_t) std::ceil(std::sqrt(uav_per_enb));
+		rows = (uint8_t) std::ceil((float) uav_per_enb / cols);
+		
+		if(cols==1) {
+			deltax = 0;
+			distance_from_enbx = 0;
+		} else {
+			deltax = (distance_from_enbx * 2) / (cols - 1);
+		}
+	
+		if(rows==1) {
+			deltay = 0;
+			distance_from_enby = 0;
+		} else {
+			deltay = (distance_from_enby * 2) / (rows - 1);
+		}
+	
+		enbPos = enb_positions[i];
+		posAllocFactory.Set("GridWidth", UintegerValue(cols));
+		posAllocFactory.Set("DeltaX", DoubleValue(deltax));
+		posAllocFactory.Set("DeltaY", DoubleValue(deltay));
+		posAllocFactory.Set("MinX", DoubleValue(enbPos.x - distance_from_enbx));
+		posAllocFactory.Set("MinY", DoubleValue(enbPos.y - distance_from_enby));
+		posAllocFactory.Set("Z", DoubleValue(enbPos.z));
+		mobilityUABS.SetPositionAllocator(posAllocFactory.Create<GridPositionAllocator>());
+
+		for(unsigned int j=start; j<end; j++){
+			mobilityUABS.Install(uavs.Get(j));
+		}
+		start = end;
+	}
+}
+
 std::string GetTopLevelSourceDir (void)
 {
 	std::string self = SystemPath::FindSelfDirectory ();
@@ -1673,11 +1736,9 @@ std::string GetTopLevelSourceDir (void)
 		// }  }
 
 		Ptr<ListPositionAllocator> positionAlloc2 = CreateObject<ListPositionAllocator> ();
-		positionAlloc2->Add (Vector( 3000, 1000 , enBHeight));
-		positionAlloc2->Add (Vector( 1000, 3000 , enBHeight));
-		positionAlloc2->Add (Vector( 1000, 1000 , enBHeight));
-		positionAlloc2->Add (Vector( 3000, 3000 , enBHeight));
-
+		for(Vector pos : enb_positions) {
+			positionAlloc2->Add (pos);
+		}
 		MobilityHelper mobilityenB;
 		mobilityenB.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 		mobilityenB.SetPositionAllocator(positionAlloc2);
@@ -1785,37 +1846,9 @@ std::string GetTopLevelSourceDir (void)
 		{
 			NS_LOG_UNCOND("Installing Mobility Model in UABSs...");
 			// ----------------Install Mobility Model UABS--------------------//
-
-			Ptr<ListPositionAllocator> positionAllocUABS = CreateObject<ListPositionAllocator> ();
-			positionAllocUABS->Add (Vector( 950, 950 , enBHeight)); //1
-			positionAllocUABS->Add (Vector( 3050, 950 , enBHeight)); //2
-			positionAllocUABS->Add (Vector( 950, 3050 , enBHeight)); //3
-			positionAllocUABS->Add (Vector( 3050, 3050 , enBHeight)); //4
-			positionAllocUABS->Add (Vector( 1050, 1050 , enBHeight)); //5
-			positionAllocUABS->Add (Vector( 2950, 1050 , enBHeight)); //6
-			positionAllocUABS->Add (Vector( 1050, 2950 , enBHeight)); //7
-			positionAllocUABS->Add (Vector( 2950, 2950 , enBHeight)); //8
-			// have to add as many os UABS will be used in the simulation, in this example there are 8 UABS available 
-
-			MobilityHelper mobilityUABS;
-			mobilityUABS.SetMobilityModel ("ns3::ConstantVelocityMobilityModel");
-			//mobilityUABS.SetMobilityModel ("ns3::RandomWalk2dMobilityModel", 
-			//                         "Mode", StringValue ("Time"),
-			  //                       "Time", StringValue ("5s"),
-									 //"Speed", StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"),
-				//                     "Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=4.0]"),
-				//		     "Bounds", StringValue ("0|2000|0|2000"));
-			mobilityUABS.SetPositionAllocator(positionAllocUABS);
-			// mobilityUABS.SetPositionAllocator ("ns3::GridPositionAllocator",
-			// 								"MinX", DoubleValue (0.0),
-			// 								"MinY", DoubleValue (0.0),
-			// 								"DeltaX", DoubleValue (m_distance),
-			// 								"DeltaY", DoubleValue (m_distance),
-			// 								"GridWidth", UintegerValue (3),
-			// 								"LayoutType", StringValue ("RowFirst"));
-
-			mobilityUABS.Install(UABSNodes);
+			setup_uav_mobility(UABSNodes);
 			BuildingsHelper::Install (UABSNodes);
+
 			UABSTxPower = 0;
 			Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (UABSTxPower));
 			Config::SetDefault( "ns3::LteEnbPhy::NoiseFigure", DoubleValue(5) );    // Default 5
