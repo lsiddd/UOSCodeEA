@@ -126,10 +126,6 @@ string GetClusterCoordinates;
 matriz<double> Arr_Througput; // [USUARIO ID][Valor de Throughput X]
 matriz<double> Arr_Delay; // [USUARIO ID][Valor de Delay X]
 matriz<double> Arr_PacketLoss; // [USUARIO ID][Valor de Packet Loss X]
-double PDR=0.0; //Packets Delay Rate
-double PLR=0.0; //Packets Lost Rate
-double APD=0.0;	//Average Packet Delay
-double Avg_Jitter=0.0;	//Average Packet Jitter
 bool UABSFlag;
 bool UABS_On_Flag = false;
 vector<bool> UABS_Energy_ON; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
@@ -905,6 +901,10 @@ std::vector<Vector2D> do_predictions(){
 		void ThroughputCalc(Ptr<FlowMonitor> monitor, Ptr<Ipv4FlowClassifier> classifier,Gnuplot2dDataset datasetThroughput,Gnuplot2dDataset datasetPDR,Gnuplot2dDataset datasetPLR, Gnuplot2dDataset datasetAPD)
 		{
 			static int tp_num = 0; //variable to count the number of throughput measurements
+			double PDR=0.0; //Packets Delay Rate
+			double PLR=0.0; //Packets Lost Rate
+			double APD=0.0; //Average Packet Delay
+			double Avg_Jitter=0.0; //Average Packet Jitter
 			uint32_t txPacketsum = 0; 
 			uint32_t rxPacketsum = 0; 
 			uint32_t DropPacketsum = 0; 
@@ -912,6 +912,7 @@ std::vector<Vector2D> do_predictions(){
 			double Delaysum = 0; 
 			double Jittersum = 0;
 			double Throughput=0.0;
+			double totalThroughput=0.0;
 			Time now = Simulator::Now (); 
 			monitor->CheckForLostPackets ();
 			std::stringstream uenodes_TP;
@@ -932,7 +933,6 @@ std::vector<Vector2D> do_predictions(){
 			double Window_avg_Throughput[numberOfUENodes];
 			double Window_avg_Delay[numberOfUENodes];
 			double Window_avg_Packetloss[numberOfUENodes];
-			double Total_UE_TP_Avg = 0;
 			double Total_UE_Del_Avg = 0;
 			double Total_UE_PL_Avg = 0;
 
@@ -954,6 +954,7 @@ std::vector<Vector2D> do_predictions(){
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = rxPacketsum ? (Delaysum / rxPacketsum) : 0; // APD = (Delaysum / txPacketsum); //to check
 				Avg_Jitter = (Jittersum / rxPacketsum);
+				Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 				
 				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
 				{
@@ -992,9 +993,7 @@ std::vector<Vector2D> do_predictions(){
 							}
 							//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
 							if (i == (ueNodes.GetN()-1))
-							{	
-								Total_UE_TP_Avg = sumTP / numberOfUENodes;
-								//std::cout << now.GetSeconds () << "s Total Throughput Average: "<< Total_UE_TP_Avg << std::endl;
+							{
 								Total_UE_Del_Avg = sumDel / numberOfUENodes;
 								//std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
 
@@ -1010,11 +1009,9 @@ std::vector<Vector2D> do_predictions(){
 									Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
 									NS_ASSERT (UEposition != 0);
 									Vector pos = UEposition->GetPosition ();
-								
-									//if ( (Window_avg_Throughput[i] < Total_UE_TP_Avg || Window_avg_Delay[i] > Total_UE_Del_Avg || Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
+									
 									if ( ( Window_avg_Delay[i] > Total_UE_Del_Avg * 1.1) || ((100 - Window_avg_Packetloss[i]) < (100 - Total_UE_PL_Avg) * 0.95)) // //|| Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
 									{
-										 // NS_LOG_UNCOND("Compare UE_TP vs Avg TP: "<< std::to_string(Window_avg_Throughput[i]) << " < " << std::to_string(Total_UE_TP_Avg));
 										// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
 										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
 										if(enablePrediction && now.GetSeconds() >= 10){
@@ -1034,22 +1031,20 @@ std::vector<Vector2D> do_predictions(){
 					}
 				}
 				
-				
 				// Save in datasets to later plot the results. If graphtype is True, plots will be based in Flows, if False will be based in time (seconds)
 				if (graphType == true){
-					Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 					datasetThroughput.Add((double)iter->first,(double) Throughput);
 					datasetPDR.Add((double)iter->first,(double) PDR);
 					datasetPLR.Add((double)iter->first,(double) PLR);
 					datasetAPD.Add((double)iter->first,(double) APD);
 					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
 				} else {
-					Throughput += ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
+					totalThroughput += Throughput;
 				}
 			}
 			if (graphType == false)
 			{
-				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) Throughput);
+				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) totalThroughput);
 				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
 				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
 				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
