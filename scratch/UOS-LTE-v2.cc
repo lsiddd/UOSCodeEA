@@ -89,6 +89,7 @@
 #include <ns3/psc-module.h>
 #include "ns3/li-ion-energy-source.h"
 
+#include <unordered_map>
 #include <vector>
 #include "matriz.h"
 
@@ -120,12 +121,12 @@ matriz<double> ue_info; //UE Connection Status Register Matrix
 vector<double> ue_imsi_sinr; //UE Connection Status Register Matrix
 vector<double> ue_imsi_sinr_linear;
 vector<double> ue_info_cellid;
-vector<Ipv4Address> ue_IP_Address;
 int minSINR = 0; //  minimum SINR to be considered to clusterization
 string GetClusterCoordinates;
 matriz<double> Arr_Througput; // [USUARIO ID][Valor de Throughput X]
 matriz<double> Arr_Delay; // [USUARIO ID][Valor de Delay X]
 matriz<double> Arr_PacketLoss; // [USUARIO ID][Valor de Packet Loss X]
+std::unordered_map<uint32_t, uint16_t> ue_by_ip;
 bool UABSFlag;
 bool UABS_On_Flag = false;
 vector<bool> UABS_Energy_ON; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
@@ -182,7 +183,7 @@ void alloc_arrays(){
 	ue_imsi_sinr.resize (numberOfUENodes);
 	ue_imsi_sinr_linear.resize (numberOfUENodes);
 	ue_info_cellid.resize (numberOfUENodes);
-	ue_IP_Address.resize (numberOfUENodes);
+	ue_by_ip.reserve(numberOfUENodes);
 	Arr_Througput.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Throughput X]
 	Arr_Delay.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Delay X]
 	Arr_PacketLoss.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Packet Loss X]
@@ -905,6 +906,10 @@ std::vector<Vector2D> do_predictions(){
 			double PLR=0.0; //Packets Lost Rate
 			double APD=0.0; //Average Packet Delay
 			double Avg_Jitter=0.0; //Average Packet Jitter
+			double all_users_PDR=0.0;
+			double all_users_PLR=0.0;
+			double all_users_APD=0.0;
+			double all_users_APJ=0.0;
 			uint32_t txPacketsum = 0; 
 			uint32_t rxPacketsum = 0; 
 			uint32_t DropPacketsum = 0; 
@@ -914,7 +919,6 @@ std::vector<Vector2D> do_predictions(){
 			double Throughput=0.0;
 			double totalThroughput=0.0;
 			Time now = Simulator::Now (); 
-			monitor->CheckForLostPackets ();
 			std::stringstream uenodes_TP;
 			uenodes_TP << "UEs_UDP_Throughput";    
 			std::ofstream UE_TP;
@@ -935,7 +939,11 @@ std::vector<Vector2D> do_predictions(){
 			double Window_avg_Packetloss[numberOfUENodes];
 			double Total_UE_Del_Avg = 0;
 			double Total_UE_PL_Avg = 0;
+			double sumTP = 0;
+			double sumDel = 0;
+			double sumPL = 0;
 
+			monitor->CheckForLostPackets ();
 			//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon->GetClassifier ());
 			std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
 
@@ -956,83 +964,40 @@ std::vector<Vector2D> do_predictions(){
 				Avg_Jitter = (Jittersum / rxPacketsum);
 				Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
 				
-				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+
+				if(ue_by_ip.count(t.destinationAddress.Get()) == 0) { // to save just the download throughput (Server --> User)
+					continue; // skip this flow
+				}
+				uint16_t i = ue_by_ip[t.destinationAddress.Get()];
+				//std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
+				
+				Arr_Througput[i][tp_num] = Throughput;
+				Arr_Delay[i][tp_num] = APD;
+				Arr_PacketLoss[i][tp_num] = PLR;
+
+				if (tp_num == 4) //schedule every 4 seconds. This is because we calculate the throughput in a windows of 5 positions to find average throughput of every user.
 				{
-					double sumTP = 0;
-					double sumDel = 0;
-					double sumPL = 0;
-
-					if (ue_IP_Address[i] == t.destinationAddress) // to save just to download throughput (Server --> User)
+					double sumThroughput = 0;
+					double sumDelay = 0;
+					double sumPacketloss = 0;
+					for (uint16_t j = 0; j < 5 ; j++) 
 					{
-						//std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
-						
-						Arr_Througput[i][tp_num] = Throughput;
-						Arr_Delay[i][tp_num] = APD;
-						Arr_PacketLoss[i][tp_num] = PLR;
-
-						if (tp_num == 4) //schedule every 4 seconds. This is because we calculate the throughput in a windows of 5 positions to find average throughput of every user.
-						{
-							for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
-							{
-								double sumThroughput = 0;
-								double sumDelay = 0;
-								double sumPacketloss = 0;
-								for (uint16_t j = 0; j < 5 ; j++) 
-								{
-									sumThroughput += Arr_Througput[i][j]; //sum all the throughputs
-									sumDelay += Arr_Delay[i][j]; //sum all the Delay 
-									sumPacketloss += Arr_PacketLoss[i][j]; //sum all the Packetloss  
-									
-								}
-								Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 UE throughput measurements
-								sumTP += Window_avg_Throughput[i]; // here we sum all the throughputs.
-								Window_avg_Delay[i] = sumDelay / 5; //get the average of the 5 UE Delay measurements
-								sumDel += Window_avg_Delay[i]; // here we sum all the Delay.
-								Window_avg_Packetloss[i] = sumPacketloss / 5; //get the average of the 5 UE Packetloss measurements
-								sumPL += Window_avg_Packetloss[i]; // here we sum all the Packetloss.
-							}
-							//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
-							if (i == (ueNodes.GetN()-1))
-							{
-								Total_UE_Del_Avg = sumDel / numberOfUENodes;
-								//std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
-
-								//std::cout << now.GetSeconds () << "s 1 / Total Delay Average: "<< 1 / Total_UE_Del_Avg << std::endl;
-								
-								Total_UE_PL_Avg = sumPL / numberOfUENodes;
-								//std::cout << now.GetSeconds () << "s Total Packet Loss Average: "<< Total_UE_PL_Avg << std::endl;
-
-								//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
-							
-								for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
-								{
-									Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
-									NS_ASSERT (UEposition != 0);
-									Vector pos = UEposition->GetPosition ();
-									
-									if ( ( Window_avg_Delay[i] > Total_UE_Del_Avg * 1.1) || ((100 - Window_avg_Packetloss[i]) < (100 - Total_UE_PL_Avg) * 0.95)) // //|| Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
-									{
-										// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
-										// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
-										if(enablePrediction && now.GetSeconds() >= 10){
-											coords = predicted_coords[i];
-											UE_TP << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
-											UE_TP_Log << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
-
-										} else {
-											UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
-							
-											UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
-										}
-									}
-								}
-						    }
-						}
+						sumThroughput += Arr_Througput[i][j]; //sum all the throughputs
+						sumDelay += Arr_Delay[i][j]; //sum all the Delay 
+						sumPacketloss += Arr_PacketLoss[i][j]; //sum all the Packetloss  
 					}
+					Window_avg_Throughput[i] = sumThroughput / 5; //get the average of the 5 UE throughput measurements
+					sumTP += Window_avg_Throughput[i]; // here we sum all the throughputs.
+					Window_avg_Delay[i] = sumDelay / 5; //get the average of the 5 UE Delay measurements
+					sumDel += Window_avg_Delay[i]; // here we sum all the Delay.
+					Window_avg_Packetloss[i] = sumPacketloss / 5; //get the average of the 5 UE Packetloss measurements
+					sumPL += Window_avg_Packetloss[i]; // here we sum all the Packetloss.
+					//std::cout << "Avg_Througput["<<i<<"] = "<< Window_avg_Throughput[i] << " Kbps"<<std::endl;
 				}
 				
 				// Save in datasets to later plot the results. If graphtype is True, plots will be based in Flows, if False will be based in time (seconds)
-				if (graphType == true){
+				if (graphType == true)
+				{
 					datasetThroughput.Add((double)iter->first,(double) Throughput);
 					datasetPDR.Add((double)iter->first,(double) PDR);
 					datasetPLR.Add((double)iter->first,(double) PLR);
@@ -1040,22 +1005,63 @@ std::vector<Vector2D> do_predictions(){
 					datasetAvg_Jitter.Add((double)iter->first,(double) Avg_Jitter);
 				} else {
 					totalThroughput += Throughput;
+					all_users_PDR += PDR;
+					all_users_PLR += PLR;
+					all_users_APD += APD;
+					all_users_APJ += Avg_Jitter;
 				}
 			}
+
 			if (graphType == false)
 			{
+				all_users_PDR = all_users_PDR / numberOfUENodes;
+				all_users_PLR = all_users_PLR / numberOfUENodes;
+				all_users_APD = all_users_APD / numberOfUENodes;
+				all_users_APJ = all_users_APJ / numberOfUENodes;
 				datasetThroughput.Add((double)Simulator::Now().GetSeconds(),(double) totalThroughput);
-				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) PDR);
-				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) PLR);
-				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) APD);
-				datasetAvg_Jitter.Add((double)Simulator::Now().GetSeconds(),(double) Avg_Jitter);
+				datasetPDR.Add((double)Simulator::Now().GetSeconds(),(double) all_users_PDR);
+				datasetPLR.Add((double)Simulator::Now().GetSeconds(),(double) all_users_PLR);
+				datasetAPD.Add((double)Simulator::Now().GetSeconds(),(double) all_users_APD);
+				datasetAvg_Jitter.Add((double)Simulator::Now().GetSeconds(),(double) all_users_APJ);
 			}
 			
 			if (tp_num == 4)
 			{
+				Total_UE_Del_Avg = sumDel / numberOfUENodes;
+				//std::cout << now.GetSeconds () << "s Total Delay Average: "<< Total_UE_Del_Avg << std::endl;
+
+				//std::cout << now.GetSeconds () << "s 1 / Total Delay Average: "<< 1 / Total_UE_Del_Avg << std::endl;
+				
+				Total_UE_PL_Avg = sumPL / numberOfUENodes;
+				//std::cout << now.GetSeconds () << "s Total Packet Loss Average: "<< Total_UE_PL_Avg << std::endl;
+
+				//std::cout << now.GetSeconds () << "s 1 / Total Packet Loss Average: "<< 1 / Total_UE_PL_Avg << std::endl;
+				
+				for (uint16_t i = 0; i < ueNodes.GetN() ; i++)
+				{
+					Ptr<MobilityModel> UEposition = ueNodes.Get(i)->GetObject<MobilityModel> ();
+					NS_ASSERT (UEposition != 0);
+					Vector pos = UEposition->GetPosition ();
+					
+					if ( ( Window_avg_Delay[i] > Total_UE_Del_Avg * 1.1) || ((100 - Window_avg_Packetloss[i]) < (100 - Total_UE_PL_Avg) * 0.95)) // //|| Window_avg_Packetloss[i] >= Total_UE_PL_Avg )) // puede analizar poniendo que si esta por encima de 50% de perdida de paquetes lo coloco en la lista.
+					{
+						// NS_LOG_UNCOND("Compare UE_Del vs Avg Delay: "<< std::to_string(Window_avg_Delay[i]) << " > " << std::to_string(Total_UE_Del_Avg));
+						// NS_LOG_UNCOND("Compare UE_PL vs Avg PL: "<< std::to_string(Window_avg_Packetloss[i]) << " >= " << std::to_string(Total_UE_PL_Avg));
+						if(enablePrediction && now.GetSeconds() >= 10)
+						{
+							coords = predicted_coords[i];
+							UE_TP << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+							UE_TP_Log << now.GetSeconds () << "," << i << "," << coords.x << "," << coords.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+						} else {
+							UE_TP << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+						
+							UE_TP_Log << now.GetSeconds () << "," << i << "," << pos.x << "," << pos.y << "," << pos.z << "," << Window_avg_Throughput[i] << "," << (Window_avg_Delay[i] ? (1 / Window_avg_Delay[i]) : 0) << "," << (Window_avg_Packetloss[i] ? (1 / Window_avg_Packetloss[i]) : 0) << std::endl;
+						}
+					}
+				}
 				tp_num = 0;
 				UE_TP.close();
-			}	
+			}
 			else tp_num++;
 			
 			//monitor->SerializeToXmlFile("UOSLTE-FlowMonitor.xml",true,true);
@@ -1928,6 +1934,7 @@ std::string GetTopLevelSourceDir (void)
 	  // ueIpIface = epcHelper->AssignUeIpv4Address (NetDeviceContainer (ueLteDevs));
 	  
 	  // Assign IP address to UEs, and install applications
+	  Ipv4Address ue_IP_Address;
 	  for (uint16_t i = 0; i < ueNodes.GetN(); i++) 
 	  {
 		Ptr<Node> ueNode = ueNodes.Get(i);
@@ -1936,7 +1943,8 @@ std::string GetTopLevelSourceDir (void)
 			Ptr<Ipv4StaticRouting> ueStaticRouting = ipv4RoutingHelper.GetStaticRouting (ueNode->GetObject<Ipv4> ());
 			ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
 			
-			ue_IP_Address[i] = ueNode->GetObject<Ipv4>()->GetAddress(1,0).GetLocal();
+			ue_IP_Address = ueNode->GetObject<Ipv4>()->GetAddress(1,0).GetLocal();
+			ue_by_ip[ue_IP_Address.Get()] = i;
 			//std::cout << "Node " << i << " "<< ue_IP_Address[i] <<std::endl;
 			//std::cout << "Node " << i << " "<<ueNode->GetObject<Ipv4>()->GetAddress(1,0).GetLocal() <<std::endl;
 	  }
