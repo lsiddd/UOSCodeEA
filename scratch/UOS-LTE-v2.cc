@@ -127,6 +127,7 @@ matriz<double> Arr_Througput; // [USUARIO ID][Valor de Throughput X]
 matriz<double> Arr_Delay; // [USUARIO ID][Valor de Delay X]
 matriz<double> Arr_PacketLoss; // [USUARIO ID][Valor de Packet Loss X]
 std::unordered_map<uint32_t, uint16_t> ue_by_ip;
+vector<uint64_t> prev_rx_bytes;
 bool UABSFlag;
 bool UABS_On_Flag = false;
 vector<bool> UABS_Energy_ON; //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
@@ -163,8 +164,6 @@ double INITIAL_Batt_Voltage = 22.8; //https://www.genstattu.com/ta-10c-25000-6s1
 //std::string traceFile = "scratch/UOS_UE_Scenario_5.ns_movements";
 //std::string traceFile;
 
-Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
-vector<uint64_t> lastTotalRx;                     /* The value of the last total received bytes */
 NodeContainer ueNodes;
 
 std::vector<Vector> enb_positions {
@@ -188,7 +187,7 @@ void alloc_arrays(){
 	Arr_Delay.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Delay X]
 	Arr_PacketLoss.setDimensions (numberOfUENodes, 5, 0); // [USUARIO ID][Valor de Packet Loss X]
 	UABS_Energy_ON.assign (numberOfUABS, false); //Flag to indicate when to set energy mod (Batt) in UABS ON or OFF. 
-	lastTotalRx.assign (numberOfUENodes, 0);  /* The value of the last total received bytes */
+	prev_rx_bytes.assign (numberOfUENodes, 0);  /* The value of the last total received bytes */
 }
 
 		void RemainingEnergy (double oldValue, double remainingEnergy)
@@ -951,6 +950,11 @@ std::vector<Vector2D> do_predictions(){
 			{
 				Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (iter->first);
 
+				if(ue_by_ip.count(t.destinationAddress.Get()) == 0) { // to save just the download throughput (Server --> User)
+					continue; // skip this flow
+				}
+				uint16_t i = ue_by_ip[t.destinationAddress.Get()];
+				
 				txPacketsum += iter->second.txPackets;
 				rxPacketsum += iter->second.rxPackets;
 				LostPacketsum = txPacketsum-rxPacketsum;
@@ -962,13 +966,9 @@ std::vector<Vector2D> do_predictions(){
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = rxPacketsum ? (Delaysum / rxPacketsum) : 0; // APD = (Delaysum / txPacketsum); //to check
 				Avg_Jitter = (Jittersum / rxPacketsum);
-				Throughput = ((iter->second.rxBytes * 8.0) /(iter->second.timeLastRxPacket.GetSeconds()-iter->second.timeFirstTxPacket.GetSeconds()))/ 1024;// / 1024;
-				
+				Throughput = ((iter->second.rxBytes - prev_rx_bytes[i]) * 8.0 ) / 1024;// / 1024;
+				prev_rx_bytes[i] = iter->second.rxBytes;
 
-				if(ue_by_ip.count(t.destinationAddress.Get()) == 0) { // to save just the download throughput (Server --> User)
-					continue; // skip this flow
-				}
-				uint16_t i = ue_by_ip[t.destinationAddress.Get()];
 				//std::cout << "Node "<< i <<" Source Address: "<< t.sourceAddress << " Dest Address: "<< t.destinationAddress << " FM_Throughput: "<<  Throughput << " Kbps"<< std::endl;
 				
 				Arr_Througput[i][tp_num] = Throughput;
