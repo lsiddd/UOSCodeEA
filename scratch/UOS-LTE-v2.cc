@@ -981,7 +981,7 @@ std::vector<Vector2D> do_predictions(){
 				PDR = ((rxPacketsum * 100) / txPacketsum);
 				PLR = ((LostPacketsum * 100) / txPacketsum); //PLR = ((LostPacketsum * 100) / (txPacketsum));
 				APD = rxPacketsum ? (Delaysum / rxPacketsum) : 0; // APD = (Delaysum / txPacketsum); //to check
-				Avg_Jitter = (Jittersum / rxPacketsum);
+				Avg_Jitter = rxPacketsum ? (Jittersum / rxPacketsum) : 0;
 				Throughput = ((iter->second.rxBytes - prev_rx_bytes[i]) * 8.0 ) / 1024;// / 1024;
 				prev_rx_bytes[i] = iter->second.rxBytes;
 
