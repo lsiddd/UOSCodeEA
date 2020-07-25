@@ -219,7 +219,8 @@ with open('UEs_UDP_Throughput') as fUE_QoS:
 #----------enBs--------------#
 x,y,z, cellid= data1.T
 if plot:
-    plt.scatter(x,y,c="blue", label= "enBs", s=15**2)
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.scatter(x,y,c="blue", label= "TBS", s=13**2)
 
 #----------Total LTE Users--------------#
 x1,y1,z1= data2.T
@@ -229,15 +230,13 @@ if plot:
 #----------UABS--------------#
 x2,y2,z2, cellid3= data3.T
 if plot:
-    plt.scatter(x2,y2,c="yellow", label= "UABSs", s=10**2)
+    plt.scatter(x2,y2,c="yellow", label= "UAV-BS", s=9**2)
 UABSCoordinates = np.array(list(zip(x2,y2)))
 
 #----------Users with Low SINR--------------#
 if (data4.size != 0):
     x3,y3,z3, sinr, imsi, cellid4= data4.T
     X = np.array(list(zip(x3,y3)))
-    if plot:
-        plt.scatter(x3,y3,c="red", label= "UEsLowSINR")
 
 #----------UABS Energy--------------#
 #if (data5.size != 0):
@@ -255,10 +254,15 @@ if (data6.size != 0):
     simulation_time = int(time_UE[0])
 
 if plot:
+    if len(x4) > 0:
+        plt.scatter(x4,y4,c="orange", label= "UEsLowQOS")
+    if len(x3) > 0:
+        plt.scatter(x3,y3,c="red", label= "UEsLowSINR")
+
     plt.xlabel('x (meters)', fontsize = 16)
     plt.ylabel('y (meters)', fontsize = 16)
-    plt.legend( loc='upper right',bbox_to_anchor=(1.1, 1.05),
-              fancybox=True, shadow=True, ncol=1)
+    plt.legend( loc='upper center',bbox_to_anchor=(0.5, 1.16),
+              fancybox=True, shadow=True, ncol=3)
     plt.savefig("Graph_Initial_UOS_Scenario {}s.pdf".format(simulation_time), format='pdf', dpi=1000)
     plt.show()
 
